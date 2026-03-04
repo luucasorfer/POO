@@ -485,10 +485,7 @@
 
       <div class="modules-grid">
         <!-- Unidade 1 — Disponível -->
-        <div
-          class="module-card available strip-blue"
-          onclick="window.location.href = 'unidade01_Fundamentos.html'"
-        >
+        <div class="module-card locked strip-blue">
           <div class="card-header">
             <div
               class="card-icon"
@@ -503,7 +500,12 @@
               <span class="card-num">UNIDADE 01</span>
               <span class="card-title">Introdução à Linguagem Java</span>
             </div>
-            <span class="card-status"><span class="dot-available"></span></span>
+            <span class="card-status"
+              ><i
+                class="fas fa-lock"
+                style="color: var(--text-muted); font-size: 0.8rem"
+              ></i
+            ></span>
           </div>
           <div class="card-body">
             <p class="card-desc">
@@ -514,8 +516,6 @@
           </div>
           <div class="card-footer">
             <div class="card-tags">
-              <span class="tag tag-blue">if / switch</span>
-              <span class="tag tag-blue">for / while</span>
               <span class="tag tag-green">JDK + Eclipse</span>
             </div>
             <i class="fas fa-arrow-right card-arrow"></i>
@@ -566,7 +566,10 @@
         </div>
 
         <!-- Unidade 3 -->
-        <div class="module-card locked strip-orange">
+        <div
+          class="module-card available strip-orange"
+          onclick="window.location.href = 'unidade01_Fundamentos.html'"
+        >
           <div class="card-header">
             <div
               class="card-icon"
@@ -581,12 +584,7 @@
               <span class="card-num">UNIDADE 03</span>
               <span class="card-title">Classes, Objetos e Construtores</span>
             </div>
-            <span class="card-status"
-              ><i
-                class="fas fa-lock"
-                style="color: var(--text-muted); font-size: 0.8rem"
-              ></i
-            ></span>
+            <span class="card-status"><span class="dot-available"></span></span>
           </div>
           <div class="card-body">
             <p class="card-desc">
