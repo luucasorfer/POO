@@ -1,12 +1,18 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Programação Orientada a Objetos em Java</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Sora:wght@300;400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <style>
       :root {
         --bg: #0d1117;
@@ -21,19 +27,23 @@
         --text-muted: #8b949e;
       }
 
-      * { box-sizing: border-box; margin: 0; padding: 0; }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
 
       body {
         background: var(--bg);
         color: var(--text);
-        font-family: 'Sora', sans-serif;
+        font-family: "Sora", sans-serif;
         min-height: 100vh;
         overflow-x: hidden;
       }
 
       /* Animated grid background */
       body::before {
-        content: '';
+        content: "";
         position: fixed;
         inset: 0;
         background-image:
@@ -50,7 +60,11 @@
         z-index: 1;
         padding: 3rem 2rem 2rem;
         border-bottom: 1px solid var(--border);
-        background: linear-gradient(180deg, #0d1117 0%, rgba(13,17,23,0.8) 100%);
+        background: linear-gradient(
+          180deg,
+          #0d1117 0%,
+          rgba(13, 17, 23, 0.8) 100%
+        );
       }
 
       .header-inner {
@@ -65,10 +79,10 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        background: rgba(247,129,102,0.12);
-        border: 1px solid rgba(247,129,102,0.3);
+        background: rgba(247, 129, 102, 0.12);
+        border: 1px solid rgba(247, 129, 102, 0.3);
         color: var(--accent);
-        font-family: 'JetBrains Mono', monospace;
+        font-family: "JetBrains Mono", monospace;
         font-size: 0.75rem;
         font-weight: 600;
         padding: 0.3rem 0.8rem;
@@ -111,10 +125,13 @@
         gap: 0.4rem;
         font-size: 0.8rem;
         color: var(--text-muted);
-        font-family: 'JetBrains Mono', monospace;
+        font-family: "JetBrains Mono", monospace;
       }
 
-      .stat i { color: var(--accent3); font-size: 0.75rem; }
+      .stat i {
+        color: var(--accent3);
+        font-size: 0.75rem;
+      }
 
       /* Main */
       main {
@@ -126,7 +143,7 @@
       }
 
       .section-title {
-        font-family: 'JetBrains Mono', monospace;
+        font-family: "JetBrains Mono", monospace;
         font-size: 0.7rem;
         font-weight: 700;
         letter-spacing: 0.15em;
@@ -139,7 +156,7 @@
       }
 
       .section-title::after {
-        content: '';
+        content: "";
         flex: 1;
         height: 1px;
         background: var(--border);
@@ -159,14 +176,17 @@
         border-radius: 10px;
         overflow: hidden;
         cursor: pointer;
-        transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        transition:
+          transform 0.2s ease,
+          border-color 0.2s ease,
+          box-shadow 0.2s ease;
         position: relative;
       }
 
       .module-card:hover {
         transform: translateY(-3px);
         border-color: var(--accent2);
-        box-shadow: 0 8px 30px rgba(121,192,255,0.08);
+        box-shadow: 0 8px 30px rgba(121, 192, 255, 0.08);
       }
 
       .module-card.available:hover .card-arrow {
@@ -211,7 +231,7 @@
       }
 
       .card-num {
-        font-family: 'JetBrains Mono', monospace;
+        font-family: "JetBrains Mono", monospace;
         font-size: 0.65rem;
         color: var(--text-muted);
         font-weight: 600;
@@ -256,7 +276,7 @@
       }
 
       .tag {
-        font-family: 'JetBrains Mono', monospace;
+        font-family: "JetBrains Mono", monospace;
         font-size: 0.65rem;
         padding: 0.2rem 0.55rem;
         border-radius: 4px;
@@ -264,11 +284,31 @@
         letter-spacing: 0.03em;
       }
 
-      .tag-blue { background: rgba(121,192,255,0.12); color: var(--accent2); border: 1px solid rgba(121,192,255,0.2); }
-      .tag-green { background: rgba(86,211,100,0.12); color: var(--accent3); border: 1px solid rgba(86,211,100,0.2); }
-      .tag-orange { background: rgba(247,129,102,0.12); color: var(--accent); border: 1px solid rgba(247,129,102,0.2); }
-      .tag-yellow { background: rgba(227,179,65,0.12); color: var(--accent4); border: 1px solid rgba(227,179,65,0.2); }
-      .tag-gray { background: rgba(139,148,158,0.12); color: var(--text-muted); border: 1px solid rgba(139,148,158,0.2); }
+      .tag-blue {
+        background: rgba(121, 192, 255, 0.12);
+        color: var(--accent2);
+        border: 1px solid rgba(121, 192, 255, 0.2);
+      }
+      .tag-green {
+        background: rgba(86, 211, 100, 0.12);
+        color: var(--accent3);
+        border: 1px solid rgba(86, 211, 100, 0.2);
+      }
+      .tag-orange {
+        background: rgba(247, 129, 102, 0.12);
+        color: var(--accent);
+        border: 1px solid rgba(247, 129, 102, 0.2);
+      }
+      .tag-yellow {
+        background: rgba(227, 179, 65, 0.12);
+        color: var(--accent4);
+        border: 1px solid rgba(227, 179, 65, 0.2);
+      }
+      .tag-gray {
+        background: rgba(139, 148, 158, 0.12);
+        color: var(--text-muted);
+        border: 1px solid rgba(139, 148, 158, 0.2);
+      }
 
       .card-arrow {
         color: var(--text-muted);
@@ -278,7 +318,7 @@
 
       /* Color strip on left */
       .module-card::before {
-        content: '';
+        content: "";
         position: absolute;
         left: 0;
         top: 0;
@@ -287,17 +327,29 @@
         border-radius: 10px 0 0 10px;
       }
 
-      .strip-blue::before { background: var(--accent2); }
-      .strip-green::before { background: var(--accent3); }
-      .strip-orange::before { background: var(--accent); }
-      .strip-yellow::before { background: var(--accent4); }
-      .strip-purple::before { background: #bc8cff; }
-      .strip-pink::before { background: #ff7eb3; }
+      .strip-blue::before {
+        background: var(--accent2);
+      }
+      .strip-green::before {
+        background: var(--accent3);
+      }
+      .strip-orange::before {
+        background: var(--accent);
+      }
+      .strip-yellow::before {
+        background: var(--accent4);
+      }
+      .strip-purple::before {
+        background: #bc8cff;
+      }
+      .strip-pink::before {
+        background: #ff7eb3;
+      }
 
       /* Info banner */
       .info-banner {
-        background: rgba(121,192,255,0.06);
-        border: 1px solid rgba(121,192,255,0.2);
+        background: rgba(121, 192, 255, 0.06);
+        border: 1px solid rgba(121, 192, 255, 0.2);
         border-radius: 10px;
         padding: 1.2rem 1.6rem;
         display: flex;
@@ -318,7 +370,9 @@
         line-height: 1.6;
       }
 
-      .info-banner strong { color: var(--text); }
+      .info-banner strong {
+        color: var(--text);
+      }
 
       /* Footer */
       footer {
@@ -329,10 +383,12 @@
         text-align: center;
         color: var(--text-muted);
         font-size: 0.78rem;
-        font-family: 'JetBrains Mono', monospace;
+        font-family: "JetBrains Mono", monospace;
       }
 
-      footer span { color: var(--accent); }
+      footer span {
+        color: var(--accent);
+      }
 
       /* Available pulsing dot */
       .dot-available {
@@ -345,21 +401,42 @@
       }
 
       @keyframes pulse-dot {
-        0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(86,211,100,0.4); }
-        50% { opacity: 0.8; box-shadow: 0 0 0 5px rgba(86,211,100,0); }
+        0%,
+        100% {
+          opacity: 1;
+          box-shadow: 0 0 0 0 rgba(86, 211, 100, 0.4);
+        }
+        50% {
+          opacity: 0.8;
+          box-shadow: 0 0 0 5px rgba(86, 211, 100, 0);
+        }
       }
 
       /* Fade in on load */
-      .modules-grid { animation: fadeUp 0.5s ease both; }
+      .modules-grid {
+        animation: fadeUp 0.5s ease both;
+      }
       @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(16px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       @media (max-width: 640px) {
-        header { padding: 2rem 1.2rem 1.5rem; }
-        main { padding: 2rem 1.2rem; }
-        .modules-grid { grid-template-columns: 1fr; }
+        header {
+          padding: 2rem 1.2rem 1.5rem;
+        }
+        main {
+          padding: 2rem 1.2rem;
+        }
+        .modules-grid {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
@@ -372,15 +449,20 @@
         </div>
 
         <h1>
-          Programação<br>
+          Programação<br />
           <span class="highlight">Orientada a Objetos</span>
         </h1>
 
-        <p class="subtitle">Guia completo de POO em Java — conceitos, exemplos práticos e exercícios.</p>
+        <p class="subtitle">
+          Guia completo de POO em Java — conceitos, exemplos práticos e
+          exercícios.
+        </p>
 
         <div class="stats-row">
-          <div class="stat"><i class="fas fa-book-open"></i> 12 aulas</div>
-          <div class="stat"><i class="fas fa-check-circle"></i> 1 disponível</div>
+          <div class="stat"><i class="fas fa-book-open"></i> 6 unidades</div>
+          <div class="stat">
+            <i class="fas fa-check-circle"></i> 1 disponível
+          </div>
           <div class="stat"><i class="fas fa-code"></i> Java 17+</div>
         </div>
       </div>
@@ -389,299 +471,317 @@
     <main>
       <div class="info-banner">
         <i class="fas fa-info-circle"></i>
-        <p>As aulas são liberadas progressivamente. <strong>Clique nos cards disponíveis</strong> para acessar o conteúdo completo com exemplos em Java e diagramas UML.</p>
+        <p>
+          As aulas são liberadas progressivamente.
+          <strong>Clique nos cards disponíveis</strong> para acessar o conteúdo
+          completo.
+        </p>
       </div>
 
       <div class="section-title">
         <i class="fas fa-layer-group"></i>
-        Módulos do Curso
+        Aulas do Curso
       </div>
 
       <div class="modules-grid">
-
-        <!-- Aula 1 - Disponível -->
-        <div class="module-card available strip-blue" onclick="window.location.href='aula01_poo.html'">
+        <!-- Unidade 1 — Disponível -->
+        <div
+          class="module-card available strip-blue"
+          onclick="window.location.href = 'unidade01_Fundamentos.html'"
+        >
           <div class="card-header">
-            <div class="card-icon" style="background:rgba(121,192,255,0.12); color:var(--accent2);">
-              <i class="fas fa-lightbulb"></i>
+            <div
+              class="card-icon"
+              style="
+                background: rgba(121, 192, 255, 0.12);
+                color: var(--accent2);
+              "
+            >
+              <i class="fab fa-java"></i>
             </div>
             <div class="card-meta">
-              <span class="card-num">AULA 01</span>
-              <span class="card-title">Introdução à POO em Java</span>
+              <span class="card-num">UNIDADE 01</span>
+              <span class="card-title">Introdução à Linguagem Java</span>
             </div>
             <span class="card-status"><span class="dot-available"></span></span>
           </div>
           <div class="card-body">
-            <p class="card-desc">O que é um objeto, classes, atributos, métodos, construtores e a palavra-chave <code style="font-family:monospace;font-size:0.8em;">this</code>. Primeiro contato com a linguagem Java.</p>
+            <p class="card-desc">
+              Instalação do JDK e Eclipse, estrutura básica de um programa,
+              tipos de dados, variáveis, entrada/saída, operadores, condicionais
+              e repetição.
+            </p>
           </div>
           <div class="card-footer">
             <div class="card-tags">
-              <span class="tag tag-blue">Classes</span>
-              <span class="tag tag-blue">Objetos</span>
-              <span class="tag tag-green">UML</span>
+              <span class="tag tag-blue">if / switch</span>
+              <span class="tag tag-blue">for / while</span>
+              <span class="tag tag-green">JDK + Eclipse</span>
             </div>
             <i class="fas fa-arrow-right card-arrow"></i>
           </div>
         </div>
 
-        <!-- Aula 2 -->
-        <div class="module-card locked strip-orange">
-          <div class="card-header">
-            <div class="card-icon" style="background:rgba(247,129,102,0.12); color:var(--accent);">
-              <i class="fas fa-lock"></i>
-            </div>
-            <div class="card-meta">
-              <span class="card-num">AULA 02</span>
-              <span class="card-title">Encapsulamento</span>
-            </div>
-            <span class="card-status"><i class="fas fa-lock" style="color:var(--text-muted);font-size:0.8rem;"></i></span>
-          </div>
-          <div class="card-body">
-            <p class="card-desc">Modificadores de acesso, getters, setters e boas práticas de encapsulamento de dados.</p>
-          </div>
-          <div class="card-footer">
-            <div class="card-tags">
-              <span class="tag tag-orange">private</span>
-              <span class="tag tag-orange">public</span>
-              <span class="tag tag-gray">Em breve</span>
-            </div>
-            <i class="fas fa-lock card-arrow" style="color:var(--text-muted);"></i>
-          </div>
-        </div>
-
-        <!-- Aula 3 -->
+        <!-- Unidade 2 -->
         <div class="module-card locked strip-green">
           <div class="card-header">
-            <div class="card-icon" style="background:rgba(86,211,100,0.12); color:var(--accent3);">
+            <div
+              class="card-icon"
+              style="
+                background: rgba(86, 211, 100, 0.12);
+                color: var(--accent3);
+              "
+            >
               <i class="fas fa-lock"></i>
             </div>
             <div class="card-meta">
-              <span class="card-num">AULA 03</span>
-              <span class="card-title">Herança</span>
+              <span class="card-num">UNIDADE 02</span>
+              <span class="card-title">Métodos e Organização do Código</span>
             </div>
-            <span class="card-status"><i class="fas fa-lock" style="color:var(--text-muted);font-size:0.8rem;"></i></span>
+            <span class="card-status"
+              ><i
+                class="fas fa-lock"
+                style="color: var(--text-muted); font-size: 0.8rem"
+              ></i
+            ></span>
           </div>
           <div class="card-body">
-            <p class="card-desc">Reutilização de código com herança, palavra-chave <code style="font-family:monospace;font-size:0.8em;">extends</code> e sobrescrita de métodos.</p>
+            <p class="card-desc">
+              Conceito de métodos, parâmetros e retorno, sobrecarga, escopo de
+              variáveis e boas práticas de organização com exercícios práticos
+              progressivos.
+            </p>
           </div>
           <div class="card-footer">
             <div class="card-tags">
-              <span class="tag tag-green">extends</span>
-              <span class="tag tag-green">super</span>
+              <span class="tag tag-green">Métodos</span>
+              <span class="tag tag-green">Sobrecarga</span>
               <span class="tag tag-gray">Em breve</span>
             </div>
-            <i class="fas fa-lock card-arrow" style="color:var(--text-muted);"></i>
+            <i
+              class="fas fa-lock card-arrow"
+              style="color: var(--text-muted)"
+            ></i>
           </div>
         </div>
 
-        <!-- Aula 4 -->
-        <div class="module-card locked strip-yellow">
-          <div class="card-header">
-            <div class="card-icon" style="background:rgba(227,179,65,0.12); color:var(--accent4);">
-              <i class="fas fa-lock"></i>
-            </div>
-            <div class="card-meta">
-              <span class="card-num">AULA 04</span>
-              <span class="card-title">Polimorfismo</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <p class="card-desc">Sobrecarga, sobrescrita e polimorfismo em tempo de execução. Interfaces e classes abstratas.</p>
-          </div>
-          <div class="card-footer">
-            <div class="card-tags">
-              <span class="tag tag-yellow">abstract</span>
-              <span class="tag tag-yellow">interface</span>
-              <span class="tag tag-gray">Em breve</span>
-            </div>
-            <i class="fas fa-lock card-arrow" style="color:var(--text-muted);"></i>
-          </div>
-        </div>
-
-        <!-- Aula 5 -->
-        <div class="module-card locked strip-purple">
-          <div class="card-header">
-            <div class="card-icon" style="background:rgba(188,140,255,0.12); color:#bc8cff;">
-              <i class="fas fa-lock"></i>
-            </div>
-            <div class="card-meta">
-              <span class="card-num">AULA 05</span>
-              <span class="card-title">Abstração e Interfaces</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <p class="card-desc">Classes abstratas vs. interfaces, contratos de comportamento e design orientado a interfaces.</p>
-          </div>
-          <div class="card-footer">
-            <div class="card-tags">
-              <span class="tag" style="background:rgba(188,140,255,0.12);color:#bc8cff;border:1px solid rgba(188,140,255,0.2);">Interface</span>
-              <span class="tag tag-gray">Em breve</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Aula 6 -->
-        <div class="module-card locked strip-pink">
-          <div class="card-header">
-            <div class="card-icon" style="background:rgba(255,126,179,0.12); color:#ff7eb3;">
-              <i class="fas fa-lock"></i>
-            </div>
-            <div class="card-meta">
-              <span class="card-num">AULA 06</span>
-              <span class="card-title">Relacionamentos entre Classes</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <p class="card-desc">Associação, agregação e composição. Como modelar relações entre objetos em UML e Java.</p>
-          </div>
-          <div class="card-footer">
-            <div class="card-tags">
-              <span class="tag" style="background:rgba(255,126,179,0.12);color:#ff7eb3;border:1px solid rgba(255,126,179,0.2);">UML</span>
-              <span class="tag tag-gray">Em breve</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Aula 7 -->
-        <div class="module-card locked strip-blue">
-          <div class="card-header">
-            <div class="card-icon" style="background:rgba(121,192,255,0.12); color:var(--accent2);">
-              <i class="fas fa-lock"></i>
-            </div>
-            <div class="card-meta">
-              <span class="card-num">AULA 07</span>
-              <span class="card-title">Coleções em Java</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <p class="card-desc">ArrayList, HashMap, List, Set e Map — trabalhando com coleções de objetos.</p>
-          </div>
-          <div class="card-footer">
-            <div class="card-tags">
-              <span class="tag tag-blue">ArrayList</span>
-              <span class="tag tag-blue">HashMap</span>
-              <span class="tag tag-gray">Em breve</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Aula 8 -->
+        <!-- Unidade 3 -->
         <div class="module-card locked strip-orange">
           <div class="card-header">
-            <div class="card-icon" style="background:rgba(247,129,102,0.12); color:var(--accent);">
+            <div
+              class="card-icon"
+              style="
+                background: rgba(247, 129, 102, 0.12);
+                color: var(--accent);
+              "
+            >
               <i class="fas fa-lock"></i>
             </div>
             <div class="card-meta">
-              <span class="card-num">AULA 08</span>
-              <span class="card-title">Tratamento de Exceções</span>
+              <span class="card-num">UNIDADE 03</span>
+              <span class="card-title">Classes, Objetos e Construtores</span>
             </div>
+            <span class="card-status"
+              ><i
+                class="fas fa-lock"
+                style="color: var(--text-muted); font-size: 0.8rem"
+              ></i
+            ></span>
           </div>
           <div class="card-body">
-            <p class="card-desc">Try-catch-finally, criação de exceções customizadas e boas práticas de tratamento de erros.</p>
+            <p class="card-desc">
+              Conceito de classe e objeto, atributos e métodos, criação e uso de
+              objetos, construtores, uso do
+              <code style="font-family: monospace; font-size: 0.8em">this</code>
+              e diagramas simples de classe.
+            </p>
           </div>
           <div class="card-footer">
             <div class="card-tags">
-              <span class="tag tag-orange">try-catch</span>
+              <span class="tag tag-orange">Classes</span>
+              <span class="tag tag-orange">Construtores</span>
+              <span class="tag tag-green">UML</span>
               <span class="tag tag-gray">Em breve</span>
             </div>
+            <i
+              class="fas fa-lock card-arrow"
+              style="color: var(--text-muted)"
+            ></i>
           </div>
         </div>
 
-        <!-- Aula 9 -->
-        <div class="module-card locked strip-green">
-          <div class="card-header">
-            <div class="card-icon" style="background:rgba(86,211,100,0.12); color:var(--accent3);">
-              <i class="fas fa-lock"></i>
-            </div>
-            <div class="card-meta">
-              <span class="card-num">AULA 09</span>
-              <span class="card-title">Generics e Tipos Parametrizados</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <p class="card-desc">Programação genérica, wildcard types e como criar classes e métodos reutilizáveis.</p>
-          </div>
-          <div class="card-footer">
-            <div class="card-tags">
-              <span class="tag tag-green">Generics</span>
-              <span class="tag tag-gray">Em breve</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Aula 10 -->
+        <!-- Unidade 4 -->
         <div class="module-card locked strip-yellow">
           <div class="card-header">
-            <div class="card-icon" style="background:rgba(227,179,65,0.12); color:var(--accent4);">
+            <div
+              class="card-icon"
+              style="
+                background: rgba(227, 179, 65, 0.12);
+                color: var(--accent4);
+              "
+            >
               <i class="fas fa-lock"></i>
             </div>
             <div class="card-meta">
-              <span class="card-num">AULA 10</span>
-              <span class="card-title">Padrões de Projeto (Design Patterns)</span>
+              <span class="card-num">UNIDADE 04</span>
+              <span class="card-title">Encapsulamento e Pacotes</span>
             </div>
+            <span class="card-status"
+              ><i
+                class="fas fa-lock"
+                style="color: var(--text-muted); font-size: 0.8rem"
+              ></i
+            ></span>
           </div>
           <div class="card-body">
-            <p class="card-desc">Singleton, Factory, Observer, Strategy — padrões clássicos aplicados com Java.</p>
+            <p class="card-desc">
+              Modificadores de acesso, getters e setters, encapsulamento na
+              prática, organização em pacotes e refatoração de código.
+            </p>
           </div>
           <div class="card-footer">
             <div class="card-tags">
-              <span class="tag tag-yellow">Singleton</span>
-              <span class="tag tag-yellow">Factory</span>
+              <span class="tag tag-yellow">private</span>
+              <span class="tag tag-yellow">get / set</span>
+              <span class="tag tag-yellow">Pacotes</span>
               <span class="tag tag-gray">Em breve</span>
             </div>
+            <i
+              class="fas fa-lock card-arrow"
+              style="color: var(--text-muted)"
+            ></i>
           </div>
         </div>
 
-        <!-- Aula 11 -->
+        <!-- Unidade 5 -->
         <div class="module-card locked strip-purple">
           <div class="card-header">
-            <div class="card-icon" style="background:rgba(188,140,255,0.12); color:#bc8cff;">
+            <div
+              class="card-icon"
+              style="background: rgba(188, 140, 255, 0.12); color: #bc8cff"
+            >
               <i class="fas fa-lock"></i>
             </div>
             <div class="card-meta">
-              <span class="card-num">AULA 11</span>
-              <span class="card-title">Streams e Programação Funcional</span>
+              <span class="card-num">UNIDADE 05</span>
+              <span class="card-title">Herança, Polimorfismo e Interfaces</span>
             </div>
+            <span class="card-status"
+              ><i
+                class="fas fa-lock"
+                style="color: var(--text-muted); font-size: 0.8rem"
+              ></i
+            ></span>
           </div>
           <div class="card-body">
-            <p class="card-desc">Java Streams, lambdas e method references — integrando paradigmas funcional e orientado a objetos.</p>
+            <p class="card-desc">
+              Herança e reutilização de código, sobrescrita de métodos,
+              polimorfismo, classes abstratas, interfaces e acoplamento
+              dinâmico.
+            </p>
           </div>
           <div class="card-footer">
             <div class="card-tags">
-              <span class="tag" style="background:rgba(188,140,255,0.12);color:#bc8cff;border:1px solid rgba(188,140,255,0.2);">Streams</span>
+              <span
+                class="tag"
+                style="
+                  background: rgba(188, 140, 255, 0.12);
+                  color: #bc8cff;
+                  border: 1px solid rgba(188, 140, 255, 0.2);
+                "
+                >extends</span
+              >
+              <span
+                class="tag"
+                style="
+                  background: rgba(188, 140, 255, 0.12);
+                  color: #bc8cff;
+                  border: 1px solid rgba(188, 140, 255, 0.2);
+                "
+                >abstract</span
+              >
+              <span
+                class="tag"
+                style="
+                  background: rgba(188, 140, 255, 0.12);
+                  color: #bc8cff;
+                  border: 1px solid rgba(188, 140, 255, 0.2);
+                "
+                >interface</span
+              >
               <span class="tag tag-gray">Em breve</span>
             </div>
+            <i
+              class="fas fa-lock card-arrow"
+              style="color: var(--text-muted)"
+            ></i>
           </div>
         </div>
 
-        <!-- Aula 12 -->
+        <!-- Unidade 6 -->
         <div class="module-card locked strip-pink">
           <div class="card-header">
-            <div class="card-icon" style="background:rgba(255,126,179,0.12); color:#ff7eb3;">
+            <div
+              class="card-icon"
+              style="background: rgba(255, 126, 179, 0.12); color: #ff7eb3"
+            >
               <i class="fas fa-lock"></i>
             </div>
             <div class="card-meta">
-              <span class="card-num">AULA 12</span>
-              <span class="card-title">Projeto Final: Sistema Completo</span>
+              <span class="card-num">UNIDADE 06</span>
+              <span class="card-title">Interface Gráfica e Exceções</span>
             </div>
+            <span class="card-status"
+              ><i
+                class="fas fa-lock"
+                style="color: var(--text-muted); font-size: 0.8rem"
+              ></i
+            ></span>
           </div>
           <div class="card-body">
-            <p class="card-desc">Aplicação prática integrando todos os conceitos em um projeto Java com modelagem UML completa.</p>
+            <p class="card-desc">
+              Introdução ao Swing ou JavaFX, componentes básicos, eventos,
+              tratamento de exceções com
+              <code style="font-family: monospace; font-size: 0.8em"
+                >try/catch</code
+              >
+              e criação de uma aplicação completa.
+            </p>
           </div>
           <div class="card-footer">
             <div class="card-tags">
-              <span class="tag" style="background:rgba(255,126,179,0.12);color:#ff7eb3;border:1px solid rgba(255,126,179,0.2);">Projeto</span>
+              <span
+                class="tag"
+                style="
+                  background: rgba(255, 126, 179, 0.12);
+                  color: #ff7eb3;
+                  border: 1px solid rgba(255, 126, 179, 0.2);
+                "
+                >Swing / JavaFX</span
+              >
+              <span
+                class="tag"
+                style="
+                  background: rgba(255, 126, 179, 0.12);
+                  color: #ff7eb3;
+                  border: 1px solid rgba(255, 126, 179, 0.2);
+                "
+                >try-catch</span
+              >
               <span class="tag tag-gray">Em breve</span>
             </div>
+            <i
+              class="fas fa-lock card-arrow"
+              style="color: var(--text-muted)"
+            ></i>
           </div>
         </div>
-
       </div>
     </main>
 
     <footer>
-      Programação Orientada a Objetos em <span>Java</span> · Feito com <span>♥</span>
+      Programação Orientada a Objetos em <span>Java</span> · Feito com
+      <span>♥</span>
     </footer>
-
   </body>
 </html>
