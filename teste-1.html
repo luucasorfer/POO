@@ -1,0 +1,1467 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aula 01 — Introdução à POO em Java</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Sora:wght@300;400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0d1117;
+        --surface: #161b22;
+        --surface2: #1c2330;
+        --surface3: #21262d;
+        --border: #30363d;
+        --accent: #f78166;
+        --accent2: #79c0ff;
+        --accent3: #56d364;
+        --accent4: #e3b341;
+        --accent5: #bc8cff;
+        --text: #e6edf3;
+        --text-muted: #8b949e;
+        --text-dim: #6e7681;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Sora", sans-serif;
+        font-size: 0.95rem;
+        line-height: 1.75;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--border) 1px, transparent 1px),
+          linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.2;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* Header */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(13, 17, 23, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
+        padding: 0.8rem 2rem;
+      }
+
+      .header-nav {
+        max-width: 900px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .back-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.82rem;
+        font-family: "JetBrains Mono", monospace;
+        transition: color 0.15s;
+      }
+
+      .back-link:hover {
+        color: var(--accent2);
+      }
+
+      .lesson-badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        background: rgba(121, 192, 255, 0.1);
+        color: var(--accent2);
+        border: 1px solid rgba(121, 192, 255, 0.25);
+      }
+
+      /* Page layout */
+      .page-wrapper {
+        position: relative;
+        z-index: 1;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 3rem 2rem 5rem;
+      }
+
+      /* Lesson hero */
+      .lesson-hero {
+        margin-bottom: 3rem;
+        padding-bottom: 2.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .lesson-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        color: var(--accent);
+        text-transform: uppercase;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      h1.lesson-title {
+        font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+        margin-bottom: 1rem;
+      }
+
+      h1.lesson-title span {
+        background: linear-gradient(90deg, var(--accent2), var(--accent5));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .lesson-summary {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        max-width: 600px;
+        margin-bottom: 1.5rem;
+      }
+
+      .lesson-meta {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.78rem;
+        font-family: "JetBrains Mono", monospace;
+        color: var(--text-muted);
+      }
+
+      .meta-item i {
+        color: var(--accent3);
+      }
+
+      /* Section headers */
+      h2.section-heading {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 2.5rem 0 1.2rem;
+        padding-bottom: 0.6rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        letter-spacing: -0.02em;
+      }
+
+      h2.section-heading .icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+      }
+
+      h3.subsection {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin: 1.8rem 0 0.8rem;
+        color: var(--text);
+        letter-spacing: -0.01em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      h3.subsection::before {
+        content: "";
+        display: inline-block;
+        width: 3px;
+        height: 1em;
+        background: var(--accent2);
+        border-radius: 2px;
+      }
+
+      h4.sub-sub {
+        font-size: 0.92rem;
+        font-weight: 700;
+        margin: 1.4rem 0 0.6rem;
+        color: var(--accent4);
+        font-family: "JetBrains Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        font-size: 0.75rem;
+      }
+
+      /* Body text */
+      p {
+        margin-bottom: 0.8rem;
+        color: var(--text);
+      }
+
+      /* Lists */
+      ul,
+      ol {
+        padding-left: 1.6rem;
+        margin-bottom: 1rem;
+      }
+
+      li {
+        margin-bottom: 0.3rem;
+        color: var(--text);
+      }
+
+      li strong {
+        color: var(--accent2);
+      }
+
+      /* Code blocks */
+      pre {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow-x: auto;
+        margin: 1.2rem 0;
+        position: relative;
+      }
+
+      .code-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.6rem 1rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface2);
+        border-radius: 10px 10px 0 0;
+      }
+
+      .code-lang {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .code-lang i {
+        color: var(--accent4);
+      }
+
+      .code-dots {
+        display: flex;
+        gap: 0.35rem;
+      }
+
+      .code-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+
+      pre code {
+        display: block;
+        padding: 1.2rem 1.4rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82rem;
+        line-height: 1.8;
+        color: #e6edf3;
+        white-space: pre;
+      }
+
+      /* Syntax highlighting */
+      .kw {
+        color: #ff7b72;
+      } /* keywords: class, void, new, etc */
+      .tp {
+        color: #ffa657;
+      } /* types: String, int, boolean, float */
+      .st {
+        color: #a5d6ff;
+      } /* strings */
+      .cm {
+        color: #8b949e;
+        font-style: italic;
+      } /* comments */
+      .fn {
+        color: #d2a8ff;
+      } /* function/method names */
+      .nm {
+        color: #79c0ff;
+      } /* class names */
+      .vr {
+        color: #e6edf3;
+      } /* variables */
+      .nu {
+        color: #56d364;
+      } /* numbers */
+      .sy {
+        color: #e6edf3;
+      } /* symbols/operators */
+
+      /* Inline code */
+      code.inline {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82em;
+        background: var(--surface3);
+        border: 1px solid var(--border);
+        padding: 0.15em 0.45em;
+        border-radius: 4px;
+        color: var(--accent2);
+      }
+
+      /* Callout boxes */
+      .callout {
+        border-radius: 8px;
+        padding: 1.1rem 1.4rem;
+        margin: 1.4rem 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.9rem;
+        font-size: 0.88rem;
+      }
+
+      .callout i {
+        margin-top: 0.15rem;
+        flex-shrink: 0;
+        font-size: 0.9rem;
+      }
+      .callout-body {
+        flex: 1;
+      }
+      .callout-body p {
+        margin-bottom: 0.3rem;
+      }
+      .callout-body strong {
+        font-weight: 700;
+      }
+
+      .callout-blue {
+        background: rgba(121, 192, 255, 0.07);
+        border: 1px solid rgba(121, 192, 255, 0.2);
+        border-left: 3px solid var(--accent2);
+      }
+      .callout-blue i {
+        color: var(--accent2);
+      }
+
+      .callout-green {
+        background: rgba(86, 211, 100, 0.07);
+        border: 1px solid rgba(86, 211, 100, 0.2);
+        border-left: 3px solid var(--accent3);
+      }
+      .callout-green i {
+        color: var(--accent3);
+      }
+
+      .callout-orange {
+        background: rgba(247, 129, 102, 0.07);
+        border: 1px solid rgba(247, 129, 102, 0.2);
+        border-left: 3px solid var(--accent);
+      }
+      .callout-orange i {
+        color: var(--accent);
+      }
+
+      .callout-yellow {
+        background: rgba(227, 179, 65, 0.07);
+        border: 1px solid rgba(227, 179, 65, 0.2);
+        border-left: 3px solid var(--accent4);
+      }
+      .callout-yellow i {
+        color: var(--accent4);
+      }
+
+      /* Object concept cards */
+      .concept-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 0.8rem;
+        margin: 1.2rem 0;
+      }
+
+      .concept-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem 1.2rem;
+        transition: border-color 0.2s ease;
+      }
+
+      .concept-card:hover {
+        border-color: var(--accent2);
+      }
+
+      .concept-card .concept-icon {
+        font-size: 1.3rem;
+        margin-bottom: 0.6rem;
+      }
+
+      .concept-card h4 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin-bottom: 0.3rem;
+      }
+
+      .concept-card p {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin: 0;
+      }
+
+      /* UML Diagram */
+      .uml-diagram {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 1.2rem 0;
+        font-family: "JetBrains Mono", monospace;
+        display: inline-block;
+        min-width: 280px;
+      }
+
+      .uml-class-name {
+        background: rgba(121, 192, 255, 0.1);
+        border-bottom: 1px solid var(--border);
+        padding: 0.7rem 1.4rem;
+        text-align: center;
+        font-weight: 700;
+        color: var(--accent2);
+        font-size: 0.9rem;
+        letter-spacing: 0.05em;
+      }
+
+      .uml-section {
+        padding: 0.6rem 1.4rem;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.82rem;
+      }
+
+      .uml-section:last-child {
+        border-bottom: none;
+      }
+
+      .uml-row {
+        padding: 0.25rem 0;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .uml-visibility {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .uml-attr-name {
+        color: var(--text);
+      }
+      .uml-type {
+        color: var(--accent4);
+        font-size: 0.78rem;
+      }
+      .uml-method {
+        color: var(--accent3);
+      }
+
+      /* Comparison analogy */
+      .analogy-row {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 1rem;
+        align-items: center;
+        margin: 1.2rem 0;
+      }
+
+      .analogy-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem 1.2rem;
+        text-align: center;
+      }
+
+      .analogy-box .label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-bottom: 0.4rem;
+        color: var(--text-muted);
+      }
+
+      .analogy-box .value {
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: var(--accent2);
+      }
+
+      .analogy-arrow {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+        text-align: center;
+      }
+
+      /* Attributes table */
+      .attr-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.85rem;
+      }
+
+      .attr-table th {
+        text-align: left;
+        padding: 0.6rem 1rem;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.72rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+
+      .attr-table td {
+        padding: 0.6rem 1rem;
+        border: 1px solid var(--border);
+        vertical-align: top;
+      }
+
+      .attr-table tr:hover td {
+        background: var(--surface2);
+      }
+
+      .attr-table .type-badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 0.1rem 0.5rem;
+        border-radius: 4px;
+        background: rgba(227, 179, 65, 0.1);
+        color: var(--accent4);
+        border: 1px solid rgba(227, 179, 65, 0.2);
+      }
+
+      /* Visibility symbols */
+      .sym-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.85rem;
+      }
+
+      .sym-table th {
+        text-align: left;
+        padding: 0.5rem 0.9rem;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+      }
+
+      .sym-table td {
+        padding: 0.55rem 0.9rem;
+        border: 1px solid var(--border);
+      }
+
+      .sym-glyph {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.1rem;
+        font-weight: 700;
+        width: 40px;
+        display: inline-block;
+        text-align: center;
+      }
+
+      /* Back to top */
+      #backToTop {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition:
+          border-color 0.2s,
+          color 0.2s;
+        z-index: 50;
+      }
+
+      #backToTop:hover {
+        border-color: var(--accent2);
+        color: var(--accent2);
+      }
+      #backToTop.visible {
+        display: flex;
+      }
+
+      /* Nav bottom */
+      .lesson-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 4rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .nav-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.7rem 1.2rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.82rem;
+        font-family: "JetBrains Mono", monospace;
+        transition:
+          border-color 0.2s,
+          color 0.2s;
+        cursor: pointer;
+      }
+
+      .nav-btn:hover {
+        border-color: var(--accent2);
+        color: var(--accent2);
+      }
+      .nav-btn.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      @media (max-width: 640px) {
+        .page-wrapper {
+          padding: 2rem 1.2rem 4rem;
+        }
+        header {
+          padding: 0.7rem 1.2rem;
+        }
+        .concept-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+        .analogy-row {
+          grid-template-columns: 1fr;
+        }
+        .analogy-arrow {
+          transform: rotate(90deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="header-nav">
+        <a href="index.html" class="back-link">
+          <i class="fas fa-arrow-left"></i> POO em Java
+        </a>
+      </div>
+    </header>
+
+    <div class="page-wrapper">
+      <!-- Hero -->
+      <div class="lesson-hero">
+        <div class="lesson-num">
+          <i
+            class="fas fa-circle"
+            style="color: var(--accent3); font-size: 0.5rem"
+          ></i>
+          Unidade 01 · Fundamentos
+        </div>
+        <h1 class="lesson-title">
+          Introdução à<br /><span>Programação Orientada a Objetos</span>
+        </h1>
+        <p class="lesson-summary">
+          Conceitos essenciais de POO em Java: objetos, classes, atributos,
+          métodos, construtores e diagramas UML.
+        </p>
+        <div class="lesson-meta">
+          <div class="meta-item"><i class="fab fa-java"></i> Java</div>
+          <div class="meta-item">
+            <i class="fas fa-layer-group"></i> Fundamentos
+          </div>
+          <div class="meta-item"><i class="fas fa-sitemap"></i> UML</div>
+        </div>
+      </div>
+
+      <!-- 1. O que é POO -->
+      <h2 class="section-heading">
+        <span
+          class="icon"
+          style="background: rgba(121, 192, 255, 0.12); color: var(--accent2)"
+          ><i class="fas fa-lightbulb"></i
+        ></span>
+        O que é Programação Orientada a Objetos
+      </h2>
+
+      <p>
+        A <strong>Programação Orientada a Objetos (POO)</strong> é um paradigma
+        de programação que organiza os programas em <strong>objetos</strong>.
+        Esses objetos representam elementos do mundo real dentro de um sistema
+        computacional.
+      </p>
+
+      <p>
+        Em vez de desenvolver programas apenas como uma sequência de comandos, a
+        POO busca <strong>modelar entidades reais</strong>, organizando-as em
+        estruturas chamadas <strong>classes</strong>.
+      </p>
+
+      <div class="concept-grid">
+        <div class="concept-card">
+          <div class="concept-icon">🗂️</div>
+          <h4 style="color: var(--accent2)">Estado</h4>
+          <p>
+            Os valores armazenados em seus atributos em determinado momento.
+          </p>
+        </div>
+        <div class="concept-card">
+          <div class="concept-icon">⚡</div>
+          <h4 style="color: var(--accent3)">Comportamento</h4>
+          <p>
+            As ações que o objeto pode executar, implementadas como métodos.
+          </p>
+        </div>
+        <div class="concept-card">
+          <div class="concept-icon">🔑</div>
+          <h4 style="color: var(--accent4)">Identidade</h4>
+          <p>
+            Cada objeto possui uma identidade única na memória do computador.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout callout-blue">
+        <i class="fas fa-info-circle"></i>
+        <div class="callout-body">
+          <p>
+            <strong>Exemplo no mundo real:</strong> Um
+            <strong>Carro</strong> possui características (cor, marca,
+            velocidade) e comportamentos (acelerar, frear, ligar). A POO permite
+            modelar isso diretamente no código.
+          </p>
+        </div>
+      </div>
+
+      <h3 class="subsection">Vantagens da POO</h3>
+
+      <ul>
+        <li>
+          <strong>Organização do código:</strong> Os programas ficam
+          estruturados em classes.
+        </li>
+        <li>
+          <strong>Reutilização:</strong> Uma classe pode ser reutilizada várias
+          vezes.
+        </li>
+        <li>
+          <strong>Facilidade de manutenção:</strong> Programas organizados em
+          objetos são mais fáceis de modificar.
+        </li>
+        <li>
+          <strong>Modelagem do mundo real:</strong> Permite representar objetos
+          reais dentro do software.
+        </li>
+      </ul>
+
+      <!-- 2. O que é um Objeto -->
+      <h2 class="section-heading">
+        <span
+          class="icon"
+          style="background: rgba(86, 211, 100, 0.12); color: var(--accent3)"
+          ><i class="fas fa-cube"></i
+        ></span>
+        O que é um Objeto
+      </h2>
+
+      <p>
+        Um <strong>objeto</strong> é uma entidade concreta dentro do programa
+        que possui <strong>características e comportamentos</strong>. No mundo
+        real, praticamente tudo pode ser considerado um objeto: um carro, uma
+        caneta, um celular, uma pessoa, um livro.
+      </p>
+
+      <h3 class="subsection">Características de um Objeto</h3>
+
+      <h4 class="sub-sub">1. Estado</h4>
+      <p>
+        O <strong>estado</strong> representa
+        <strong>como o objeto está em determinado momento</strong>. É definido
+        pelos valores armazenados em seus atributos.
+      </p>
+
+      <div class="callout callout-green">
+        <i class="fas fa-tag"></i>
+        <div class="callout-body">
+          <p><strong>Exemplo — Objeto: Caneta</strong></p>
+          <p>
+            cor = <code class="inline">azul</code> &nbsp;|&nbsp; modelo =
+            <code class="inline">BIC</code> &nbsp;|&nbsp; ponta =
+            <code class="inline">0.5</code> &nbsp;|&nbsp; carga =
+            <code class="inline">80%</code>
+          </p>
+        </div>
+      </div>
+
+      <h4 class="sub-sub">2. Comportamento</h4>
+      <p>
+        O <strong>comportamento</strong> representa as
+        <strong>ações que o objeto pode executar</strong>. Essas ações são
+        implementadas através dos métodos.
+      </p>
+
+      <div class="callout callout-green">
+        <i class="fas fa-bolt"></i>
+        <div class="callout-body">
+          <p><strong>Exemplo — Objeto: Caneta</strong></p>
+          <p>
+            Comportamentos: <code class="inline">escrever()</code> &nbsp;
+            <code class="inline">tampar()</code> &nbsp;
+            <code class="inline">destampar()</code>
+          </p>
+        </div>
+      </div>
+
+      <h4 class="sub-sub">3. Identidade</h4>
+      <p>
+        Mesmo que dois objetos possuam exatamente as mesmas características,
+        eles continuam sendo objetos diferentes. Cada objeto possui uma
+        <strong>identidade única na memória do computador</strong>.
+      </p>
+
+      <pre>
+        <div class="code-header">
+          <span class="code-lang"><i class="fab fa-java"></i> Java</span>
+          <div class="code-dots">
+            <div class="code-dot" style="background:#ff5f57"></div>
+            <div class="code-dot" style="background:#febc2e"></div>
+            <div class="code-dot" style="background:#28c840"></div>
+          </div>
+        </div>
+        <code><span class="nm">Caneta</span> <span class="vr">caneta1</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Caneta</span><span class="sy">();</span>
+<span class="nm">Caneta</span> <span class="vr">caneta2</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Caneta</span><span class="sy">();</span>
+<span class="cm">// caneta1 e caneta2 são objetos DIFERENTES,</span>
+<span class="cm">// mesmo que tenham os mesmos atributos.</span></code>
+      </pre>
+
+      <!-- 3. O que é uma Classe -->
+      <h2 class="section-heading">
+        <span
+          class="icon"
+          style="background: rgba(247, 129, 102, 0.12); color: var(--accent)"
+          ><i class="fas fa-drafting-compass"></i
+        ></span>
+        O que é uma Classe
+      </h2>
+
+      <p>
+        Uma <strong>classe</strong> é uma estrutura que define
+        <strong>como os objetos serão criados</strong>. Ela funciona como um
+        <strong>molde ou planta</strong> para criar objetos, definindo os
+        <strong>atributos</strong> e os <strong>métodos</strong>.
+      </p>
+
+      <h3 class="subsection">Relação entre Classe e Objeto</h3>
+
+      <div class="analogy-row">
+        <div class="analogy-box">
+          <div class="label">Classe</div>
+          <div class="value">📐 Planta da casa</div>
+        </div>
+        <div class="analogy-arrow">→</div>
+        <div class="analogy-box">
+          <div class="label">Objeto</div>
+          <div class="value">🏠 Casa construída</div>
+        </div>
+      </div>
+
+      <div class="analogy-row">
+        <div class="analogy-box">
+          <div class="label">Classe</div>
+          <div class="value">📋 Receita de bolo</div>
+        </div>
+        <div class="analogy-arrow">→</div>
+        <div class="analogy-box">
+          <div class="label">Objeto</div>
+          <div class="value">🎂 Bolo pronto</div>
+        </div>
+      </div>
+
+      <div class="callout callout-yellow">
+        <i class="fas fa-info-circle"></i>
+        <div class="callout-body">
+          <p>
+            Uma classe pode gerar <strong>múltiplos objetos</strong>, assim como
+            uma planta pode gerar várias casas.
+          </p>
+        </div>
+      </div>
+
+      <h3 class="subsection">Atributos</h3>
+      <p>
+        Os <strong>atributos</strong> são as variáveis que representam as
+        características de um objeto. Eles armazenam os dados do objeto.
+      </p>
+
+      <h3 class="subsection">Métodos</h3>
+      <p>
+        Os <strong>métodos</strong> representam as ações que um objeto pode
+        executar. Eles definem o comportamento do objeto.
+      </p>
+
+      <!-- 4. Diagramas de Classe UML -->
+      <h2 class="section-heading">
+        <span
+          class="icon"
+          style="background: rgba(188, 140, 255, 0.12); color: var(--accent5)"
+          ><i class="fas fa-sitemap"></i
+        ></span>
+        Diagramas de Classe (UML)
+      </h2>
+
+      <p>
+        Os diagramas de classe são representações gráficas utilizadas para
+        descrever estruturas da POO. Em
+        <strong>UML (Unified Modeling Language)</strong>, símbolos especiais
+        indicam o <strong>nível de visibilidade</strong> de atributos e métodos.
+      </p>
+
+      <table class="sym-table">
+        <thead>
+          <tr>
+            <th>Símbolo</th>
+            <th>Visibilidade</th>
+            <th>Descrição</th>
+            <th>Java</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="sym-glyph" style="color: var(--accent3)">+</span>
+            </td>
+            <td><strong>Público</strong></td>
+            <td>Acessível por qualquer classe do programa</td>
+            <td><code class="inline">public</code></td>
+          </tr>
+          <tr>
+            <td>
+              <span class="sym-glyph" style="color: var(--accent)">-</span>
+            </td>
+            <td><strong>Privado</strong></td>
+            <td>Acessível somente dentro da própria classe</td>
+            <td><code class="inline">private</code></td>
+          </tr>
+          <tr>
+            <td>
+              <span class="sym-glyph" style="color: var(--accent2)">#</span>
+            </td>
+            <td><strong>Protegido</strong></td>
+            <td>Acessível na classe e nas subclasses (herança)</td>
+            <td><code class="inline">protected</code></td>
+          </tr>
+          <tr>
+            <td>
+              <span class="sym-glyph" style="color: var(--accent4)">~</span>
+            </td>
+            <td><strong>Pacote</strong></td>
+            <td>Acessível dentro do mesmo pacote</td>
+            <td><em style="color: var(--text-muted)">(sem modificador)</em></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection">Estrutura do Diagrama</h3>
+      <p>
+        Um diagrama de classe possui três partes: nome da classe, atributos e
+        métodos.
+      </p>
+
+      <div style="display: flex; gap: 2rem; flex-wrap: wrap; margin: 1.2rem 0">
+        <div class="uml-diagram">
+          <div class="uml-class-name">Caneta</div>
+          <div class="uml-section">
+            <div class="uml-row">
+              <span class="uml-visibility">-</span>
+              <span class="uml-attr-name">modelo</span> :
+              <span class="uml-type">String</span>
+            </div>
+            <div class="uml-row">
+              <span class="uml-visibility">-</span>
+              <span class="uml-attr-name">cor</span> :
+              <span class="uml-type">String</span>
+            </div>
+            <div class="uml-row">
+              <span class="uml-visibility">-</span>
+              <span class="uml-attr-name">ponta</span> :
+              <span class="uml-type">float</span>
+            </div>
+            <div class="uml-row">
+              <span class="uml-visibility">-</span>
+              <span class="uml-attr-name">tampada</span> :
+              <span class="uml-type">boolean</span>
+            </div>
+          </div>
+          <div class="uml-section">
+            <div class="uml-row">
+              <span class="uml-visibility" style="color: var(--accent3)"
+                >+</span
+              >
+              <span class="uml-method">tampar()</span>
+            </div>
+            <div class="uml-row">
+              <span class="uml-visibility" style="color: var(--accent3)"
+                >+</span
+              >
+              <span class="uml-method">destampar()</span>
+            </div>
+            <div class="uml-row">
+              <span class="uml-visibility" style="color: var(--accent3)"
+                >+</span
+              >
+              <span class="uml-method">escrever()</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-blue">
+        <i class="fas fa-eye"></i>
+        <div class="callout-body">
+          <p>
+            Neste diagrama, os <strong>atributos são privados</strong> (<code
+              class="inline"
+              >-</code
+            >) e os <strong>métodos são públicos</strong> (<code class="inline"
+              >+</code
+            >). Essa é a prática recomendada para encapsulamento.
+          </p>
+        </div>
+      </div>
+
+      <!-- 5. Exemplo Prático -->
+      <h2 class="section-heading">
+        <span
+          class="icon"
+          style="background: rgba(86, 211, 100, 0.12); color: var(--accent3)"
+          ><i class="fas fa-code"></i
+        ></span>
+        Exemplo Prático em Java
+      </h2>
+
+      <p>Vamos modelar uma <strong>Caneta</strong> em Java, passo a passo.</p>
+
+      <h3 class="subsection">Definindo a Classe e seus Atributos</h3>
+
+      <pre>
+        <div class="code-header">
+          <span class="code-lang"><i class="fab fa-java"></i> Caneta.java</span>
+          <div class="code-dots">
+            <div class="code-dot" style="background:#ff5f57"></div>
+            <div class="code-dot" style="background:#febc2e"></div>
+            <div class="code-dot" style="background:#28c840"></div>
+          </div>
+        </div>
+        <code><span class="kw">class</span> <span class="nm">Caneta</span> <span class="sy">{</span>
+
+    <span class="tp">String</span> <span class="vr">modelo</span><span class="sy">;</span>   <span class="cm">// modelo da caneta</span>
+    <span class="tp">String</span> <span class="vr">cor</span><span class="sy">;</span>      <span class="cm">// cor da tinta</span>
+    <span class="tp">float</span>  <span class="vr">ponta</span><span class="sy">;</span>    <span class="cm">// espessura da ponta</span>
+    <span class="tp">int</span>    <span class="vr">carga</span><span class="sy">;</span>    <span class="cm">// nível de tinta (0-100)</span>
+    <span class="tp">boolean</span> <span class="vr">tampada</span><span class="sy">;</span> <span class="cm">// true se a caneta estiver tampada</span>
+
+<span class="sy">}</span></code>
+      </pre>
+
+      <table class="attr-table">
+        <thead>
+          <tr>
+            <th>Atributo</th>
+            <th>Tipo</th>
+            <th>Descrição</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code class="inline">modelo</code></td>
+            <td><span class="type-badge">String</span></td>
+            <td>Representa o modelo da caneta</td>
+          </tr>
+          <tr>
+            <td><code class="inline">cor</code></td>
+            <td><span class="type-badge">String</span></td>
+            <td>Representa a cor da tinta</td>
+          </tr>
+          <tr>
+            <td><code class="inline">ponta</code></td>
+            <td><span class="type-badge">float</span></td>
+            <td>Espessura da ponta (ex: 0.5)</td>
+          </tr>
+          <tr>
+            <td><code class="inline">carga</code></td>
+            <td><span class="type-badge">int</span></td>
+            <td>Nível de tinta (0 a 100)</td>
+          </tr>
+          <tr>
+            <td><code class="inline">tampada</code></td>
+            <td><span class="type-badge">boolean</span></td>
+            <td>
+              <code class="inline">true</code> se tampada,
+              <code class="inline">false</code> se destampada
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3 class="subsection">Adicionando Métodos</h3>
+
+      <pre>
+        <div class="code-header">
+          <span class="code-lang"><i class="fab fa-java"></i> Caneta.java — com métodos</span>
+          <div class="code-dots">
+            <div class="code-dot" style="background:#ff5f57"></div>
+            <div class="code-dot" style="background:#febc2e"></div>
+            <div class="code-dot" style="background:#28c840"></div>
+          </div>
+        </div>
+        <code><span class="kw">class</span> <span class="nm">Caneta</span> <span class="sy">{</span>
+
+    <span class="tp">String</span> <span class="vr">modelo</span><span class="sy">;</span>
+    <span class="tp">String</span> <span class="vr">cor</span><span class="sy">;</span>
+    <span class="tp">float</span>  <span class="vr">ponta</span><span class="sy">;</span>
+    <span class="tp">int</span>    <span class="vr">carga</span><span class="sy">;</span>
+    <span class="tp">boolean</span> <span class="vr">tampada</span><span class="sy">;</span>
+
+    <span class="kw">void</span> <span class="fn">tampar</span><span class="sy">() {</span>
+        <span class="vr">tampada</span> <span class="sy">=</span> <span class="kw">true</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="kw">void</span> <span class="fn">destampar</span><span class="sy">() {</span>
+        <span class="vr">tampada</span> <span class="sy">=</span> <span class="kw">false</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="kw">void</span> <span class="fn">escrever</span><span class="sy">() {</span>
+        <span class="kw">if</span> <span class="sy">(</span><span class="vr">tampada</span> <span class="sy">==</span> <span class="kw">true</span><span class="sy">) {</span>
+            <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Erro! Não posso escrever"</span><span class="sy">);</span>
+        <span class="sy">}</span> <span class="kw">else</span> <span class="sy">{</span>
+            <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Estou escrevendo..."</span><span class="sy">);</span>
+        <span class="sy">}</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+      </pre>
+
+      <!-- 6. Construtores -->
+      <h2 class="section-heading">
+        <span
+          class="icon"
+          style="background: rgba(227, 179, 65, 0.12); color: var(--accent4)"
+          ><i class="fas fa-tools"></i
+        ></span>
+        Criando Objetos — Construtores
+      </h2>
+
+      <p>
+        Um <strong>construtor</strong> é um método especial utilizado para
+        <strong>inicializar um objeto no momento de sua criação</strong>. Ele é
+        executado automaticamente quando o objeto é criado com o operador
+        <code class="inline">new</code>.
+      </p>
+
+      <div class="callout callout-yellow">
+        <i class="fas fa-star"></i>
+        <div class="callout-body">
+          <p><strong>Características de um Construtor:</strong></p>
+          <ul style="margin: 0.4rem 0 0 1rem">
+            <li>Possui o <strong>mesmo nome da classe</strong></li>
+            <li><strong>Não possui tipo de retorno</strong></li>
+            <li>É executado automaticamente quando o objeto é criado</li>
+          </ul>
+        </div>
+      </div>
+
+      <pre>
+        <div class="code-header">
+          <span class="code-lang"><i class="fab fa-java"></i> Construtor com parâmetros</span>
+          <div class="code-dots">
+            <div class="code-dot" style="background:#ff5f57"></div>
+            <div class="code-dot" style="background:#febc2e"></div>
+            <div class="code-dot" style="background:#28c840"></div>
+          </div>
+        </div>
+        <code><span class="kw">class</span> <span class="nm">Caneta</span> <span class="sy">{</span>
+
+    <span class="tp">String</span> <span class="vr">modelo</span><span class="sy">;</span>
+    <span class="tp">String</span> <span class="vr">cor</span><span class="sy">;</span>
+    <span class="tp">float</span> <span class="vr">ponta</span><span class="sy">;</span>
+
+    <span class="cm">// Construtor — mesmo nome da classe, sem tipo de retorno</span>
+    <span class="nm">Caneta</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">m</span><span class="sy">,</span> <span class="tp">String</span> <span class="vr">c</span><span class="sy">,</span> <span class="tp">float</span> <span class="vr">p</span><span class="sy">) {</span>
+        <span class="vr">modelo</span> <span class="sy">=</span> <span class="vr">m</span><span class="sy">;</span>
+        <span class="vr">cor</span>    <span class="sy">=</span> <span class="vr">c</span><span class="sy">;</span>
+        <span class="vr">ponta</span>  <span class="sy">=</span> <span class="vr">p</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span>
+
+<span class="cm">// Criando um objeto usando o construtor:</span>
+<span class="nm">Caneta</span> <span class="vr">c1</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Caneta</span><span class="sy">(</span><span class="st">"BIC"</span><span class="sy">,</span> <span class="st">"Azul"</span><span class="sy">,</span> <span class="nu">0.5f</span><span class="sy">);</span></code>
+      </pre>
+
+      <!-- 7. Palavra-chave this -->
+      <h2 class="section-heading">
+        <span
+          class="icon"
+          style="background: rgba(247, 129, 102, 0.12); color: var(--accent)"
+          ><i class="fas fa-fingerprint"></i
+        ></span>
+        A Palavra-Chave
+        <code
+          style="font-size: 1rem; font-family: monospace; color: var(--accent)"
+          >this</code
+        >
+      </h2>
+
+      <p>
+        A palavra-chave <code class="inline">this</code> é utilizada para
+        <strong
+          >referenciar o próprio objeto que está executando o método</strong
+        >. É muito utilizada dentro de construtores para evitar ambiguidade
+        entre variáveis locais e atributos da classe.
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem">
+        <div>
+          <h4 class="sub-sub">
+            ❌ Sem <code style="font-family: monospace">this</code>
+          </h4>
+          <pre style="margin-top: 0.5rem">
+            <div class="code-header">
+              <span class="code-lang"><i class="fab fa-java"></i></span>
+              <div class="code-dots">
+                <div class="code-dot" style="background:#ff5f57"></div>
+                <div class="code-dot" style="background:#febc2e"></div>
+                <div class="code-dot" style="background:#28c840"></div>
+              </div>
+            </div>
+            <code><span class="nm">Caneta</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">m</span><span class="sy">,</span> <span class="tp">String</span> <span class="vr">c</span><span class="sy">) {</span>
+    <span class="vr">modelo</span> <span class="sy">=</span> <span class="vr">m</span><span class="sy">;</span>
+    <span class="vr">cor</span>    <span class="sy">=</span> <span class="vr">c</span><span class="sy">;</span>
+<span class="sy">}</span></code>
+          </pre>
+        </div>
+        <div>
+          <h4 class="sub-sub">
+            ✅ Com <code style="font-family: monospace">this</code>
+          </h4>
+          <pre style="margin-top: 0.5rem">
+            <div class="code-header">
+              <span class="code-lang"><i class="fab fa-java"></i></span>
+              <div class="code-dots">
+                <div class="code-dot" style="background:#ff5f57"></div>
+                <div class="code-dot" style="background:#febc2e"></div>
+                <div class="code-dot" style="background:#28c840"></div>
+              </div>
+            </div>
+            <code><span class="nm">Caneta</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">modelo</span><span class="sy">,</span> <span class="tp">String</span> <span class="vr">cor</span><span class="sy">) {</span>
+    <span class="kw">this</span><span class="sy">.</span><span class="vr">modelo</span> <span class="sy">=</span> <span class="vr">modelo</span><span class="sy">;</span>
+    <span class="kw">this</span><span class="sy">.</span><span class="vr">cor</span>    <span class="sy">=</span> <span class="vr">cor</span><span class="sy">;</span>
+<span class="sy">}</span></code>
+          </pre>
+        </div>
+      </div>
+
+      <div class="callout callout-orange">
+        <i class="fas fa-exclamation-circle"></i>
+        <div class="callout-body">
+          <p>
+            <code class="inline">this.modelo</code> refere-se ao
+            <strong>atributo da classe</strong>, enquanto
+            <code class="inline">modelo</code> refere-se ao
+            <strong>parâmetro recebido pelo construtor</strong>. O
+            <code class="inline">this</code> evita essa ambiguidade.
+          </p>
+        </div>
+      </div>
+
+      <!-- 8. Exemplo Completo -->
+      <h2 class="section-heading">
+        <span
+          class="icon"
+          style="background: rgba(86, 211, 100, 0.12); color: var(--accent3)"
+          ><i class="fas fa-file-code"></i
+        ></span>
+        Exemplo Completo
+      </h2>
+
+      <p>
+        Abaixo está o exemplo completo com a classe
+        <code class="inline">Caneta</code> e a classe de teste
+        <code class="inline">TesteCaneta</code>.
+      </p>
+
+      <pre>
+        <div class="code-header">
+          <span class="code-lang"><i class="fab fa-java"></i> Caneta.java — Classe completa</span>
+          <div class="code-dots">
+            <div class="code-dot" style="background:#ff5f57"></div>
+            <div class="code-dot" style="background:#febc2e"></div>
+            <div class="code-dot" style="background:#28c840"></div>
+          </div>
+        </div>
+        <code><span class="kw">class</span> <span class="nm">Caneta</span> <span class="sy">{</span>
+
+    <span class="tp">String</span>  <span class="vr">modelo</span><span class="sy">;</span>
+    <span class="tp">String</span>  <span class="vr">cor</span><span class="sy">;</span>
+    <span class="tp">float</span>   <span class="vr">ponta</span><span class="sy">;</span>
+    <span class="tp">boolean</span> <span class="vr">tampada</span><span class="sy">;</span>
+
+    <span class="nm">Caneta</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">modelo</span><span class="sy">,</span> <span class="tp">String</span> <span class="vr">cor</span><span class="sy">,</span> <span class="tp">float</span> <span class="vr">ponta</span><span class="sy">) {</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">modelo</span>  <span class="sy">=</span> <span class="vr">modelo</span><span class="sy">;</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">cor</span>     <span class="sy">=</span> <span class="vr">cor</span><span class="sy">;</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">ponta</span>   <span class="sy">=</span> <span class="vr">ponta</span><span class="sy">;</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">tampada</span> <span class="sy">=</span> <span class="kw">true</span><span class="sy">;</span>  <span class="cm">// caneta começa tampada</span>
+    <span class="sy">}</span>
+
+    <span class="kw">void</span> <span class="fn">tampar</span><span class="sy">() {</span>
+        <span class="vr">tampada</span> <span class="sy">=</span> <span class="kw">true</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="kw">void</span> <span class="fn">destampar</span><span class="sy">() {</span>
+        <span class="vr">tampada</span> <span class="sy">=</span> <span class="kw">false</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="kw">void</span> <span class="fn">escrever</span><span class="sy">() {</span>
+        <span class="kw">if</span> <span class="sy">(</span><span class="vr">tampada</span><span class="sy">) {</span>
+            <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Erro! A caneta está tampada."</span><span class="sy">);</span>
+        <span class="sy">}</span> <span class="kw">else</span> <span class="sy">{</span>
+            <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Estou escrevendo..."</span><span class="sy">);</span>
+        <span class="sy">}</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+      </pre>
+
+      <pre>
+        <div class="code-header">
+          <span class="code-lang"><i class="fab fa-java"></i> TesteCaneta.java — Criando e usando objetos</span>
+          <div class="code-dots">
+            <div class="code-dot" style="background:#ff5f57"></div>
+            <div class="code-dot" style="background:#febc2e"></div>
+            <div class="code-dot" style="background:#28c840"></div>
+          </div>
+        </div>
+        <code><span class="kw">public class</span> <span class="nm">TesteCaneta</span> <span class="sy">{</span>
+
+    <span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+
+        <span class="cm">// Criando dois objetos da classe Caneta</span>
+        <span class="nm">Caneta</span> <span class="vr">c1</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Caneta</span><span class="sy">(</span><span class="st">"BIC"</span><span class="sy">,</span> <span class="st">"Azul"</span><span class="sy">,</span> <span class="nu">0.5f</span><span class="sy">);</span>
+        <span class="nm">Caneta</span> <span class="vr">c2</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Caneta</span><span class="sy">(</span><span class="st">"Faber"</span><span class="sy">,</span> <span class="st">"Preta"</span><span class="sy">,</span> <span class="nu">1.0f</span><span class="sy">);</span>
+
+        <span class="cm">// Usando os métodos de c1</span>
+        <span class="vr">c1</span><span class="sy">.</span><span class="fn">destampar</span><span class="sy">();</span>
+        <span class="vr">c1</span><span class="sy">.</span><span class="fn">escrever</span><span class="sy">();</span>   <span class="cm">// Saída: Estou escrevendo...</span>
+
+        <span class="cm">// Usando os métodos de c2</span>
+        <span class="vr">c2</span><span class="sy">.</span><span class="fn">destampar</span><span class="sy">();</span>
+        <span class="vr">c2</span><span class="sy">.</span><span class="fn">escrever</span><span class="sy">();</span>   <span class="cm">// Saída: Estou escrevendo...</span>
+
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+      </pre>
+
+      <div class="callout callout-green">
+        <i class="fas fa-terminal"></i>
+        <div class="callout-body">
+          <p><strong>Saída esperada:</strong></p>
+          <pre
+            style="background: none; border: none; margin: 0.4rem 0 0"
+          ><code style="padding:0;font-size:0.82rem;color:var(--accent3);">Estou escrevendo...
+Estou escrevendo...</code></pre>
+        </div>
+      </div>
+
+      <!-- Bottom nav -->
+      <div class="lesson-nav">
+        <span class="nav-btn disabled">
+          <i class="fas fa-arrow-left"></i> Aula Anterior
+        </span>
+        <span class="nav-btn disabled" title="Próxima aula em breve">
+          Próxima Aula <i class="fas fa-lock"></i>
+        </span>
+      </div>
+    </div>
+    <!-- /page-wrapper -->
+
+    <button
+      id="backToTop"
+      onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+    >
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+      const btn = document.getElementById("backToTop");
+      window.addEventListener("scroll", () => {
+        btn.classList.toggle("visible", window.scrollY > 400);
+      });
+    </script>
+  </body>
+</html>
