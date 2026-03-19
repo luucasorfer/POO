@@ -488,13 +488,16 @@
 
       <div class="modules-grid">
         <!-- Unidade 1 — Disponível -->
-        <div class="module-card locked strip-blue">
+        <div
+          class="module-card available strip-green"
+          onclick="window.location.href = 'unidade01_introducao-java.html'"
+        >
           <div class="card-header">
             <div
               class="card-icon"
               style="
-                background: rgba(121, 192, 255, 0.12);
-                color: var(--accent2);
+                background: rgba(86, 211, 100, 0.12);
+                color: var(--accent3);
               "
             >
               <i class="fab fa-java"></i>
@@ -503,12 +506,7 @@
               <span class="card-num">UNIDADE 01</span>
               <span class="card-title">Introdução à Linguagem Java</span>
             </div>
-            <span class="card-status"
-              ><i
-                class="fas fa-lock"
-                style="color: var(--text-muted); font-size: 0.8rem"
-              ></i
-            ></span>
+            <span class="card-status"><span class="dot-available"></span></span>
           </div>
           <div class="card-body">
             <p class="card-desc">
@@ -520,55 +518,43 @@
           <div class="card-footer">
             <div class="card-tags">
               <span class="tag tag-green">JDK + Eclipse</span>
-              <span class="tag tag-gray">Em breve</span>
+              <span class="tag tag-green">if / switch</span>
             </div>
-            <i
-              class="fas fa-lock card-arrow"
-              style="color: var(--text-muted)"
-            ></i>
+            <i class="fas fa-arrow-right card-arrow"></i>
           </div>
         </div>
 
         <!-- Unidade 2 -->
-        <div class="module-card locked strip-green">
+        <div class="module-card available strip-blue">
           <div class="card-header">
             <div
               class="card-icon"
               style="
-                background: rgba(86, 211, 100, 0.12);
-                color: var(--accent3);
+                background: rgba(121, 192, 255, 0.12);
+                color: var(--accent2);
               "
             >
-              <i class="fas fa-lock"></i>
+            <i class="fas fa-puzzle-piece"></i>
             </div>
             <div class="card-meta">
               <span class="card-num">UNIDADE 02</span>
               <span class="card-title">Métodos e Organização do Código</span>
             </div>
-            <span class="card-status"
-              ><i
-                class="fas fa-lock"
-                style="color: var(--text-muted); font-size: 0.8rem"
-              ></i
-            ></span>
+           <span class="card-status"><span class="dot-available"></span></span>
           </div>
           <div class="card-body">
             <p class="card-desc">
               Conceito de métodos, parâmetros e retorno, sobrecarga, escopo de
-              variáveis e boas práticas de organização com exercícios práticos
-              progressivos.
+              variáveis e boas práticas de organização.
             </p>
           </div>
           <div class="card-footer">
             <div class="card-tags">
-              <span class="tag tag-green">Métodos</span>
-              <span class="tag tag-green">Sobrecarga</span>
-              <span class="tag tag-gray">Em breve</span>
+              <span class="tag tag-blue">Métodos</span>
+              <span class="tag tag-blue">Sobrecarga</span>
+              <span class="tag tag-blue">Escopo</span>
             </div>
-            <i
-              class="fas fa-lock card-arrow"
-              style="color: var(--text-muted)"
-            ></i>
+            <i class="fas fa-arrow-right card-arrow"></i>
           </div>
         </div>
 
@@ -612,7 +598,7 @@
         </div>
 
         <!-- Unidade 4 -->
-        <div class="module-card available strip-orange"
+        <div class="module-card available strip-yellow"
           onclick="window.location.href = 'unidade04_Encapsulamento.html'">
           <div class="card-header">
             <div

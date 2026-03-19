@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unidade 02 — Métodos e Organização do Código</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg:         #0d1117;
+        --surface:    #161b22;
+        --surface2:   #1c2330;
+        --surface3:   #21262d;
+        --border:     #30363d;
+        --accent:     #f78166;
+        --accent2:    #79c0ff;
+        --accent3:    #56d364;
+        --accent4:    #e3b341;
+        --accent5:    #bc8cff;
+        --text:       #e6edf3;
+        --text-muted: #8b949e;
+        --text-dim:   #6e7681;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Sora', sans-serif;
+        font-size: 0.95rem;
+        line-height: 1.8;
+      }
+
+      body::before {
+        content: '';
+        position: fixed; inset: 0;
+        background-image:
+          linear-gradient(var(--border) 1px, transparent 1px),
+          linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.18;
+        pointer-events: none; z-index: 0;
+      }
+
+      /* ── PROGRESS BAR ────────────────────────────── */
+      .progress-bar-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 2px; z-index: 200; }
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent3), var(--accent2));
+        width: 0%; transition: width 0.1s linear;
+      }
+
+      /* ── HEADER ─────────────────────────────────── */
+      header {
+        position: sticky; top: 0; z-index: 100;
+        background: rgba(13,17,23,0.96);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        padding: 0.75rem 2rem;
+      }
+      .header-nav {
+        max-width: 960px; margin: 0 auto;
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .back-link {
+        display: flex; align-items: center; gap: 0.5rem;
+        color: var(--text-muted); text-decoration: none;
+        font-size: 0.8rem; font-family: 'JetBrains Mono', monospace;
+        transition: color 0.15s;
+      }
+      .back-link:hover { color: var(--accent2); }
+      .lesson-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+        padding: 0.28rem 0.75rem; border-radius: 20px;
+        background: rgba(86,211,100,0.1);
+        color: var(--accent3);
+        border: 1px solid rgba(86,211,100,0.22);
+      }
+
+      /* ── LAYOUT ─────────────────────────────────── */
+      .page-wrapper {
+        position: relative; z-index: 1;
+        max-width: 960px; margin: 0 auto;
+        padding: 3rem 2rem 6rem;
+        display: grid;
+        grid-template-columns: 1fr 220px;
+        gap: 3rem; align-items: start;
+      }
+      .content { min-width: 0; }
+
+      /* ── TOC ─────────────────────────────────────── */
+      .toc {
+        position: sticky; top: 70px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px; padding: 1.2rem;
+        font-size: 0.78rem;
+      }
+      .toc-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem; letter-spacing: 0.12em;
+        text-transform: uppercase; color: var(--text-muted);
+        font-weight: 700; margin-bottom: 0.9rem;
+        display: flex; align-items: center; gap: 0.4rem;
+      }
+      .toc ol { padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 0.15rem; }
+      .toc li a {
+        display: block; padding: 0.3rem 0.5rem;
+        border-radius: 5px; color: var(--text-muted);
+        text-decoration: none; line-height: 1.4;
+        transition: background 0.15s, color 0.15s;
+      }
+      .toc li a:hover { background: var(--surface2); color: var(--accent3); }
+      .toc li a.active {
+        background: rgba(86,211,100,0.08);
+        color: var(--accent3);
+        border-left: 2px solid var(--accent3);
+        padding-left: calc(0.5rem - 2px);
+      }
+
+      /* ── HERO ────────────────────────────────────── */
+      .lesson-hero {
+        margin-bottom: 3rem; padding-bottom: 2.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .lesson-num {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem; font-weight: 700;
+        letter-spacing: 0.15em; color: var(--accent3);
+        text-transform: uppercase; margin-bottom: 0.8rem;
+        display: flex; align-items: center; gap: 0.5rem;
+      }
+      h1.lesson-title {
+        font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+        font-weight: 800; letter-spacing: -0.03em;
+        line-height: 1.15; margin-bottom: 1rem;
+      }
+      h1.lesson-title span {
+        background: linear-gradient(90deg, var(--accent3), var(--accent2));
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .lesson-summary { color: var(--text-muted); font-size: 0.95rem; max-width: 580px; margin-bottom: 1.5rem; }
+      .lesson-meta { display: flex; gap: 1.4rem; flex-wrap: wrap; }
+      .meta-item {
+        display: flex; align-items: center; gap: 0.4rem;
+        font-size: 0.77rem; font-family: 'JetBrains Mono', monospace;
+        color: var(--text-muted);
+      }
+      .meta-item i { color: var(--accent3); }
+
+      /* ── HEADINGS ────────────────────────────────── */
+      h2.section-heading {
+        font-size: 1.25rem; font-weight: 700;
+        margin: 3rem 0 1.2rem; padding-bottom: 0.7rem;
+        border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; gap: 0.7rem;
+        letter-spacing: -0.02em; scroll-margin-top: 80px;
+      }
+      h2.section-heading .icon {
+        width: 30px; height: 30px; border-radius: 6px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.82rem; flex-shrink: 0;
+      }
+      h3.subsection {
+        font-size: 1.05rem; font-weight: 700;
+        margin: 2rem 0 0.8rem;
+        letter-spacing: -0.01em;
+        display: flex; align-items: center; gap: 0.5rem;
+        scroll-margin-top: 80px;
+      }
+      h3.subsection::before {
+        content: '';
+        display: inline-block; width: 3px; height: 1em;
+        background: var(--accent3); border-radius: 2px; flex-shrink: 0;
+      }
+      h4.sub-sub {
+        font-size: 0.8rem; font-weight: 700;
+        margin: 1.6rem 0 0.6rem;
+        color: var(--accent4);
+        font-family: 'JetBrains Mono', monospace;
+        text-transform: uppercase; letter-spacing: 0.07em;
+      }
+
+      /* ── BODY TEXT ───────────────────────────────── */
+      p { margin-bottom: 0.9rem; }
+      ul, ol { padding-left: 1.6rem; margin-bottom: 1rem; }
+      li { margin-bottom: 0.35rem; }
+      li strong { color: var(--accent3); }
+
+      /* ── CODE BLOCKS ─────────────────────────────── */
+      pre {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 10px; overflow-x: auto; margin: 1.4rem 0;
+      }
+      .code-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0.55rem 1rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface2); border-radius: 10px 10px 0 0;
+      }
+      .code-lang {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em;
+        color: var(--text-muted); text-transform: uppercase;
+        display: flex; align-items: center; gap: 0.4rem;
+      }
+      .code-lang i { color: var(--accent4); }
+      .code-dots { display: flex; gap: 0.32rem; }
+      .code-dot  { width: 10px; height: 10px; border-radius: 50%; }
+      pre code {
+        display: block; padding: 1.2rem 1.4rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.82rem; line-height: 1.85;
+        color: #e6edf3; white-space: pre;
+      }
+      .kw { color: #ff7b72; }
+      .tp { color: #ffa657; }
+      .st { color: #a5d6ff; }
+      .cm { color: #8b949e; font-style: italic; }
+      .fn { color: #d2a8ff; }
+      .nm { color: #79c0ff; }
+      .nu { color: #56d364; }
+      .sy { color: #e6edf3; }
+      .ret { color: #f78166; }
+
+      code.inline {
+        font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+        background: var(--surface3); border: 1px solid var(--border);
+        padding: 0.12em 0.45em; border-radius: 4px; color: var(--accent3);
+      }
+
+      /* ── CALLOUTS ────────────────────────────────── */
+      .callout {
+        border-radius: 8px; padding: 1rem 1.3rem; margin: 1.4rem 0;
+        display: flex; align-items: flex-start; gap: 0.85rem; font-size: 0.88rem;
+      }
+      .callout i { margin-top: 0.18rem; flex-shrink: 0; }
+      .callout-body { flex: 1; }
+      .callout-body p { margin-bottom: 0.3rem; }
+      .callout-body strong { font-weight: 700; }
+      .callout-body ul { margin: 0.4rem 0 0 1rem; }
+      .callout-body li { margin-bottom: 0.2rem; }
+
+      .callout-blue  { background: rgba(121,192,255,0.07); border: 1px solid rgba(121,192,255,0.2); border-left: 3px solid var(--accent2); }
+      .callout-blue i { color: var(--accent2); }
+      .callout-green { background: rgba(86,211,100,0.07); border: 1px solid rgba(86,211,100,0.2); border-left: 3px solid var(--accent3); }
+      .callout-green i { color: var(--accent3); }
+      .callout-orange { background: rgba(247,129,102,0.07); border: 1px solid rgba(247,129,102,0.2); border-left: 3px solid var(--accent); }
+      .callout-orange i { color: var(--accent); }
+      .callout-yellow { background: rgba(227,179,65,0.07); border: 1px solid rgba(227,179,65,0.2); border-left: 3px solid var(--accent4); }
+      .callout-yellow i { color: var(--accent4); }
+      .callout-purple { background: rgba(188,140,255,0.07); border: 1px solid rgba(188,140,255,0.2); border-left: 3px solid var(--accent5); }
+      .callout-purple i { color: var(--accent5); }
+      .callout-red    { background: rgba(248,81,73,0.07); border: 1px solid rgba(248,81,73,0.2); border-left: 3px solid #f85149; }
+      .callout-red i  { color: #f85149; }
+
+      /* ── STEP LIST ───────────────────────────────── */
+      .step-list { display: flex; flex-direction: column; gap: 0.8rem; margin: 1.2rem 0; }
+      .step-item { display: flex; gap: 1rem; align-items: flex-start; }
+      .step-num {
+        width: 28px; height: 28px; border-radius: 50%;
+        background: rgba(86,211,100,0.12);
+        border: 1px solid rgba(86,211,100,0.25);
+        color: var(--accent3);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; margin-top: 0.1rem;
+      }
+      .step-content { flex: 1; font-size: 0.9rem; }
+      .step-content strong { color: var(--text); }
+      .step-content p { margin: 0.2rem 0 0; color: var(--text-muted); font-size: 0.85rem; }
+
+      /* ── ANATOMY DIAGRAM ─────────────────────────── */
+      .anatomy {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 10px; padding: 1.8rem 2rem; margin: 1.4rem 0;
+        font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+        position: relative; overflow: hidden;
+      }
+      .anatomy-line { display: flex; align-items: center; gap: 0; line-height: 2.4; flex-wrap: wrap; }
+      .a-mod  { color: #ff7b72; }
+      .a-ret  { color: #ffa657; }
+      .a-name { color: #d2a8ff; }
+      .a-par  { color: #79c0ff; }
+      .a-typ  { color: #ffa657; }
+      .a-sym  { color: #e6edf3; }
+      .a-label {
+        position: absolute; font-size: 0.62rem; font-family: 'Sora', sans-serif;
+        font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+        color: var(--text-muted); white-space: nowrap;
+      }
+      .anatomy-labels {
+        display: flex; gap: 1.5rem; margin-top: 1.4rem; flex-wrap: wrap;
+      }
+      .a-tag {
+        display: flex; align-items: center; gap: 0.4rem;
+        font-size: 0.72rem; font-family: 'JetBrains Mono', monospace;
+      }
+      .a-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+      /* ── COMPARE GRID ────────────────────────────── */
+      .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.4rem 0; }
+      .compare-grid pre { margin: 0; }
+      .compare-label {
+        font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+        font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+        margin-bottom: 0.5rem;
+      }
+
+      /* ── CONCEPT CARDS ───────────────────────────── */
+      .concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 0.8rem; margin: 1.2rem 0; }
+      .concept-card {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 8px; padding: 1rem 1.2rem; transition: border-color 0.2s;
+      }
+      .concept-card:hover { border-color: var(--accent3); }
+      .concept-card .ci { font-size: 1.3rem; margin-bottom: 0.6rem; }
+      .concept-card h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.3rem; }
+      .concept-card p { font-size: 0.78rem; color: var(--text-muted); margin: 0; }
+
+      /* ── SCOPE DIAGRAM ───────────────────────────── */
+      .scope-wrap {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 10px; overflow: hidden; margin: 1.4rem 0;
+      }
+      .scope-block {
+        border: 2px dashed var(--border); border-radius: 8px;
+        margin: 1rem; padding: 0.8rem 1rem; position: relative;
+      }
+      .scope-block-label {
+        position: absolute; top: -0.55rem; left: 0.8rem;
+        font-family: 'JetBrains Mono', monospace; font-size: 0.62rem;
+        font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+        padding: 0 0.4rem; background: var(--surface);
+      }
+      .scope-var {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+        background: var(--surface2); border: 1px solid var(--border);
+        padding: 0.2rem 0.6rem; border-radius: 4px; margin: 0.2rem;
+      }
+      .scope-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+      /* ── OVERLOAD TABLE ──────────────────────────── */
+      .overload-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.85rem; }
+      .overload-table th {
+        text-align: left; padding: 0.6rem 1rem;
+        background: var(--surface2); border: 1px solid var(--border);
+        font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+        text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);
+      }
+      .overload-table td { padding: 0.6rem 1rem; border: 1px solid var(--border); vertical-align: middle; }
+      .overload-table tr:hover td { background: var(--surface2); }
+
+      /* ── PRACTICE CARDS ──────────────────────────── */
+      .exercise-list { display: flex; flex-direction: column; gap: 1.2rem; margin: 1.4rem 0; }
+      .exercise-card {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 10px; overflow: hidden;
+      }
+      .ex-header {
+        display: flex; align-items: center; gap: 1rem;
+        padding: 0.9rem 1.3rem; border-bottom: 1px solid var(--border);
+        background: var(--surface2);
+      }
+      .ex-num {
+        width: 32px; height: 32px; border-radius: 8px;
+        font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700;
+        display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      }
+      .ex-title { font-size: 0.92rem; font-weight: 700; }
+      .ex-level {
+        margin-left: auto; font-family: 'JetBrains Mono', monospace;
+        font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em;
+        padding: 0.2rem 0.55rem; border-radius: 20px; text-transform: uppercase;
+      }
+      .level-1 { background: rgba(86,211,100,0.1); color: var(--accent3); border: 1px solid rgba(86,211,100,0.2); }
+      .level-2 { background: rgba(227,179,65,0.1); color: var(--accent4); border: 1px solid rgba(227,179,65,0.2); }
+      .level-3 { background: rgba(247,129,102,0.1); color: var(--accent);  border: 1px solid rgba(247,129,102,0.2); }
+      .ex-body { padding: 1rem 1.3rem; }
+      .ex-body p { font-size: 0.88rem; margin-bottom: 0.6rem; }
+      .ex-body ul { font-size: 0.85rem; }
+      .ex-body pre { margin: 0.8rem 0 0; }
+
+      /* ── BEST PRACTICE CARD ──────────────────────── */
+      .bp-list { display: flex; flex-direction: column; gap: 0.7rem; margin: 1.2rem 0; }
+      .bp-item {
+        display: flex; align-items: flex-start; gap: 0.9rem;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 8px; padding: 0.9rem 1.1rem;
+        font-size: 0.88rem; transition: border-color 0.2s;
+      }
+      .bp-item:hover { border-color: var(--accent3); }
+      .bp-icon {
+        width: 30px; height: 30px; border-radius: 6px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center; font-size: 0.85rem;
+      }
+      .bp-text strong { color: var(--text); display: block; margin-bottom: 0.15rem; }
+      .bp-text span { color: var(--text-muted); font-size: 0.82rem; }
+
+      /* ── BOTTOM NAV ──────────────────────────────── */
+      .lesson-nav {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border);
+      }
+      .nav-btn {
+        display: flex; align-items: center; gap: 0.5rem;
+        padding: 0.65rem 1.1rem; border: 1px solid var(--border);
+        border-radius: 8px; background: var(--surface);
+        color: var(--text-muted); text-decoration: none;
+        font-size: 0.8rem; font-family: 'JetBrains Mono', monospace;
+        transition: border-color 0.2s, color 0.2s; cursor: pointer;
+      }
+      .nav-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+      .nav-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+      /* ── BACK TO TOP ─────────────────────────────── */
+      #backToTop {
+        position: fixed; bottom: 1.5rem; right: 1.5rem;
+        background: var(--surface); border: 1px solid var(--border);
+        color: var(--text-muted); width: 38px; height: 38px;
+        border-radius: 8px; display: none;
+        align-items: center; justify-content: center;
+        cursor: pointer; font-size: 0.85rem;
+        transition: border-color 0.2s, color 0.2s; z-index: 50;
+      }
+      #backToTop:hover { border-color: var(--accent3); color: var(--accent3); }
+      #backToTop.visible { display: flex; }
+
+      /* ── RESPONSIVE ──────────────────────────────── */
+      @media (max-width: 800px) {
+        .page-wrapper { grid-template-columns: 1fr; padding: 2rem 1.2rem 4rem; }
+        .toc { display: none; }
+        .compare-grid { grid-template-columns: 1fr; }
+        header { padding: 0.65rem 1.2rem; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <header>
+      <div class="header-nav">
+        <a href="index.html" class="back-link">
+          <i class="fas fa-arrow-left"></i> POO em Java
+        </a>
+        <span class="lesson-badge">UNIDADE 02 · MÉTODOS</span>
+      </div>
+    </header>
+
+    <div class="page-wrapper">
+      <div class="content">
+
+        <!-- ══ HERO ══════════════════════════════════ -->
+        <div class="lesson-hero">
+          <div class="lesson-num">
+            <i class="fas fa-circle" style="color:var(--accent3);font-size:0.45rem;"></i>
+            Unidade 02 · Métodos e Organização do Código
+          </div>
+          <h1 class="lesson-title">
+            Métodos e<br><span>Organização do Código</span>
+          </h1>
+          <p class="lesson-summary">
+            Aprenda a dividir seu programa em blocos reutilizáveis com métodos, entenda parâmetros, retorno, sobrecarga e escopo de variáveis — e aplique tudo em exercícios progressivos.
+          </p>
+          <div class="lesson-meta">
+            <div class="meta-item"><i class="fab fa-java"></i> Java</div>
+            <div class="meta-item"><i class="fas fa-clock"></i> ~90 min</div>
+            <div class="meta-item"><i class="fas fa-layer-group"></i> Iniciante</div>
+            <div class="meta-item"><i class="fas fa-puzzle-piece"></i> 4 exercícios</div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             SEÇÃO 1 — O QUE É UM MÉTODO
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec1">
+          <span class="icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);">
+            <i class="fas fa-cube"></i>
+          </span>
+          1. O que é um Método?
+        </h2>
+
+        <p>
+          Um <strong>método</strong> é um bloco de código com um nome, que pode ser chamado quantas vezes quisermos para executar uma tarefa específica. Em vez de repetir as mesmas linhas de código, você escreve uma vez e reutiliza sempre que precisar.
+        </p>
+
+        <div class="concept-grid">
+          <div class="concept-card">
+            <div class="ci">🔁</div>
+            <h4 style="color:var(--accent3);">Reutilização</h4>
+            <p>Escreva uma vez, chame quantas vezes precisar.</p>
+          </div>
+          <div class="concept-card">
+            <div class="ci">📦</div>
+            <h4 style="color:var(--accent2);">Organização</h4>
+            <p>Divide o programa em partes menores e mais legíveis.</p>
+          </div>
+          <div class="concept-card">
+            <div class="ci">🔧</div>
+            <h4 style="color:var(--accent4);">Manutenção</h4>
+            <p>Corrigir um método corrige todos os pontos que o chamam.</p>
+          </div>
+          <div class="concept-card">
+            <div class="ci">🎯</div>
+            <h4 style="color:var(--accent5);">Abstração</h4>
+            <p>Você usa o método sem precisar saber como ele funciona por dentro.</p>
+          </div>
+        </div>
+
+        <div class="callout callout-blue">
+          <i class="fas fa-lightbulb"></i>
+          <div class="callout-body">
+            <p><strong>Analogia:</strong> um método é como uma receita de culinária. Você não repete os passos toda vez que faz bolo — você segue a receita. O método é a receita; chamá-lo é seguir os passos.</p>
+          </div>
+        </div>
+
+        <!-- ── ANATOMIA ── -->
+        <h3 class="subsection" id="sec1-anatomy">Anatomia de um método</h3>
+
+        <p>Todo método em Java segue a mesma estrutura:</p>
+
+        <div class="anatomy">
+          <div class="anatomy-line">
+            <span class="a-mod">public static&nbsp;</span>
+            <span class="a-ret">int&nbsp;</span>
+            <span class="a-name">somar</span>
+            <span class="a-sym">(</span>
+            <span class="a-typ">int&nbsp;</span>
+            <span class="a-par">a</span>
+            <span class="a-sym">,&nbsp;</span>
+            <span class="a-typ">int&nbsp;</span>
+            <span class="a-par">b</span>
+            <span class="a-sym">) {</span>
+          </div>
+          <div style="padding: 0.2rem 0 0.2rem 2rem; font-family:'JetBrains Mono',monospace; font-size:0.85rem;">
+            <span style="color:#ff7b72;">return</span>
+            <span style="color:#e6edf3;"> a + b;</span>
+          </div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:0.85rem;">
+            <span style="color:#e6edf3;">}</span>
+          </div>
+          <div class="anatomy-labels">
+            <div class="a-tag"><div class="a-dot" style="background:#ff7b72;"></div><span style="color:#ff7b72;">Modificadores</span></div>
+            <div class="a-tag"><div class="a-dot" style="background:#ffa657;"></div><span style="color:#ffa657;">Tipo de retorno</span></div>
+            <div class="a-tag"><div class="a-dot" style="background:#d2a8ff;"></div><span style="color:#d2a8ff;">Nome do método</span></div>
+            <div class="a-tag"><div class="a-dot" style="background:#79c0ff;"></div><span style="color:#79c0ff;">Parâmetros</span></div>
+          </div>
+        </div>
+
+        <!-- ── MÉTODO SIMPLES ── -->
+        <h3 class="subsection" id="sec1-simples">Seu primeiro método</h3>
+
+        <p>
+          O método mais simples não recebe parâmetros e não retorna nada. Ele apenas executa uma ação. O tipo de retorno nesses casos é <code class="inline">void</code> — que significa "sem retorno".
+        </p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Método void — sem parâmetros e sem retorno</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">public class</span> <span class="nm">Main</span> <span class="sy">{</span>
+
+    <span class="cm">// Definição do método</span>
+    <span class="kw">static void</span> <span class="fn">exibirBoasVindas</span><span class="sy">() {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"==========================="</span><span class="sy">);</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"  Bem-vindo ao sistema!  "</span><span class="sy">);</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"==========================="</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+    <span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+        <span class="fn">exibirBoasVindas</span><span class="sy">();</span>  <span class="cm">// chamando o método</span>
+        <span class="fn">exibirBoasVindas</span><span class="sy">();</span>  <span class="cm">// pode chamar quantas vezes quiser</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-green">
+          <i class="fas fa-terminal"></i>
+          <div class="callout-body">
+            <p><strong>Saída (aparece duas vezes):</strong></p>
+            <pre style="background:none;border:none;margin:0.4rem 0 0;"><code style="padding:0;font-size:0.82rem;color:var(--accent3);">===========================
+  Bem-vindo ao sistema!  
+===========================</code></pre>
+          </div>
+        </div>
+
+
+        <!-- ══════════════════════════════════════════
+             SEÇÃO 2 — PARÂMETROS
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec2">
+          <span class="icon" style="background:rgba(121,192,255,0.12);color:var(--accent2);">
+            <i class="fas fa-arrow-right-to-bracket"></i>
+          </span>
+          2. Parâmetros
+        </h2>
+
+        <p>
+          <strong>Parâmetros</strong> são as informações que você passa para um método no momento de chamá-lo. Eles deixam o método mais flexível, pois o mesmo código pode trabalhar com dados diferentes a cada chamada.
+        </p>
+
+        <div class="callout callout-blue">
+          <i class="fas fa-info-circle"></i>
+          <div class="callout-body">
+            <p><strong>Parâmetro</strong> vs <strong>Argumento</strong></p>
+            <ul>
+              <li><strong>Parâmetro</strong> — a variável declarada na definição do método: <code class="inline">int a</code></li>
+              <li><strong>Argumento</strong> — o valor real passado na chamada: <code class="inline">somar(3, 5)</code></li>
+            </ul>
+            <p style="margin-top:0.4rem;font-size:0.82rem;color:var(--text-muted);">Na prática, os dois termos são usados como sinônimos.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec2-um">Método com um parâmetro</h3>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Um parâmetro</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">static void</span> <span class="fn">saudar</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">nome</span><span class="sy">) {</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Olá, "</span> <span class="sy">+</span> <span class="vr">nome</span> <span class="sy">+</span> <span class="st">"!"</span><span class="sy">);</span>
+<span class="sy">}</span>
+
+<span class="cm">// Chamadas com argumentos diferentes</span>
+<span class="fn">saudar</span><span class="sy">(</span><span class="st">"Lucas"</span><span class="sy">);</span>   <span class="cm">// Olá, Lucas!</span>
+<span class="fn">saudar</span><span class="sy">(</span><span class="st">"Maria"</span><span class="sy">);</span>   <span class="cm">// Olá, Maria!</span>
+<span class="fn">saudar</span><span class="sy">(</span><span class="st">"Carlos"</span><span class="sy">);</span>  <span class="cm">// Olá, Carlos!</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec2-varios">Múltiplos parâmetros</h3>
+
+        <p>Um método pode receber quantos parâmetros forem necessários — separados por vírgula, cada um com seu tipo:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Múltiplos parâmetros</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">static void</span> <span class="fn">apresentar</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">nome</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">idade</span><span class="sy">,</span> <span class="tp">String</span> <span class="vr">curso</span><span class="sy">) {</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Nome: "</span>   <span class="sy">+</span> <span class="vr">nome</span><span class="sy">);</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Idade: "</span>  <span class="sy">+</span> <span class="vr">idade</span><span class="sy">);</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Curso: "</span>  <span class="sy">+</span> <span class="vr">curso</span><span class="sy">);</span>
+<span class="sy">}</span>
+
+<span class="cm">// A ordem dos argumentos deve seguir a dos parâmetros</span>
+<span class="fn">apresentar</span><span class="sy">(</span><span class="st">"Lucas"</span><span class="sy">,</span> <span class="nu">20</span><span class="sy">,</span> <span class="st">"Ciência da Computação"</span><span class="sy">);</span></code>
+        </pre>
+
+        <div class="callout callout-yellow">
+          <i class="fas fa-exclamation-triangle"></i>
+          <div class="callout-body">
+            <p>Os argumentos devem ser passados <strong>na mesma ordem</strong> e com <strong>os mesmos tipos</strong> dos parâmetros declarados. <code class="inline">apresentar(20, "Lucas", ...)</code> causaria um erro de compilação.</p>
+          </div>
+        </div>
+
+
+        <!-- ══════════════════════════════════════════
+             SEÇÃO 3 — RETORNO
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec3">
+          <span class="icon" style="background:rgba(247,129,102,0.12);color:var(--accent);">
+            <i class="fas fa-arrow-left-from-line"></i>
+          </span>
+          3. Retorno de Valores
+        </h2>
+
+        <p>
+          Um método pode <strong>devolver um resultado</strong> para quem o chamou. Para isso, declaramos o <strong>tipo de retorno</strong> no lugar de <code class="inline">void</code> e usamos a palavra-chave <code class="inline">return</code>.
+        </p>
+
+        <div class="compare-grid">
+          <div>
+            <div class="compare-label" style="color:var(--text-muted);">void — não retorna</div>
+            <pre style="margin-top:0.5rem;">
+              <div class="code-header">
+                <span class="code-lang"><i class="fab fa-java"></i></span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="kw">static void</span> <span class="fn">mostrar</span><span class="sy">(</span><span class="tp">int</span> <span class="vr">n</span><span class="sy">) {</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">n</span><span class="sy">);</span>
+    <span class="cm">// não há return</span>
+<span class="sy">}</span></code>
+            </pre>
+          </div>
+          <div>
+            <div class="compare-label" style="color:var(--accent3);">int — retorna valor</div>
+            <pre style="margin-top:0.5rem;">
+              <div class="code-header">
+                <span class="code-lang"><i class="fab fa-java"></i></span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="kw">static</span> <span class="tp">int</span> <span class="fn">dobro</span><span class="sy">(</span><span class="tp">int</span> <span class="vr">n</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="vr">n</span> <span class="sy">*</span> <span class="nu">2</span><span class="sy">;</span>
+    <span class="cm">// return obrigatório</span>
+<span class="sy">}</span></code>
+            </pre>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec3-uso">Usando o valor retornado</h3>
+
+        <p>O valor retornado pode ser guardado em uma variável, usado em uma expressão ou exibido diretamente:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Capturando e usando o retorno</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">static</span> <span class="tp">double</span> <span class="fn">calcularMedia</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">n1</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">n2</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">n3</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="sy">(</span><span class="vr">n1</span> <span class="sy">+</span> <span class="vr">n2</span> <span class="sy">+</span> <span class="vr">n3</span><span class="sy">)</span> <span class="sy">/</span> <span class="nu">3.0</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+
+    <span class="cm">// 1. Guardando em variável</span>
+    <span class="tp">double</span> <span class="vr">media</span> <span class="sy">=</span> <span class="fn">calcularMedia</span><span class="sy">(</span><span class="nu">7.0</span><span class="sy">,</span> <span class="nu">8.5</span><span class="sy">,</span> <span class="nu">9.0</span><span class="sy">);</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Média: "</span> <span class="sy">+</span> <span class="vr">media</span><span class="sy">);</span>      <span class="cm">// Média: 8.166...</span>
+
+    <span class="cm">// 2. Usando diretamente no println</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">calcularMedia</span><span class="sy">(</span><span class="nu">5.0</span><span class="sy">,</span> <span class="nu">6.0</span><span class="sy">,</span> <span class="nu">7.0</span><span class="sy">));</span>  <span class="cm">// 6.0</span>
+
+    <span class="cm">// 3. Usando em uma expressão</span>
+    <span class="kw">if</span> <span class="sy">(</span><span class="fn">calcularMedia</span><span class="sy">(</span><span class="nu">7.0</span><span class="sy">,</span> <span class="nu">8.0</span><span class="sy">,</span> <span class="nu">9.0</span><span class="sy">)</span> <span class="sy">>=</span> <span class="nu">7.0</span><span class="sy">) {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Aprovado!"</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec3-boolean">Retorno boolean — verificações</h3>
+
+        <p>Métodos que retornam <code class="inline">boolean</code> são muito úteis para verificações. Por convenção, seus nomes começam com <code class="inline">is</code> ou <code class="inline">tem</code>:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Método que retorna boolean</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">static</span> <span class="tp">boolean</span> <span class="fn">isMaiorDeIdade</span><span class="sy">(</span><span class="tp">int</span> <span class="vr">idade</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="vr">idade</span> <span class="sy">>=</span> <span class="nu">18</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="kw">static</span> <span class="tp">boolean</span> <span class="fn">isAprovado</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">media</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="vr">media</span> <span class="sy">>=</span> <span class="nu">6.0</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="cm">// Uso direto no if</span>
+<span class="kw">if</span> <span class="sy">(</span><span class="fn">isMaiorDeIdade</span><span class="sy">(</span><span class="nu">20</span><span class="sy">)) {</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Acesso permitido"</span><span class="sy">);</span>
+<span class="sy">}</span></code>
+        </pre>
+
+
+        <!-- ══════════════════════════════════════════
+             SEÇÃO 4 — SOBRECARGA
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec4">
+          <span class="icon" style="background:rgba(188,140,255,0.12);color:var(--accent5);">
+            <i class="fas fa-layer-group"></i>
+          </span>
+          4. Sobrecarga de Métodos
+        </h2>
+
+        <p>
+          <strong>Sobrecarga</strong> (ou <em>overloading</em>) é quando criamos <strong>vários métodos com o mesmo nome</strong>, mas com parâmetros diferentes. O Java identifica qual versão chamar com base nos argumentos fornecidos.
+        </p>
+
+        <div class="callout callout-purple">
+          <i class="fas fa-info-circle"></i>
+          <div class="callout-body">
+            <p>Para sobrecarregar um método, você deve mudar pelo menos um dos seguintes:</p>
+            <ul>
+              <li>A <strong>quantidade</strong> de parâmetros</li>
+              <li>O <strong>tipo</strong> de um ou mais parâmetros</li>
+              <li>A <strong>ordem</strong> dos tipos dos parâmetros</li>
+            </ul>
+            <p style="margin-top:0.4rem;">O tipo de retorno <strong>não conta</strong> para diferenciar sobrecargas.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec4-ex">Exemplo — método somar sobrecarregado</h3>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Sobrecarga do método somar</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="cm">// Versão 1: dois inteiros</span>
+<span class="kw">static</span> <span class="tp">int</span> <span class="fn">somar</span><span class="sy">(</span><span class="tp">int</span> <span class="vr">a</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">b</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="vr">a</span> <span class="sy">+</span> <span class="vr">b</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="cm">// Versão 2: três inteiros</span>
+<span class="kw">static</span> <span class="tp">int</span> <span class="fn">somar</span><span class="sy">(</span><span class="tp">int</span> <span class="vr">a</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">b</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">c</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="vr">a</span> <span class="sy">+</span> <span class="vr">b</span> <span class="sy">+</span> <span class="vr">c</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="cm">// Versão 3: dois doubles</span>
+<span class="kw">static</span> <span class="tp">double</span> <span class="fn">somar</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">a</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">b</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="vr">a</span> <span class="sy">+</span> <span class="vr">b</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">somar</span><span class="sy">(</span><span class="nu">2</span><span class="sy">,</span> <span class="nu">3</span><span class="sy">));</span>          <span class="cm">// chama versão 1 → 5</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">somar</span><span class="sy">(</span><span class="nu">2</span><span class="sy">,</span> <span class="nu">3</span><span class="sy">,</span> <span class="nu">4</span><span class="sy">));</span>       <span class="cm">// chama versão 2 → 9</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">somar</span><span class="sy">(</span><span class="nu">1.5</span><span class="sy">,</span> <span class="nu">2.5</span><span class="sy">));</span>      <span class="cm">// chama versão 3 → 4.0</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <table class="overload-table">
+          <thead>
+            <tr>
+              <th>Chamada</th>
+              <th>Versão acionada</th>
+              <th>Resultado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">somar(2, 3)</code></td>
+              <td><code class="inline">somar(int, int)</code></td>
+              <td><code class="inline">5</code></td>
+            </tr>
+            <tr>
+              <td><code class="inline">somar(2, 3, 4)</code></td>
+              <td><code class="inline">somar(int, int, int)</code></td>
+              <td><code class="inline">9</code></td>
+            </tr>
+            <tr>
+              <td><code class="inline">somar(1.5, 2.5)</code></td>
+              <td><code class="inline">somar(double, double)</code></td>
+              <td><code class="inline">4.0</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout callout-blue">
+          <i class="fas fa-lightbulb"></i>
+          <div class="callout-body">
+            <p>Você já usa sobrecarga sem perceber! O próprio <code class="inline">System.out.println()</code> é sobrecarregado — aceita <code class="inline">int</code>, <code class="inline">double</code>, <code class="inline">String</code>, <code class="inline">boolean</code>... tudo com o mesmo nome.</p>
+          </div>
+        </div>
+
+
+        <!-- ══════════════════════════════════════════
+             SEÇÃO 5 — ESCOPO DE VARIÁVEIS
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec5">
+          <span class="icon" style="background:rgba(227,179,65,0.12);color:var(--accent4);">
+            <i class="fas fa-border-all"></i>
+          </span>
+          5. Escopo de Variáveis
+        </h2>
+
+        <p>
+          O <strong>escopo</strong> de uma variável define <strong>onde ela existe e pode ser usada</strong> dentro do programa. Uma variável só existe dentro do bloco <code class="inline">{ }</code> em que foi declarada.
+        </p>
+
+        <h3 class="subsection" id="sec5-tipos">Tipos de escopo</h3>
+
+        <div class="scope-wrap">
+          <div style="padding:1rem 1rem 0.5rem; font-family:'JetBrains Mono',monospace; font-size:0.78rem; color:var(--text-muted); border-bottom:1px solid var(--border);">
+            Diagrama de escopo — o que existe onde
+          </div>
+
+          <!-- Escopo da classe -->
+          <div class="scope-block" style="border-color:rgba(121,192,255,0.4);">
+            <div class="scope-block-label" style="color:var(--accent2);">Classe</div>
+            <div class="scope-var">
+              <div class="scope-dot" style="background:var(--accent2);"></div>
+              <span style="color:var(--accent2);">static int contador = 0</span>
+            </div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--text-muted);"> — visível em todos os métodos da classe</span>
+
+            <!-- Escopo do método -->
+            <div class="scope-block" style="border-color:rgba(86,211,100,0.4);margin-top:0.8rem;">
+              <div class="scope-block-label" style="color:var(--accent3);">Método main</div>
+              <div class="scope-var">
+                <div class="scope-dot" style="background:var(--accent3);"></div>
+                <span style="color:var(--accent3);">int total = 0</span>
+              </div>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--text-muted);"> — existe só dentro do main</span>
+
+              <!-- Escopo do bloco -->
+              <div class="scope-block" style="border-color:rgba(227,179,65,0.4);margin-top:0.8rem;">
+                <div class="scope-block-label" style="color:var(--accent4);">Bloco for</div>
+                <div class="scope-var">
+                  <div class="scope-dot" style="background:var(--accent4);"></div>
+                  <span style="color:var(--accent4);">int i = 0</span>
+                </div>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--text-muted);"> — existe só dentro do for</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec5-local">Variável local</h3>
+
+        <p>Declarada dentro de um método — existe apenas enquanto o método está sendo executado:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Escopo local — erro clássico</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">static void</span> <span class="fn">calcular</span><span class="sy">() {</span>
+    <span class="tp">int</span> <span class="vr">resultado</span> <span class="sy">=</span> <span class="nu">10</span> <span class="sy">*</span> <span class="nu">2</span><span class="sy">;</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">resultado</span><span class="sy">);</span>  <span class="cm">// ✅ funciona — mesmo escopo</span>
+<span class="sy">}</span>
+
+<span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+    <span class="fn">calcular</span><span class="sy">();</span>
+    <span class="cm">// System.out.println(resultado);  ❌ ERRO — resultado não existe aqui!</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec5-bloco">Escopo de bloco</h3>
+
+        <p>Variáveis declaradas dentro de <code class="inline">if</code>, <code class="inline">for</code>, <code class="inline">while</code> existem apenas dentro desses blocos:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Escopo de bloco</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">for</span> <span class="sy">(</span><span class="tp">int</span> <span class="vr">i</span> <span class="sy">=</span> <span class="nu">0</span><span class="sy">;</span> <span class="vr">i</span> <span class="sy"><</span> <span class="nu">5</span><span class="sy">;</span> <span class="vr">i</span><span class="sy">++) {</span>
+    <span class="tp">int</span> <span class="vr">dobro</span> <span class="sy">=</span> <span class="vr">i</span> <span class="sy">*</span> <span class="nu">2</span><span class="sy">;</span>     <span class="cm">// dobro existe só dentro do for</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">dobro</span><span class="sy">);</span>
+<span class="sy">}</span>
+
+<span class="cm">// System.out.println(i);     ❌ ERRO — i só existe dentro do for</span>
+<span class="cm">// System.out.println(dobro); ❌ ERRO — dobro só existe dentro do for</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec5-static">Variável de classe (static)</h3>
+
+        <p>Declarada fora dos métodos, com <code class="inline">static</code> — acessível por todos os métodos da classe:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Variável de classe — compartilhada</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">public class</span> <span class="nm">Contador</span> <span class="sy">{</span>
+
+    <span class="kw">static int</span> <span class="vr">total</span> <span class="sy">=</span> <span class="nu">0</span><span class="sy">;</span>  <span class="cm">// variável de classe</span>
+
+    <span class="kw">static void</span> <span class="fn">incrementar</span><span class="sy">() {</span>
+        <span class="vr">total</span><span class="sy">++;</span>              <span class="cm">// acessa a variável de classe</span>
+    <span class="sy">}</span>
+
+    <span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+        <span class="fn">incrementar</span><span class="sy">();</span>
+        <span class="fn">incrementar</span><span class="sy">();</span>
+        <span class="fn">incrementar</span><span class="sy">();</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">total</span><span class="sy">);</span>  <span class="cm">// 3</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+        </pre>
+
+
+        <!-- ══════════════════════════════════════════
+             SEÇÃO 6 — BOAS PRÁTICAS
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec6">
+          <span class="icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);">
+            <i class="fas fa-star"></i>
+          </span>
+          6. Boas Práticas de Organização
+        </h2>
+
+        <div class="bp-list">
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);">
+              <i class="fas fa-bullseye"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Um método, uma responsabilidade</strong>
+              <span>Cada método deve fazer apenas uma coisa. Se ele está fazendo muitas coisas, divida em métodos menores.</span>
+            </div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(121,192,255,0.12);color:var(--accent2);">
+              <i class="fas fa-tag"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Nomes descritivos — camelCase</strong>
+              <span>Prefira <code class="inline">calcularMediaFinal()</code> a <code class="inline">calc()</code>. O nome deve explicar o que o método faz.</span>
+            </div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(227,179,65,0.12);color:var(--accent4);">
+              <i class="fas fa-compress-arrows-alt"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Mantenha os métodos curtos</strong>
+              <span>Um método muito longo é difícil de entender e testar. Se passar de 20 linhas, considere dividir.</span>
+            </div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(188,140,255,0.12);color:var(--accent5);">
+              <i class="fas fa-recycle"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Evite repetição de código (DRY)</strong>
+              <span><em>Don't Repeat Yourself</em> — se você copia e cola código, isso provavelmente deveria ser um método.</span>
+            </div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(247,129,102,0.12);color:var(--accent);">
+              <i class="fas fa-sliders-h"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Limite o número de parâmetros</strong>
+              <span>Mais de 3 ou 4 parâmetros dificulta o uso. Considere agrupar dados relacionados em um objeto.</span>
+            </div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);">
+              <i class="fas fa-sort-amount-down"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Declare variáveis próximo ao uso</strong>
+              <span>Não declare todas as variáveis no topo do método — declare cada uma perto de onde ela será usada pela primeira vez.</span>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec6-exemplo">Aplicando as boas práticas</h3>
+
+        <div class="compare-grid">
+          <div>
+            <div class="compare-label" style="color:var(--accent);">❌ Sem boas práticas</div>
+            <pre style="margin-top:0.5rem;">
+              <div class="code-header">
+                <span class="code-lang"><i class="fab fa-java"></i></span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="kw">static void</span> <span class="fn">proc</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">a</span><span class="sy">,</span>
+              <span class="tp">double</span> <span class="vr">b</span><span class="sy">,</span>
+              <span class="tp">double</span> <span class="vr">c</span><span class="sy">,</span>
+              <span class="tp">String</span> <span class="vr">n</span><span class="sy">) {</span>
+    <span class="tp">double</span> <span class="vr">x</span><span class="sy">;</span>
+    <span class="vr">x</span> <span class="sy">=</span> <span class="sy">(</span><span class="vr">a</span><span class="sy">+</span><span class="vr">b</span><span class="sy">+</span><span class="vr">c</span><span class="sy">)/</span><span class="nu">3</span><span class="sy">;</span>
+    <span class="kw">if</span><span class="sy">(</span><span class="vr">x</span><span class="sy">>=</span><span class="nu">6</span><span class="sy">)</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span>
+        <span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">n</span><span class="sy">+</span><span class="st">" AP"</span><span class="sy">);</span>
+    <span class="kw">else</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span>
+        <span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">n</span><span class="sy">+</span><span class="st">" REP"</span><span class="sy">);</span>
+<span class="sy">}</span></code>
+            </pre>
+          </div>
+          <div>
+            <div class="compare-label" style="color:var(--accent3);">✅ Com boas práticas</div>
+            <pre style="margin-top:0.5rem;">
+              <div class="code-header">
+                <span class="code-lang"><i class="fab fa-java"></i></span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="kw">static</span> <span class="tp">double</span> <span class="fn">calcularMedia</span><span class="sy">(</span>
+        <span class="tp">double</span> <span class="vr">n1</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">n2</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">n3</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="sy">(</span><span class="vr">n1</span> <span class="sy">+</span> <span class="vr">n2</span> <span class="sy">+</span> <span class="vr">n3</span><span class="sy">)</span> <span class="sy">/</span> <span class="nu">3.0</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="kw">static void</span> <span class="fn">exibirResultado</span><span class="sy">(</span>
+        <span class="tp">String</span> <span class="vr">nome</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">media</span><span class="sy">) {</span>
+    <span class="tp">String</span> <span class="vr">status</span> <span class="sy">=</span> <span class="vr">media</span> <span class="sy">>=</span> <span class="nu">6.0</span>
+        <span class="sy">?</span> <span class="st">"Aprovado"</span>
+        <span class="sy">:</span> <span class="st">"Reprovado"</span><span class="sy">;</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span>
+        <span class="vr">nome</span> <span class="sy">+</span> <span class="st">": "</span> <span class="sy">+</span> <span class="vr">status</span><span class="sy">);</span>
+<span class="sy">}</span></code>
+            </pre>
+          </div>
+        </div>
+
+
+        <!-- ══════════════════════════════════════════
+             SEÇÃO 7 — EXERCÍCIOS
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec7">
+          <span class="icon" style="background:rgba(247,129,102,0.12);color:var(--accent);">
+            <i class="fas fa-dumbbell"></i>
+          </span>
+          7. Exercícios Práticos
+        </h2>
+
+        <p>
+          Os exercícios abaixo são progressivos — cada um introduz um conceito novo que depende do anterior. Tente resolver antes de ver a solução.
+        </p>
+
+        <div class="exercise-list">
+
+          <!-- ── EX 1 ── -->
+          <div class="exercise-card" id="ex1">
+            <div class="ex-header">
+              <div class="ex-num" style="background:rgba(86,211,100,0.12);color:var(--accent3);border:1px solid rgba(86,211,100,0.25);">01</div>
+              <div>
+                <div class="ex-title">Saudação Personalizada</div>
+              </div>
+              <span class="ex-level level-1">Nível 1</span>
+            </div>
+            <div class="ex-body">
+              <p>Crie um método <code class="inline">saudar</code> que receba um <strong>nome</strong> e uma <strong>hora do dia</strong> (inteiro de 0 a 23) e exiba uma saudação adequada: "Bom dia", "Boa tarde" ou "Boa noite".</p>
+              <ul>
+                <li>0–11 → <strong>Bom dia</strong></li>
+                <li>12–17 → <strong>Boa tarde</strong></li>
+                <li>18–23 → <strong>Boa noite</strong></li>
+              </ul>
+              <p><strong>Exemplo de chamada:</strong> <code class="inline">saudar("Lucas", 9)</code> → <em>"Bom dia, Lucas!"</em></p>
+              <pre>
+                <div class="code-header">
+                  <span class="code-lang"><i class="fab fa-java"></i> Solução</span>
+                  <div class="code-dots">
+                    <div class="code-dot" style="background:#ff5f57"></div>
+                    <div class="code-dot" style="background:#febc2e"></div>
+                    <div class="code-dot" style="background:#28c840"></div>
+                  </div>
+                </div>
+                <code><span class="kw">static void</span> <span class="fn">saudar</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">nome</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">hora</span><span class="sy">) {</span>
+    <span class="tp">String</span> <span class="vr">cumprimento</span><span class="sy">;</span>
+
+    <span class="kw">if</span> <span class="sy">(</span><span class="vr">hora</span> <span class="sy">>=</span> <span class="nu">0</span> <span class="sy">&&</span> <span class="vr">hora</span> <span class="sy"><=</span> <span class="nu">11</span><span class="sy">) {</span>
+        <span class="vr">cumprimento</span> <span class="sy">=</span> <span class="st">"Bom dia"</span><span class="sy">;</span>
+    <span class="sy">}</span> <span class="kw">else if</span> <span class="sy">(</span><span class="vr">hora</span> <span class="sy"><=</span> <span class="nu">17</span><span class="sy">) {</span>
+        <span class="vr">cumprimento</span> <span class="sy">=</span> <span class="st">"Boa tarde"</span><span class="sy">;</span>
+    <span class="sy">}</span> <span class="kw">else</span> <span class="sy">{</span>
+        <span class="vr">cumprimento</span> <span class="sy">=</span> <span class="st">"Boa noite"</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">cumprimento</span> <span class="sy">+</span> <span class="st">", "</span> <span class="sy">+</span> <span class="vr">nome</span> <span class="sy">+</span> <span class="st">"!"</span><span class="sy">);</span>
+<span class="sy">}</span>
+
+<span class="cm">// Teste</span>
+<span class="fn">saudar</span><span class="sy">(</span><span class="st">"Lucas"</span><span class="sy">,</span>  <span class="nu">9</span><span class="sy">);</span>  <span class="cm">// Bom dia, Lucas!</span>
+<span class="fn">saudar</span><span class="sy">(</span><span class="st">"Maria"</span><span class="sy">,</span> <span class="nu">15</span><span class="sy">);</span>  <span class="cm">// Boa tarde, Maria!</span>
+<span class="fn">saudar</span><span class="sy">(</span><span class="st">"João"</span><span class="sy">,</span>  <span class="nu">21</span><span class="sy">);</span>  <span class="cm">// Boa noite, João!</span></code>
+              </pre>
+            </div>
+          </div>
+
+          <!-- ── EX 2 ── -->
+          <div class="exercise-card" id="ex2">
+            <div class="ex-header">
+              <div class="ex-num" style="background:rgba(86,211,100,0.12);color:var(--accent3);border:1px solid rgba(86,211,100,0.25);">02</div>
+              <div>
+                <div class="ex-title">Calculadora com Retorno</div>
+              </div>
+              <span class="ex-level level-1">Nível 1</span>
+            </div>
+            <div class="ex-body">
+              <p>Crie quatro métodos — <code class="inline">somar</code>, <code class="inline">subtrair</code>, <code class="inline">multiplicar</code> e <code class="inline">dividir</code> — que recebam dois <code class="inline">double</code> e <strong>retornem</strong> o resultado. Para divisão, verifique se o divisor é zero antes de dividir.</p>
+              <pre>
+                <div class="code-header">
+                  <span class="code-lang"><i class="fab fa-java"></i> Solução</span>
+                  <div class="code-dots">
+                    <div class="code-dot" style="background:#ff5f57"></div>
+                    <div class="code-dot" style="background:#febc2e"></div>
+                    <div class="code-dot" style="background:#28c840"></div>
+                  </div>
+                </div>
+                <code><span class="kw">static</span> <span class="tp">double</span> <span class="fn">somar</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">a</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">b</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="vr">a</span> <span class="sy">+</span> <span class="vr">b</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="kw">static</span> <span class="tp">double</span> <span class="fn">subtrair</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">a</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">b</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="vr">a</span> <span class="sy">-</span> <span class="vr">b</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="kw">static</span> <span class="tp">double</span> <span class="fn">multiplicar</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">a</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">b</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="vr">a</span> <span class="sy">*</span> <span class="vr">b</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="kw">static</span> <span class="tp">double</span> <span class="fn">dividir</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">a</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">b</span><span class="sy">) {</span>
+    <span class="kw">if</span> <span class="sy">(</span><span class="vr">b</span> <span class="sy">==</span> <span class="nu">0</span><span class="sy">) {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Erro: divisão por zero!"</span><span class="sy">);</span>
+        <span class="kw">return</span> <span class="nu">0</span><span class="sy">;</span>
+    <span class="sy">}</span>
+    <span class="kw">return</span> <span class="vr">a</span> <span class="sy">/</span> <span class="vr">b</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="cm">// Teste</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">somar</span><span class="sy">(</span><span class="nu">10</span><span class="sy">,</span> <span class="nu">3</span><span class="sy">));</span>       <span class="cm">// 13.0</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">dividir</span><span class="sy">(</span><span class="nu">10</span><span class="sy">,</span> <span class="nu">0</span><span class="sy">));</span>    <span class="cm">// Erro: divisão por zero!</span></code>
+              </pre>
+            </div>
+          </div>
+
+          <!-- ── EX 3 ── -->
+          <div class="exercise-card" id="ex3">
+            <div class="ex-header">
+              <div class="ex-num" style="background:rgba(227,179,65,0.12);color:var(--accent4);border:1px solid rgba(227,179,65,0.25);">03</div>
+              <div>
+                <div class="ex-title">Boletim Escolar</div>
+              </div>
+              <span class="ex-level level-2">Nível 2</span>
+            </div>
+            <div class="ex-body">
+              <p>Crie um sistema de boletim que combine múltiplos métodos. Implemente:</p>
+              <ul>
+                <li><code class="inline">calcularMedia(double n1, double n2, double n3)</code> — retorna a média</li>
+                <li><code class="inline">isAprovado(double media)</code> — retorna <code class="inline">true</code> se média ≥ 6.0</li>
+                <li><code class="inline">exibirBoletim(String nome, double n1, double n2, double n3)</code> — exibe tudo formatado</li>
+              </ul>
+              <pre>
+                <div class="code-header">
+                  <span class="code-lang"><i class="fab fa-java"></i> Solução</span>
+                  <div class="code-dots">
+                    <div class="code-dot" style="background:#ff5f57"></div>
+                    <div class="code-dot" style="background:#febc2e"></div>
+                    <div class="code-dot" style="background:#28c840"></div>
+                  </div>
+                </div>
+                <code><span class="kw">static</span> <span class="tp">double</span> <span class="fn">calcularMedia</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">n1</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">n2</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">n3</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="sy">(</span><span class="vr">n1</span> <span class="sy">+</span> <span class="vr">n2</span> <span class="sy">+</span> <span class="vr">n3</span><span class="sy">)</span> <span class="sy">/</span> <span class="nu">3.0</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="kw">static</span> <span class="tp">boolean</span> <span class="fn">isAprovado</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">media</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="vr">media</span> <span class="sy">>=</span> <span class="nu">6.0</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="kw">static void</span> <span class="fn">exibirBoletim</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">nome</span><span class="sy">,</span>
+        <span class="tp">double</span> <span class="vr">n1</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">n2</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">n3</span><span class="sy">) {</span>
+
+    <span class="tp">double</span> <span class="vr">media</span> <span class="sy">=</span> <span class="fn">calcularMedia</span><span class="sy">(</span><span class="vr">n1</span><span class="sy">,</span> <span class="vr">n2</span><span class="sy">,</span> <span class="vr">n3</span><span class="sy">);</span>
+    <span class="tp">String</span> <span class="vr">situacao</span> <span class="sy">=</span> <span class="fn">isAprovado</span><span class="sy">(</span><span class="vr">media</span><span class="sy">)</span>
+        <span class="sy">?</span> <span class="st">"✅ Aprovado"</span>
+        <span class="sy">:</span> <span class="st">"❌ Reprovado"</span><span class="sy">;</span>
+
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"========================"</span><span class="sy">);</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Aluno: "</span> <span class="sy">+</span> <span class="vr">nome</span><span class="sy">);</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Notas: "</span> <span class="sy">+</span> <span class="vr">n1</span> <span class="sy">+</span> <span class="st">", "</span> <span class="sy">+</span> <span class="vr">n2</span> <span class="sy">+</span> <span class="st">", "</span> <span class="sy">+</span> <span class="vr">n3</span><span class="sy">);</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Média: "</span> <span class="sy">+</span> <span class="vr">media</span><span class="sy">);</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Situação: "</span> <span class="sy">+</span> <span class="vr">situacao</span><span class="sy">);</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"========================"</span><span class="sy">);</span>
+<span class="sy">}</span>
+
+<span class="cm">// Teste</span>
+<span class="fn">exibirBoletim</span><span class="sy">(</span><span class="st">"Lucas"</span><span class="sy">,</span> <span class="nu">7.0</span><span class="sy">,</span> <span class="nu">8.5</span><span class="sy">,</span> <span class="nu">6.0</span><span class="sy">);</span>
+<span class="fn">exibirBoletim</span><span class="sy">(</span><span class="st">"Maria"</span><span class="sy">,</span> <span class="nu">4.0</span><span class="sy">,</span> <span class="nu">5.0</span><span class="sy">,</span> <span class="nu">3.5</span><span class="sy">);</span></code>
+              </pre>
+              <div class="callout callout-green" style="margin-top:0.8rem;margin-bottom:0;">
+                <i class="fas fa-terminal"></i>
+                <div class="callout-body">
+                  <pre style="background:none;border:none;margin:0;"><code style="padding:0;font-size:0.8rem;color:var(--accent3);">========================
+Aluno: Lucas
+Notas: 7.0, 8.5, 6.0
+Média: 7.166...
+Situação: ✅ Aprovado
+========================</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── EX 4 ── -->
+          <div class="exercise-card" id="ex4">
+            <div class="ex-header">
+              <div class="ex-num" style="background:rgba(247,129,102,0.12);color:var(--accent);border:1px solid rgba(247,129,102,0.25);">04</div>
+              <div>
+                <div class="ex-title">Sobrecarga — Área de Figuras</div>
+              </div>
+              <span class="ex-level level-3">Nível 3</span>
+            </div>
+            <div class="ex-body">
+              <p>Crie um método <code class="inline">calcularArea</code> sobrecarregado para calcular a área de três figuras diferentes usando o mesmo nome:</p>
+              <ul>
+                <li><strong>Quadrado</strong>: recebe um <code class="inline">double lado</code></li>
+                <li><strong>Retângulo</strong>: recebe <code class="inline">double largura, double altura</code></li>
+                <li><strong>Círculo</strong>: recebe <code class="inline">double raio</code> — use <code class="inline">Math.PI</code></li>
+              </ul>
+              <p>Dica: como quadrado e círculo têm um parâmetro cada um, você vai precisar de tipos diferentes (<code class="inline">int</code> vs <code class="inline">double</code>) ou resolver de outra forma.</p>
+              <pre>
+                <div class="code-header">
+                  <span class="code-lang"><i class="fab fa-java"></i> Solução</span>
+                  <div class="code-dots">
+                    <div class="code-dot" style="background:#ff5f57"></div>
+                    <div class="code-dot" style="background:#febc2e"></div>
+                    <div class="code-dot" style="background:#28c840"></div>
+                  </div>
+                </div>
+                <code><span class="cm">// Quadrado — recebe int (lado inteiro)</span>
+<span class="kw">static</span> <span class="tp">double</span> <span class="fn">calcularArea</span><span class="sy">(</span><span class="tp">int</span> <span class="vr">lado</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="vr">lado</span> <span class="sy">*</span> <span class="vr">lado</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="cm">// Retângulo — dois doubles</span>
+<span class="kw">static</span> <span class="tp">double</span> <span class="fn">calcularArea</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">largura</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">altura</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="vr">largura</span> <span class="sy">*</span> <span class="vr">altura</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="cm">// Círculo — double (raio decimal)</span>
+<span class="kw">static</span> <span class="tp">double</span> <span class="fn">calcularArea</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">raio</span><span class="sy">) {</span>
+    <span class="kw">return</span> <span class="nm">Math</span><span class="sy">.</span><span class="vr">PI</span> <span class="sy">*</span> <span class="vr">raio</span> <span class="sy">*</span> <span class="vr">raio</span><span class="sy">;</span>
+<span class="sy">}</span>
+
+<span class="cm">// Teste</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">calcularArea</span><span class="sy">(</span><span class="nu">4</span><span class="sy">));</span>          <span class="cm">// Quadrado: 16.0</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">calcularArea</span><span class="sy">(</span><span class="nu">5.0</span><span class="sy">,</span> <span class="nu">3.0</span><span class="sy">));</span>   <span class="cm">// Retângulo: 15.0</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">calcularArea</span><span class="sy">(</span><span class="nu">2.0</span><span class="sy">));</span>       <span class="cm">// Círculo: 12.566...</span></code>
+              </pre>
+              <div class="callout callout-yellow" style="margin-top:0.8rem;margin-bottom:0;">
+                <i class="fas fa-lightbulb"></i>
+                <div class="callout-body">
+                  <p>A diferença entre quadrado (<code class="inline">int</code>) e círculo (<code class="inline">double</code>) permite ao Java distinguir as duas sobrecargas de um parâmetro. <code class="inline">calcularArea(4)</code> chama a versão <code class="inline">int</code>; <code class="inline">calcularArea(2.0)</code> chama a versão <code class="inline">double</code>.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /exercise-list -->
+
+
+        <!-- ══════════════════════════════════════════
+             RESUMO
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec-resumo">
+          <span class="icon" style="background:rgba(188,140,255,0.12);color:var(--accent5);">
+            <i class="fas fa-check-double"></i>
+          </span>
+          Resumo da Unidade
+        </h2>
+
+        <div class="callout callout-purple">
+          <i class="fas fa-graduation-cap"></i>
+          <div class="callout-body">
+            <p><strong>O que você aprendeu nesta unidade:</strong></p>
+            <ul>
+              <li>Um <strong>método</strong> é um bloco de código nomeado e reutilizável que executa uma tarefa específica.</li>
+              <li><strong>Parâmetros</strong> são as variáveis declaradas na definição do método; <strong>argumentos</strong> são os valores passados na chamada.</li>
+              <li>O <strong>tipo de retorno</strong> define o que o método devolve: use <code class="inline">void</code> para nenhum retorno e o tipo desejado com <code class="inline">return</code> para devolver valores.</li>
+              <li><strong>Sobrecarga</strong> permite criar vários métodos com o mesmo nome mas parâmetros diferentes — o Java escolhe qual chamar com base nos argumentos.</li>
+              <li>O <strong>escopo</strong> define onde uma variável existe: variáveis locais vivem só dentro do método; variáveis de bloco vivem só dentro do <code class="inline">{ }</code> em que foram criadas.</li>
+              <li>Boas práticas: <strong>um método = uma responsabilidade</strong>, nomes descritivos, métodos curtos e evitar repetição de código (DRY).</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Nav -->
+        <div class="lesson-nav">
+          <a href="unidade01_IntroducaoJava.html" class="nav-btn">
+            <i class="fas fa-arrow-left"></i> Unidade 01
+          </a>
+          <a href="unidade03_ClassesObjetos.html" class="nav-btn">
+            Unidade 03 <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+      </div><!-- /content -->
+
+      <!-- ══ TOC ════════════════════════════════════ -->
+      <aside class="toc">
+        <div class="toc-title"><i class="fas fa-list-ul"></i> Conteúdo</div>
+        <ol>
+          <li><a href="#sec1">1. O que é um Método?</a></li>
+          <li><a href="#sec1-anatomy">↳ Anatomia</a></li>
+          <li><a href="#sec1-simples">↳ Primeiro método</a></li>
+          <li><a href="#sec2">2. Parâmetros</a></li>
+          <li><a href="#sec2-um">↳ Um parâmetro</a></li>
+          <li><a href="#sec2-varios">↳ Múltiplos</a></li>
+          <li><a href="#sec3">3. Retorno</a></li>
+          <li><a href="#sec3-uso">↳ Usando o retorno</a></li>
+          <li><a href="#sec3-boolean">↳ boolean</a></li>
+          <li><a href="#sec4">4. Sobrecarga</a></li>
+          <li><a href="#sec4-ex">↳ Exemplo</a></li>
+          <li><a href="#sec5">5. Escopo</a></li>
+          <li><a href="#sec5-local">↳ Local</a></li>
+          <li><a href="#sec5-bloco">↳ Bloco</a></li>
+          <li><a href="#sec5-static">↳ Classe (static)</a></li>
+          <li><a href="#sec6">6. Boas Práticas</a></li>
+          <li><a href="#sec6-exemplo">↳ Exemplo comparado</a></li>
+          <li><a href="#sec7">7. Exercícios</a></li>
+          <li><a href="#ex1">↳ Ex 1 — Saudação</a></li>
+          <li><a href="#ex2">↳ Ex 2 — Calculadora</a></li>
+          <li><a href="#ex3">↳ Ex 3 — Boletim</a></li>
+          <li><a href="#ex4">↳ Ex 4 — Sobrecarga</a></li>
+          <li><a href="#sec-resumo">Resumo</a></li>
+        </ol>
+      </aside>
+
+    </div><!-- /page-wrapper -->
+
+    <button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+      // Progress bar
+      const bar = document.getElementById('progressBar');
+      window.addEventListener('scroll', () => {
+        const doc  = document.documentElement;
+        const prog = doc.scrollTop / (doc.scrollHeight - doc.clientHeight);
+        bar.style.width = (prog * 100) + '%';
+      });
+
+      // Back to top
+      const btn = document.getElementById('backToTop');
+      window.addEventListener('scroll', () => {
+        btn.classList.toggle('visible', window.scrollY > 400);
+      });
+
+      // Active TOC
+      const sections = document.querySelectorAll('[id]');
+      const tocLinks = document.querySelectorAll('.toc a');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            tocLinks.forEach(l => l.classList.remove('active'));
+            const active = document.querySelector(`.toc a[href="#${e.target.id}"]`);
+            if (active) active.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-60px 0px -70% 0px' });
+      sections.forEach(s => observer.observe(s));
+    </script>
+
+  </body>
+</html>

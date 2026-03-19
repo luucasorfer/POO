@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unidade 01 — Introdução à Linguagem Java</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg:         #0d1117;
+        --surface:    #161b22;
+        --surface2:   #1c2330;
+        --surface3:   #21262d;
+        --border:     #30363d;
+        --accent:     #f78166;
+        --accent2:    #79c0ff;
+        --accent3:    #56d364;
+        --accent4:    #e3b341;
+        --accent5:    #bc8cff;
+        --text:       #e6edf3;
+        --text-muted: #8b949e;
+        --text-dim:   #6e7681;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Sora', sans-serif;
+        font-size: 0.95rem;
+        line-height: 1.8;
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--border) 1px, transparent 1px),
+          linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.18;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ── PROGRESS BAR ────────────────────────────── */
+      .progress-bar-wrap {
+        position: fixed; top: 0; left: 0;
+        width: 100%; height: 2px; z-index: 200;
+      }
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent2), var(--accent5));
+        width: 0%;
+        transition: width 0.1s linear;
+      }
+
+      /* ── HEADER ─────────────────────────────────── */
+      header {
+        position: sticky; top: 0; z-index: 100;
+        background: rgba(13,17,23,0.96);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        padding: 0.75rem 2rem;
+      }
+      .header-nav {
+        max-width: 960px; margin: 0 auto;
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .back-link {
+        display: flex; align-items: center; gap: 0.5rem;
+        color: var(--text-muted); text-decoration: none;
+        font-size: 0.8rem; font-family: 'JetBrains Mono', monospace;
+        transition: color 0.15s;
+      }
+      .back-link:hover { color: var(--accent2); }
+      .lesson-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+        padding: 0.28rem 0.75rem; border-radius: 20px;
+        background: rgba(121,192,255,0.1);
+        color: var(--accent2);
+        border: 1px solid rgba(121,192,255,0.22);
+      }
+
+      /* ── LAYOUT ─────────────────────────────────── */
+      .page-wrapper {
+        position: relative; z-index: 1;
+        max-width: 960px; margin: 0 auto;
+        padding: 3rem 2rem 6rem;
+        display: grid;
+        grid-template-columns: 1fr 220px;
+        gap: 3rem;
+        align-items: start;
+      }
+      .content { min-width: 0; }
+
+      /* ── TOC ─────────────────────────────────────── */
+      .toc {
+        position: sticky; top: 70px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px; padding: 1.2rem;
+        font-size: 0.78rem;
+      }
+      .toc-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem; letter-spacing: 0.12em;
+        text-transform: uppercase; color: var(--text-muted);
+        font-weight: 700; margin-bottom: 0.9rem;
+        display: flex; align-items: center; gap: 0.4rem;
+      }
+      .toc ol { padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 0.15rem; }
+      .toc li a {
+        display: block; padding: 0.3rem 0.5rem;
+        border-radius: 5px; color: var(--text-muted);
+        text-decoration: none; line-height: 1.4;
+        transition: background 0.15s, color 0.15s;
+      }
+      .toc li a:hover { background: var(--surface2); color: var(--accent2); }
+      .toc li a.active {
+        background: rgba(121,192,255,0.08);
+        color: var(--accent2);
+        border-left: 2px solid var(--accent2);
+        padding-left: calc(0.5rem - 2px);
+      }
+
+      /* ── HERO ────────────────────────────────────── */
+      .lesson-hero {
+        margin-bottom: 3rem; padding-bottom: 2.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .lesson-num {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem; font-weight: 700;
+        letter-spacing: 0.15em; color: var(--accent2);
+        text-transform: uppercase; margin-bottom: 0.8rem;
+        display: flex; align-items: center; gap: 0.5rem;
+      }
+      h1.lesson-title {
+        font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+        font-weight: 800; letter-spacing: -0.03em;
+        line-height: 1.15; margin-bottom: 1rem;
+      }
+      h1.lesson-title span {
+        background: linear-gradient(90deg, var(--accent2), var(--accent3));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .lesson-summary {
+        color: var(--text-muted); font-size: 0.95rem;
+        max-width: 580px; margin-bottom: 1.5rem;
+      }
+      .lesson-meta { display: flex; gap: 1.4rem; flex-wrap: wrap; }
+      .meta-item {
+        display: flex; align-items: center; gap: 0.4rem;
+        font-size: 0.77rem; font-family: 'JetBrains Mono', monospace;
+        color: var(--text-muted);
+      }
+      .meta-item i { color: var(--accent3); }
+
+      /* ── HEADINGS ────────────────────────────────── */
+      h2.section-heading {
+        font-size: 1.25rem; font-weight: 700;
+        margin: 3rem 0 1.2rem; padding-bottom: 0.7rem;
+        border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; gap: 0.7rem;
+        letter-spacing: -0.02em; scroll-margin-top: 80px;
+      }
+      h2.section-heading .icon {
+        width: 30px; height: 30px; border-radius: 6px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.82rem; flex-shrink: 0;
+      }
+      h3.subsection {
+        font-size: 1.05rem; font-weight: 700;
+        margin: 2rem 0 0.8rem;
+        letter-spacing: -0.01em;
+        display: flex; align-items: center; gap: 0.5rem;
+        scroll-margin-top: 80px;
+      }
+      h3.subsection::before {
+        content: '';
+        display: inline-block;
+        width: 3px; height: 1em;
+        background: var(--accent2);
+        border-radius: 2px; flex-shrink: 0;
+      }
+      h4.sub-sub {
+        font-size: 0.8rem; font-weight: 700;
+        margin: 1.6rem 0 0.6rem;
+        color: var(--accent4);
+        font-family: 'JetBrains Mono', monospace;
+        text-transform: uppercase; letter-spacing: 0.07em;
+      }
+
+      /* ── BODY TEXT ───────────────────────────────── */
+      p { margin-bottom: 0.9rem; }
+      ul, ol { padding-left: 1.6rem; margin-bottom: 1rem; }
+      li { margin-bottom: 0.35rem; }
+      li strong { color: var(--accent2); }
+
+      /* ── CODE BLOCKS ─────────────────────────────── */
+      pre {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px; overflow-x: auto; margin: 1.4rem 0;
+      }
+      .code-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0.55rem 1rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface2);
+        border-radius: 10px 10px 0 0;
+      }
+      .code-lang {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em;
+        color: var(--text-muted); text-transform: uppercase;
+        display: flex; align-items: center; gap: 0.4rem;
+      }
+      .code-lang i { color: var(--accent4); }
+      .code-lang-bash i { color: var(--accent3); }
+      .code-dots { display: flex; gap: 0.32rem; }
+      .code-dot  { width: 10px; height: 10px; border-radius: 50%; }
+      pre code {
+        display: block; padding: 1.2rem 1.4rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.82rem; line-height: 1.85;
+        color: #e6edf3; white-space: pre;
+      }
+      /* Syntax */
+      .kw { color: #ff7b72; }
+      .tp { color: #ffa657; }
+      .st { color: #a5d6ff; }
+      .cm { color: #8b949e; font-style: italic; }
+      .fn { color: #d2a8ff; }
+      .nm { color: #79c0ff; }
+      .nu { color: #56d364; }
+      .sy { color: #e6edf3; }
+      .bash-cmd  { color: #56d364; }
+      .bash-flag { color: #e3b341; }
+      .bash-out  { color: #8b949e; font-style: italic; }
+
+      code.inline {
+        font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+        background: var(--surface3); border: 1px solid var(--border);
+        padding: 0.12em 0.45em; border-radius: 4px; color: var(--accent2);
+      }
+
+      /* ── CALLOUTS ────────────────────────────────── */
+      .callout {
+        border-radius: 8px; padding: 1rem 1.3rem; margin: 1.4rem 0;
+        display: flex; align-items: flex-start; gap: 0.85rem; font-size: 0.88rem;
+      }
+      .callout i { margin-top: 0.18rem; flex-shrink: 0; }
+      .callout-body { flex: 1; }
+      .callout-body p { margin-bottom: 0.3rem; }
+      .callout-body strong { font-weight: 700; }
+      .callout-body ul { margin: 0.4rem 0 0 1rem; }
+      .callout-body li { margin-bottom: 0.2rem; }
+
+      .callout-blue   { background: rgba(121,192,255,0.07); border: 1px solid rgba(121,192,255,0.2); border-left: 3px solid var(--accent2); }
+      .callout-blue i { color: var(--accent2); }
+      .callout-green   { background: rgba(86,211,100,0.07); border: 1px solid rgba(86,211,100,0.2); border-left: 3px solid var(--accent3); }
+      .callout-green i { color: var(--accent3); }
+      .callout-orange   { background: rgba(247,129,102,0.07); border: 1px solid rgba(247,129,102,0.2); border-left: 3px solid var(--accent); }
+      .callout-orange i { color: var(--accent); }
+      .callout-yellow   { background: rgba(227,179,65,0.07); border: 1px solid rgba(227,179,65,0.2); border-left: 3px solid var(--accent4); }
+      .callout-yellow i { color: var(--accent4); }
+      .callout-purple   { background: rgba(188,140,255,0.07); border: 1px solid rgba(188,140,255,0.2); border-left: 3px solid var(--accent5); }
+      .callout-purple i { color: var(--accent5); }
+
+      /* ── STEP LIST ───────────────────────────────── */
+      .step-list { display: flex; flex-direction: column; gap: 0.8rem; margin: 1.2rem 0; }
+      .step-item { display: flex; gap: 1rem; align-items: flex-start; }
+      .step-num {
+        width: 28px; height: 28px; border-radius: 50%;
+        background: rgba(121,192,255,0.12);
+        border: 1px solid rgba(121,192,255,0.25);
+        color: var(--accent2);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; margin-top: 0.1rem;
+      }
+      .step-content { flex: 1; font-size: 0.9rem; }
+      .step-content strong { color: var(--text); }
+      .step-content p { margin: 0.2rem 0 0; color: var(--text-muted); font-size: 0.85rem; }
+
+      /* ── DATA TABLE ──────────────────────────────── */
+      .data-table {
+        width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.85rem;
+      }
+      .data-table th {
+        text-align: left; padding: 0.6rem 1rem;
+        background: var(--surface2); border: 1px solid var(--border);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem; text-transform: uppercase;
+        letter-spacing: 0.06em; color: var(--text-muted);
+      }
+      .data-table td { padding: 0.6rem 1rem; border: 1px solid var(--border); vertical-align: middle; }
+      .data-table tr:hover td { background: var(--surface2); }
+      .type-badge {
+        font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;
+        font-weight: 600; padding: 0.1rem 0.5rem; border-radius: 4px;
+        background: rgba(255,164,87,0.1); color: #ffa657;
+        border: 1px solid rgba(255,164,87,0.2);
+      }
+
+      /* ── OS TABS ─────────────────────────────────── */
+      .os-tabs { display: flex; gap: 0.5rem; margin-bottom: -1px; }
+      .os-tab {
+        padding: 0.5rem 1rem;
+        font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700;
+        border: 1px solid var(--border); border-bottom: none;
+        border-radius: 6px 6px 0 0;
+        background: var(--surface2); color: var(--text-muted);
+        cursor: pointer; transition: all 0.15s;
+      }
+      .os-tab.active { background: var(--surface); color: var(--text); border-bottom: 1px solid var(--surface); }
+      .os-panel { display: none; }
+      .os-panel.active { display: block; }
+      .os-wrap {
+        border: 1px solid var(--border); border-radius: 0 6px 6px 6px;
+        background: var(--surface); padding: 1.2rem 1.4rem;
+        margin-bottom: 1.4rem;
+      }
+
+      /* ── NAMING CONVENTION CARDS ─────────────────── */
+      .conv-grid {
+        display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 0.8rem; margin: 1.2rem 0;
+      }
+      .conv-card {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 8px; padding: 1rem 1.2rem; transition: border-color 0.2s;
+      }
+      .conv-card:hover { border-color: var(--accent2); }
+      .conv-card .conv-name { font-size: 0.75rem; font-family: 'JetBrains Mono', monospace; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.3rem; }
+      .conv-card .conv-example { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; margin-bottom: 0.4rem; }
+      .conv-card .conv-desc { font-size: 0.78rem; color: var(--text-muted); }
+
+      /* ── JAVA USAGE CARD ─────────────────────────── */
+      .usage-table {
+        width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.85rem;
+      }
+      .usage-table th {
+        text-align: left; padding: 0.6rem 1rem;
+        background: var(--surface2); border: 1px solid var(--border);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem; text-transform: uppercase;
+        letter-spacing: 0.06em; color: var(--text-muted);
+      }
+      .usage-table td { padding: 0.6rem 1rem; border: 1px solid var(--border); vertical-align: middle; }
+      .usage-table tr:hover td { background: var(--surface2); }
+      .usage-badge {
+        font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700;
+        padding: 0.15rem 0.55rem; border-radius: 4px; display: inline-block;
+      }
+
+      /* ── JVM DIAGRAM ─────────────────────────────── */
+      .jvm-flow {
+        display: flex; align-items: center; justify-content: center;
+        gap: 0.5rem; flex-wrap: wrap;
+        margin: 1.4rem 0; padding: 1.4rem;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 10px;
+      }
+      .jvm-box {
+        background: var(--surface2); border: 1px solid var(--border);
+        border-radius: 8px; padding: 0.7rem 1.1rem; text-align: center;
+        font-size: 0.82rem; min-width: 110px;
+      }
+      .jvm-box .jvm-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem; }
+      .jvm-box .jvm-val { font-weight: 700; color: var(--accent2); }
+      .jvm-arrow { color: var(--text-dim); font-size: 1.1rem; }
+
+      /* ── OPERATOR GRID ───────────────────────────── */
+      .op-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr);
+        gap: 1rem; margin: 1.2rem 0;
+      }
+      .op-card {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 8px; overflow: hidden;
+      }
+      .op-card-header {
+        padding: 0.6rem 1rem;
+        font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 700;
+        letter-spacing: 0.1em; text-transform: uppercase;
+        background: var(--surface2); border-bottom: 1px solid var(--border);
+      }
+      .op-card table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+      .op-card td { padding: 0.45rem 0.8rem; border-bottom: 1px solid var(--border); }
+      .op-card td:first-child { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent4); width: 40px; }
+      .op-card tr:last-child td { border-bottom: none; }
+
+      /* ── BOTTOM NAV ──────────────────────────────── */
+      .lesson-nav {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border);
+      }
+      .nav-btn {
+        display: flex; align-items: center; gap: 0.5rem;
+        padding: 0.65rem 1.1rem; border: 1px solid var(--border);
+        border-radius: 8px; background: var(--surface);
+        color: var(--text-muted); text-decoration: none;
+        font-size: 0.8rem; font-family: 'JetBrains Mono', monospace;
+        transition: border-color 0.2s, color 0.2s; cursor: pointer;
+      }
+      .nav-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+      .nav-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+      /* ── BACK TO TOP ─────────────────────────────── */
+      #backToTop {
+        position: fixed; bottom: 1.5rem; right: 1.5rem;
+        background: var(--surface); border: 1px solid var(--border);
+        color: var(--text-muted); width: 38px; height: 38px;
+        border-radius: 8px; display: none;
+        align-items: center; justify-content: center;
+        cursor: pointer; font-size: 0.85rem;
+        transition: border-color 0.2s, color 0.2s; z-index: 50;
+      }
+      #backToTop:hover { border-color: var(--accent2); color: var(--accent2); }
+      #backToTop.visible { display: flex; }
+
+      /* ── RESPONSIVE ──────────────────────────────── */
+      @media (max-width: 800px) {
+        .page-wrapper { grid-template-columns: 1fr; padding: 2rem 1.2rem 4rem; }
+        .toc { display: none; }
+        .op-grid { grid-template-columns: 1fr; }
+        header { padding: 0.65rem 1.2rem; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <header>
+      <div class="header-nav">
+        <a href="index.html" class="back-link">
+          <i class="fas fa-arrow-left"></i> POO em Java
+        </a>
+        <span class="lesson-badge">UNIDADE 01 · INTRODUÇÃO</span>
+      </div>
+    </header>
+
+    <div class="page-wrapper">
+
+      <!-- ═══════════════ CONTENT ═══════════════ -->
+      <div class="content">
+
+        <!-- HERO -->
+        <div class="lesson-hero">
+          <div class="lesson-num">
+            <i class="fas fa-circle" style="color:var(--accent3);font-size:0.45rem;"></i>
+            Unidade 01 · Introdução à Linguagem Java
+          </div>
+          <h1 class="lesson-title">
+            Introdução à<br><span>Linguagem Java</span>
+          </h1>
+          <p class="lesson-summary">
+            Configure seu ambiente de desenvolvimento, entenda como Java funciona e escreva seus primeiros programas — do "Olá, Mundo!" às estruturas de repetição.
+          </p>
+          <div class="lesson-meta">
+            <div class="meta-item"><i class="fab fa-java"></i> Java 21+</div>
+            <div class="meta-item"><i class="fas fa-clock"></i> ~120 min</div>
+            <div class="meta-item"><i class="fas fa-layer-group"></i> Iniciante</div>
+            <div class="meta-item"><i class="fas fa-terminal"></i> Eclipse IDE</div>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 1 — O QUE É JAVA
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec1">
+          <span class="icon" style="background:rgba(121,192,255,0.12);color:var(--accent2);">
+            <i class="fab fa-java"></i>
+          </span>
+          1. O que é Java?
+        </h2>
+
+        <p>
+          Java é uma das linguagens de programação mais populares e utilizadas no mundo. É uma linguagem de <strong>alto nível</strong>, <strong>orientada a objetos</strong> e <strong>portável</strong> — o que significa que o mesmo código pode ser executado em diferentes sistemas operacionais sem modificações.
+        </p>
+
+        <p>
+          Criada por <strong>James Gosling</strong> em 1991 na Sun Microsystems, Java foi projetada com o princípio <strong>"Write Once, Run Anywhere"</strong> (Escreva uma vez, execute em qualquer lugar).
+        </p>
+
+        <h3 class="subsection" id="sec1-jvm">Como Java funciona? A JVM</h3>
+
+        <p>
+          Quando você escreve e compila um programa Java, o código não é convertido diretamente para instruções da máquina. Em vez disso, ele é transformado em um formato intermediário chamado <strong>bytecode</strong>, que é executado pela <strong>Java Virtual Machine (JVM)</strong>.
+        </p>
+
+        <div class="jvm-flow">
+          <div class="jvm-box">
+            <div class="jvm-label">Você escreve</div>
+            <div class="jvm-val">Main.java</div>
+          </div>
+          <div class="jvm-arrow"><i class="fas fa-arrow-right"></i></div>
+          <div class="jvm-box" style="border-color:rgba(227,179,65,0.3);">
+            <div class="jvm-label">Compilador</div>
+            <div class="jvm-val" style="color:var(--accent4);">javac</div>
+          </div>
+          <div class="jvm-arrow"><i class="fas fa-arrow-right"></i></div>
+          <div class="jvm-box" style="border-color:rgba(188,140,255,0.3);">
+            <div class="jvm-label">Bytecode</div>
+            <div class="jvm-val" style="color:var(--accent5);">Main.class</div>
+          </div>
+          <div class="jvm-arrow"><i class="fas fa-arrow-right"></i></div>
+          <div class="jvm-box" style="border-color:rgba(86,211,100,0.3);">
+            <div class="jvm-label">Executa</div>
+            <div class="jvm-val" style="color:var(--accent3);">JVM</div>
+          </div>
+        </div>
+
+        <div class="callout callout-blue">
+          <i class="fas fa-info-circle"></i>
+          <div class="callout-body">
+            <p>A JVM também gerencia a memória automaticamente por meio do <strong>Garbage Collector</strong>, que elimina objetos que não estão mais em uso — você não precisa se preocupar com isso no início.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec1-onde">Onde Java é utilizado?</h3>
+        <ul>
+          <li><strong>Desenvolvimento web:</strong> Frameworks como Spring para aplicações robustas</li>
+          <li><strong>Aplicativos Android:</strong> O sistema operacional móvel mais usado do mundo tem base em Java</li>
+          <li><strong>Sistemas empresariais:</strong> Bancos, seguradoras e grandes corporações usam Java pela segurança e escalabilidade</li>
+          <li><strong>Dispositivos embarcados:</strong> TVs inteligentes, terminais de pagamento e impressoras</li>
+        </ul>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 2 — INSTALAÇÃO
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec2">
+          <span class="icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);">
+            <i class="fas fa-download"></i>
+          </span>
+          2. Instalação do JDK e Eclipse
+        </h2>
+
+        <p>
+          Para programar em Java, precisamos de dois componentes: o <strong>JDK (Java Development Kit)</strong> — que contém o compilador e as ferramentas de desenvolvimento — e uma <strong>IDE</strong> para escrever o código. Usaremos o <strong>Eclipse IDE</strong>.
+        </p>
+
+        <div class="os-tabs" id="osTabs">
+          <div class="os-tab active" onclick="switchOS('windows')"><i class="fab fa-windows"></i> Windows</div>
+          <div class="os-tab" onclick="switchOS('linux')"><i class="fab fa-linux"></i> Ubuntu / Linux</div>
+        </div>
+
+        <!-- WINDOWS -->
+        <div class="os-panel active" id="panel-windows">
+          <div class="os-wrap">
+            <h4 class="sub-sub" style="margin-top:0;">Passo 1 — Instalar o JDK</h4>
+            <div class="step-list">
+              <div class="step-item">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                  <strong>Acesse o site da Oracle</strong>
+                  <p><a href="https://www.oracle.com/java/technologies/downloads/" style="color:var(--accent2);">oracle.com/java/technologies/downloads</a></p>
+                </div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                  <strong>Baixe o JDK 21 ou superior</strong>
+                  <p>Escolha o instalador para Windows (.exe)</p>
+                </div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                  <strong>Execute o instalador e siga as instruções padrão</strong>
+                </div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                  <strong>Verifique a instalação no Prompt de Comando (cmd)</strong>
+                </div>
+              </div>
+            </div>
+            <pre>
+              <div class="code-header">
+                <span class="code-lang code-lang-bash"><i class="fas fa-terminal"></i> cmd — verificar Java</span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="bash-cmd">java -version</span>
+
+<span class="bash-out">java version "21.x.x"</span></code>
+            </pre>
+
+            <h4 class="sub-sub">Passo 2 — Instalar o Eclipse IDE</h4>
+            <div class="step-list">
+              <div class="step-item">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                  <strong>Acesse</strong>
+                  <p><a href="https://www.eclipse.org/downloads/" style="color:var(--accent2);">eclipse.org/downloads</a></p>
+                </div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">2</div>
+                <div class="step-content"><strong>Baixe o Eclipse Installer</strong></div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">3</div>
+                <div class="step-content"><strong>Execute o instalador</strong></div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                  <strong>Escolha: Eclipse IDE for Java Developers</strong>
+                </div>
+              </div>
+              <div class="step-item">
+                <div class="step-num">5</div>
+                <div class="step-content"><strong>Clique em Install → Launch</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- LINUX -->
+        <div class="os-panel" id="panel-linux">
+          <div class="os-wrap">
+            <h4 class="sub-sub" style="margin-top:0;">Passo 1 — Instalar o JDK via terminal</h4>
+            <pre>
+              <div class="code-header">
+                <span class="code-lang code-lang-bash"><i class="fas fa-terminal"></i> Terminal — instalar OpenJDK 21</span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="cm"># 1. Abra o terminal (Ctrl + Alt + T)</span>
+
+<span class="cm"># 2. Atualize o sistema</span>
+<span class="bash-cmd">sudo apt update && sudo apt upgrade -y</span>
+
+<span class="cm"># 3. Instale o OpenJDK 21</span>
+<span class="bash-cmd">sudo apt install openjdk-21-jdk -y</span>
+
+<span class="cm"># 4. Verifique a instalação</span>
+<span class="bash-cmd">java -version</span>
+
+<span class="bash-out">openjdk version "21.x.x" ...</span></code>
+            </pre>
+
+            <h4 class="sub-sub">Passo 2 — Instalar o Eclipse via Snap</h4>
+            <pre>
+              <div class="code-header">
+                <span class="code-lang code-lang-bash"><i class="fas fa-terminal"></i> Terminal — instalar Eclipse</span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="cm"># Instale o Snap (se necessário)</span>
+<span class="bash-cmd">sudo apt install snapd -y</span>
+
+<span class="cm"># Instale o Eclipse</span>
+<span class="bash-cmd">sudo snap install eclipse --classic</span>
+
+<span class="cm"># Abra o Eclipse pelo terminal ou pelo menu de aplicativos</span>
+<span class="bash-cmd">eclipse</span></code>
+            </pre>
+
+            <div class="callout callout-green" style="margin:0;">
+              <i class="fas fa-check-circle"></i>
+              <div class="callout-body">
+                <p>O Snap mantém o Eclipse <strong>sempre atualizado automaticamente</strong> — sem precisar reinstalar manualmente.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── ECLIPSE EM PORTUGUÊS ─── -->
+        <h3 class="subsection" id="sec2-babel">Eclipse em Português (Babel)</h3>
+
+        <p>
+          O Eclipse permite traduzir sua interface para o português usando o pacote oficial <strong>Eclipse Babel Project</strong>. Siga os passos abaixo:
+        </p>
+
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <strong>No Eclipse, acesse:</strong>
+              <p><code class="inline">Help → Install New Software…</code></p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <strong>No campo "Work with", cole o repositório Babel:</strong>
+              <pre style="margin-top:0.5rem;">
+                <div class="code-header">
+                  <span class="code-lang"><i class="fas fa-link"></i> URL do repositório</span>
+                  <div class="code-dots">
+                    <div class="code-dot" style="background:#ff5f57"></div>
+                    <div class="code-dot" style="background:#febc2e"></div>
+                    <div class="code-dot" style="background:#28c840"></div>
+                  </div>
+                </div>
+                <code>https://download.eclipse.org/technology/babel/update-site/latest/</code>
+              </pre>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <strong>Selecione:</strong>
+              <p><code class="inline">Babel Language Packs for Eclipse → Portuguese (Brazil)</code></p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <strong>Clique em:</strong>
+              <p><code class="inline">Next → Next → Accept → Finish</code> e reinicie o Eclipse</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">5</div>
+            <div class="step-content">
+              <strong>Se o idioma não mudar automaticamente:</strong>
+              <p>Vá em <code class="inline">Window → Preferences → General → Appearance</code>, defina <strong>Locale</strong> como <code class="inline">Portuguese (Brazil)</code> e reinicie</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 3 — ESTRUTURA BÁSICA
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec3">
+          <span class="icon" style="background:rgba(188,140,255,0.12);color:var(--accent5);">
+            <i class="fas fa-code"></i>
+          </span>
+          3. Estrutura Básica de um Programa Java
+        </h2>
+
+        <p>
+          Todo programa Java é organizado em <strong>classes e métodos</strong>. Veja o programa mais simples possível:
+        </p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Main.java — Olá, Mundo!</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">public class</span> <span class="nm">Main</span> <span class="sy">{</span>
+
+    <span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Olá, mundo!"</span><span class="sy">);</span>
+
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-blue">
+          <i class="fas fa-microscope"></i>
+          <div class="callout-body">
+            <p><strong>Analisando cada parte:</strong></p>
+            <ul>
+              <li><code class="inline">public class Main</code> — define a classe. O nome do arquivo deve ser <strong>Main.java</strong></li>
+              <li><code class="inline">public static void main(String[] args)</code> — <strong>ponto de entrada</strong> do programa. É sempre por aqui que a execução começa</li>
+              <li><code class="inline">System.out.println(...)</code> — imprime uma linha de texto no console</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout callout-yellow">
+          <i class="fas fa-exclamation-triangle"></i>
+          <div class="callout-body">
+            <p><strong>Java é sensível a maiúsculas e minúsculas.</strong> <code class="inline">Main</code> é diferente de <code class="inline">main</code> e de <code class="inline">MAIN</code>. Sempre preste atenção à capitalização.</p>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 4 — TIPOS DE DADOS
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec4">
+          <span class="icon" style="background:rgba(255,164,87,0.12);color:#ffa657;">
+            <i class="fas fa-database"></i>
+          </span>
+          4. Tipos de Dados
+        </h2>
+
+        <p>
+          Java é uma linguagem <strong>fortemente tipada</strong>: toda variável precisa ter um tipo definido antes de ser usada. O tipo informa ao Java qual tipo de dado aquela variável pode armazenar.
+        </p>
+
+        <h3 class="subsection">Tipos primitivos principais</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Exemplo de valor</th>
+              <th>Descrição</th>
+              <th>Tamanho</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="type-badge">int</span></td>
+              <td><code class="inline">10</code>, <code class="inline">-5</code>, <code class="inline">0</code></td>
+              <td>Números inteiros</td>
+              <td>32 bits</td>
+            </tr>
+            <tr>
+              <td><span class="type-badge">double</span></td>
+              <td><code class="inline">10.5</code>, <code class="inline">3.14</code></td>
+              <td>Números decimais (ponto flutuante)</td>
+              <td>64 bits</td>
+            </tr>
+            <tr>
+              <td><span class="type-badge">float</span></td>
+              <td><code class="inline">0.5f</code>, <code class="inline">1.0f</code></td>
+              <td>Decimal com menos precisão — requer sufixo <code class="inline">f</code></td>
+              <td>32 bits</td>
+            </tr>
+            <tr>
+              <td><span class="type-badge">char</span></td>
+              <td><code class="inline">'A'</code>, <code class="inline">'z'</code></td>
+              <td>Um único caractere — usa aspas simples</td>
+              <td>16 bits</td>
+            </tr>
+            <tr>
+              <td><span class="type-badge">boolean</span></td>
+              <td><code class="inline">true</code> / <code class="inline">false</code></td>
+              <td>Verdadeiro ou falso</td>
+              <td>1 bit</td>
+            </tr>
+            <tr>
+              <td><span class="type-badge">String</span></td>
+              <td><code class="inline">"Olá"</code>, <code class="inline">"Java"</code></td>
+              <td>Texto (não é primitivo, é uma classe) — usa aspas duplas</td>
+              <td>variável</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout callout-orange">
+          <i class="fas fa-lightbulb"></i>
+          <div class="callout-body">
+            <p><code class="inline">String</code> começa com letra maiúscula porque é uma <strong>classe</strong>, não um tipo primitivo. Mesmo assim, é o tipo mais usado para texto em Java.</p>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 5 — VARIÁVEIS
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec5">
+          <span class="icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);">
+            <i class="fas fa-box"></i>
+          </span>
+          5. Variáveis
+        </h2>
+
+        <p>
+          Variáveis são <strong>espaços na memória</strong> usados para armazenar dados. Em Java, toda variável precisa ter um <strong>tipo</strong> e um <strong>nome</strong>.
+        </p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Declarando e inicializando variáveis</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="tp">int</span>     <span class="vr">idade</span>   <span class="sy">=</span> <span class="nu">20</span><span class="sy">;</span>          <span class="cm">// número inteiro</span>
+<span class="tp">double</span>  <span class="vr">altura</span>  <span class="sy">=</span> <span class="nu">1.75</span><span class="sy">;</span>        <span class="cm">// número decimal</span>
+<span class="tp">float</span>   <span class="vr">peso</span>    <span class="sy">=</span> <span class="nu">70.5f</span><span class="sy">;</span>       <span class="cm">// decimal (sufixo f obrigatório)</span>
+<span class="tp">char</span>    <span class="vr">letra</span>   <span class="sy">=</span> <span class="st">'A'</span><span class="sy">;</span>          <span class="cm">// um caractere (aspas simples)</span>
+<span class="tp">boolean</span> <span class="vr">ativo</span>   <span class="sy">=</span> <span class="kw">true</span><span class="sy">;</span>         <span class="cm">// verdadeiro ou falso</span>
+<span class="nm">String</span>  <span class="vr">nome</span>    <span class="sy">=</span> <span class="st">"Lucas"</span><span class="sy">;</span>      <span class="cm">// texto (aspas duplas)</span></code>
+        </pre>
+
+        <h3 class="subsection">Regras para nomear variáveis</h3>
+        <ul>
+          <li>Devem ter um <strong>tipo definido</strong></li>
+          <li>O nome <strong>não pode começar com número</strong> — mas pode conter números</li>
+          <li><strong>Sem espaços</strong> — use camelCase para nomes compostos</li>
+          <li>Java é sensível a maiúsculas: <code class="inline">idade</code> ≠ <code class="inline">Idade</code></li>
+          <li>Não use palavras reservadas como <code class="inline">class</code>, <code class="inline">int</code>, <code class="inline">void</code></li>
+        </ul>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Exemplos corretos e incorretos</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="cm">// ✅ Corretos</span>
+<span class="tp">int</span> <span class="vr">idade</span> <span class="sy">=</span> <span class="nu">18</span><span class="sy">;</span>
+<span class="tp">int</span> <span class="vr">idadeDoAluno</span> <span class="sy">=</span> <span class="nu">20</span><span class="sy">;</span>
+<span class="tp">double</span> <span class="vr">precoFinal</span> <span class="sy">=</span> <span class="nu">99.90</span><span class="sy">;</span>
+
+<span class="cm">// ❌ Incorretos</span>
+<span class="cm">// int 2idade = 18;       — não pode começar com número</span>
+<span class="cm">// int idade aluno = 18; — não pode ter espaço</span>
+<span class="cm">// int class = 18;       — palavra reservada</span></code>
+        </pre>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 6 — ENTRADA E SAÍDA
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec6">
+          <span class="icon" style="background:rgba(227,179,65,0.12);color:var(--accent4);">
+            <i class="fas fa-exchange-alt"></i>
+          </span>
+          6. Entrada e Saída de Dados
+        </h2>
+
+        <h3 class="subsection" id="sec6-saida">Saída de dados — System.out</h3>
+
+        <p>Para exibir informações no console, usamos <code class="inline">System.out</code>. Há duas variações:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Saída no console</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="cm">// println — imprime e quebra a linha</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Olá, mundo!"</span><span class="sy">);</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Segunda linha"</span><span class="sy">);</span>
+
+<span class="cm">// print — imprime sem quebrar a linha</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">print</span><span class="sy">(</span><span class="st">"A"</span><span class="sy">);</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">print</span><span class="sy">(</span><span class="st">"B"</span><span class="sy">);</span>   <span class="cm">// imprime: AB</span>
+
+<span class="cm">// Exibindo variáveis</span>
+<span class="tp">int</span> <span class="vr">idade</span> <span class="sy">=</span> <span class="nu">20</span><span class="sy">;</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Idade: "</span> <span class="sy">+</span> <span class="vr">idade</span><span class="sy">);</span>  <span class="cm">// Idade: 20</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec6-entrada">Entrada de dados — Scanner</h3>
+
+        <p>
+          Para ler dados digitados pelo usuário no console, usamos a classe <code class="inline">Scanner</code>. Ela precisa ser <strong>importada</strong> antes de ser usada:
+        </p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Lendo dados com Scanner</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">import</span> <span class="nm">java.util.Scanner</span><span class="sy">;</span>  <span class="cm">// importar no topo do arquivo</span>
+
+<span class="kw">public class</span> <span class="nm">Main</span> <span class="sy">{</span>
+    <span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+
+        <span class="nm">Scanner</span> <span class="vr">sc</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Scanner</span><span class="sy">(</span><span class="nm">System</span><span class="sy">.</span><span class="vr">in</span><span class="sy">);</span>
+
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">print</span><span class="sy">(</span><span class="st">"Digite seu nome: "</span><span class="sy">);</span>
+        <span class="tp">String</span> <span class="vr">nome</span> <span class="sy">=</span> <span class="vr">sc</span><span class="sy">.</span><span class="fn">nextLine</span><span class="sy">();</span>
+
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">print</span><span class="sy">(</span><span class="st">"Digite sua idade: "</span><span class="sy">);</span>
+        <span class="tp">int</span> <span class="vr">idade</span> <span class="sy">=</span> <span class="vr">sc</span><span class="sy">.</span><span class="fn">nextInt</span><span class="sy">();</span>
+
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Olá, "</span> <span class="sy">+</span> <span class="vr">nome</span> <span class="sy">+</span> <span class="st">"! Você tem "</span> <span class="sy">+</span> <span class="vr">idade</span> <span class="sy">+</span> <span class="st">" anos."</span><span class="sy">);</span>
+
+        <span class="vr">sc</span><span class="sy">.</span><span class="fn">close</span><span class="sy">();</span>  <span class="cm">// boa prática: fechar o Scanner ao fim</span>
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <table class="data-table">
+          <thead><tr><th>Método</th><th>Lê</th><th>Exemplo</th></tr></thead>
+          <tbody>
+            <tr><td><code class="inline">nextLine()</code></td><td>Uma linha de texto completa</td><td><code class="inline">sc.nextLine()</code></td></tr>
+            <tr><td><code class="inline">nextInt()</code></td><td>Um número inteiro</td><td><code class="inline">sc.nextInt()</code></td></tr>
+            <tr><td><code class="inline">nextDouble()</code></td><td>Um número decimal</td><td><code class="inline">sc.nextDouble()</code></td></tr>
+            <tr><td><code class="inline">next()</code></td><td>Uma palavra (sem espaço)</td><td><code class="inline">sc.next()</code></td></tr>
+          </tbody>
+        </table>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 7 — OPERADORES
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec7">
+          <span class="icon" style="background:rgba(247,129,102,0.12);color:var(--accent);">
+            <i class="fas fa-calculator"></i>
+          </span>
+          7. Operadores
+        </h2>
+
+        <p>Operadores são símbolos que realizam operações sobre valores e variáveis.</p>
+
+        <div class="op-grid">
+          <div class="op-card">
+            <div class="op-card-header" style="color:var(--accent2);">Aritméticos</div>
+            <table>
+              <tr><td>+</td><td>Adição</td></tr>
+              <tr><td>-</td><td>Subtração</td></tr>
+              <tr><td>*</td><td>Multiplicação</td></tr>
+              <tr><td>/</td><td>Divisão</td></tr>
+              <tr><td>%</td><td>Resto (módulo)</td></tr>
+            </table>
+          </div>
+          <div class="op-card">
+            <div class="op-card-header" style="color:var(--accent3);">Relacionais</div>
+            <table>
+              <tr><td>==</td><td>Igual a</td></tr>
+              <tr><td>!=</td><td>Diferente de</td></tr>
+              <tr><td>&gt;</td><td>Maior que</td></tr>
+              <tr><td>&lt;</td><td>Menor que</td></tr>
+              <tr><td>&gt;=</td><td>Maior ou igual</td></tr>
+              <tr><td>&lt;=</td><td>Menor ou igual</td></tr>
+            </table>
+          </div>
+          <div class="op-card">
+            <div class="op-card-header" style="color:var(--accent4);">Lógicos</div>
+            <table>
+              <tr><td>&&</td><td>E (AND)</td></tr>
+              <tr><td>||</td><td>OU (OR)</td></tr>
+              <tr><td>!</td><td>NÃO (NOT)</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Operadores em uso</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="tp">int</span> <span class="vr">a</span> <span class="sy">=</span> <span class="nu">10</span><span class="sy">,</span> <span class="vr">b</span> <span class="sy">=</span> <span class="nu">3</span><span class="sy">;</span>
+
+<span class="cm">// Aritméticos</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">a</span> <span class="sy">+</span> <span class="vr">b</span><span class="sy">);</span>   <span class="cm">// 13</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">a</span> <span class="sy">/</span> <span class="vr">b</span><span class="sy">);</span>   <span class="cm">// 3  (divisão inteira)</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">a</span> <span class="sy">%</span> <span class="vr">b</span><span class="sy">);</span>   <span class="cm">// 1  (resto de 10/3)</span>
+
+<span class="cm">// Relacionais — retornam true ou false</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">a</span> <span class="sy">></span> <span class="vr">b</span><span class="sy">);</span>   <span class="cm">// true</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">a</span> <span class="sy">==</span> <span class="vr">b</span><span class="sy">);</span>  <span class="cm">// false</span>
+
+<span class="cm">// Lógicos — combinam condições</span>
+<span class="tp">boolean</span> <span class="vr">maior</span> <span class="sy">=</span> <span class="vr">a</span> <span class="sy">></span> <span class="nu">5</span> <span class="sy">&&</span> <span class="vr">b</span> <span class="sy">></span> <span class="nu">1</span><span class="sy">;</span>  <span class="cm">// true (ambas verdadeiras)</span>
+<span class="tp">boolean</span> <span class="vr">algum</span> <span class="sy">=</span> <span class="vr">a</span> <span class="sy">></span> <span class="nu">20</span> <span class="sy">||</span> <span class="vr">b</span> <span class="sy">></span> <span class="nu">1</span><span class="sy">;</span> <span class="cm">// true (pelo menos uma)</span></code>
+        </pre>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 8 — CONDICIONAIS
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec8">
+          <span class="icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);">
+            <i class="fas fa-code-branch"></i>
+          </span>
+          8. Estruturas Condicionais
+        </h2>
+
+        <p>
+          Estruturas condicionais permitem que o programa <strong>tome decisões</strong> com base em condições. O fluxo de execução muda dependendo se a condição é verdadeira ou falsa.
+        </p>
+
+        <h3 class="subsection" id="sec8-if">if / else if / else</h3>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> if / else if / else</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="tp">int</span> <span class="vr">idade</span> <span class="sy">=</span> <span class="nu">16</span><span class="sy">;</span>
+
+<span class="kw">if</span> <span class="sy">(</span><span class="vr">idade</span> <span class="sy">>=</span> <span class="nu">18</span><span class="sy">) {</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Maior de idade"</span><span class="sy">);</span>
+<span class="sy">}</span> <span class="kw">else if</span> <span class="sy">(</span><span class="vr">idade</span> <span class="sy">>=</span> <span class="nu">16</span><span class="sy">) {</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Quase lá — 16 ou 17 anos"</span><span class="sy">);</span>
+<span class="sy">}</span> <span class="kw">else</span> <span class="sy">{</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Menor de idade"</span><span class="sy">);</span>
+<span class="sy">}</span>
+
+<span class="cm">// Saída: Quase lá — 16 ou 17 anos</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec8-switch">switch</h3>
+
+        <p>
+          O <code class="inline">switch</code> é ideal quando você precisa comparar uma variável com <strong>múltiplos valores fixos</strong>:
+        </p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> switch / case</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="tp">int</span> <span class="vr">dia</span> <span class="sy">=</span> <span class="nu">3</span><span class="sy">;</span>
+
+<span class="kw">switch</span> <span class="sy">(</span><span class="vr">dia</span><span class="sy">) {</span>
+    <span class="kw">case</span> <span class="nu">1</span><span class="sy">:</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Segunda-feira"</span><span class="sy">);</span>
+        <span class="kw">break</span><span class="sy">;</span>
+    <span class="kw">case</span> <span class="nu">2</span><span class="sy">:</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Terça-feira"</span><span class="sy">);</span>
+        <span class="kw">break</span><span class="sy">;</span>
+    <span class="kw">case</span> <span class="nu">3</span><span class="sy">:</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Quarta-feira"</span><span class="sy">);</span>
+        <span class="kw">break</span><span class="sy">;</span>
+    <span class="kw">default</span><span class="sy">:</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Outro dia"</span><span class="sy">);</span>
+<span class="sy">}</span>
+
+<span class="cm">// Saída: Quarta-feira</span></code>
+        </pre>
+
+        <div class="callout callout-yellow">
+          <i class="fas fa-exclamation-triangle"></i>
+          <div class="callout-body">
+            <p>Não esqueça o <code class="inline">break</code> em cada <code class="inline">case</code>! Sem ele, a execução continua para o próximo case mesmo que a condição já tenha sido satisfeita.</p>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 9 — REPETIÇÃO
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec9">
+          <span class="icon" style="background:rgba(188,140,255,0.12);color:var(--accent5);">
+            <i class="fas fa-redo"></i>
+          </span>
+          9. Estruturas de Repetição
+        </h2>
+
+        <p>
+          Estruturas de repetição (ou <strong>laços</strong>) permitem executar um bloco de código <strong>várias vezes</strong> com base em uma condição.
+        </p>
+
+        <h3 class="subsection" id="sec9-for">for — quantidade definida de repetições</h3>
+
+        <p>Use <code class="inline">for</code> quando você sabe <strong>quantas vezes</strong> o bloco deve repetir:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Laço for</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="cm">//  início  condição  incremento</span>
+<span class="kw">for</span> <span class="sy">(</span><span class="tp">int</span> <span class="vr">i</span> <span class="sy">=</span> <span class="nu">0</span><span class="sy">;</span> <span class="vr">i</span> <span class="sy"><</span> <span class="nu">5</span><span class="sy">;</span> <span class="vr">i</span><span class="sy">++) {</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Iteração: "</span> <span class="sy">+</span> <span class="vr">i</span><span class="sy">);</span>
+<span class="sy">}</span>
+
+<span class="cm">// Saída:
+// Iteração: 0
+// Iteração: 1
+// Iteração: 2
+// Iteração: 3
+// Iteração: 4</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec9-while">while — repete enquanto a condição for verdadeira</h3>
+
+        <p>Use <code class="inline">while</code> quando <strong>não sabe quantas vezes</strong> o laço vai repetir — depende de uma condição:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Laço while</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="tp">int</span> <span class="vr">i</span> <span class="sy">=</span> <span class="nu">0</span><span class="sy">;</span>
+
+<span class="kw">while</span> <span class="sy">(</span><span class="vr">i</span> <span class="sy"><</span> <span class="nu">5</span><span class="sy">) {</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Valor: "</span> <span class="sy">+</span> <span class="vr">i</span><span class="sy">);</span>
+    <span class="vr">i</span><span class="sy">++;</span>  <span class="cm">// incrementa i — sem isso, loop infinito!</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec9-dowhile">do-while — executa pelo menos uma vez</h3>
+
+        <p>O <code class="inline">do-while</code> garante que o bloco seja executado <strong>ao menos uma vez</strong>, mesmo que a condição seja falsa desde o início:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Laço do-while</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="tp">int</span> <span class="vr">i</span> <span class="sy">=</span> <span class="nu">0</span><span class="sy">;</span>
+
+<span class="kw">do</span> <span class="sy">{</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Executado: "</span> <span class="sy">+</span> <span class="vr">i</span><span class="sy">);</span>
+    <span class="vr">i</span><span class="sy">++;</span>
+<span class="sy">}</span> <span class="kw">while</span> <span class="sy">(</span><span class="vr">i</span> <span class="sy"><</span> <span class="nu">3</span><span class="sy">);</span>  <span class="cm">// verifica a condição ao final</span></code>
+        </pre>
+
+        <div class="callout callout-blue">
+          <i class="fas fa-table"></i>
+          <div class="callout-body">
+            <p><strong>Resumo: qual laço usar?</strong></p>
+            <ul>
+              <li><code class="inline">for</code> — quando sabe a quantidade de repetições</li>
+              <li><code class="inline">while</code> — quando repete até uma condição ser falsa</li>
+              <li><code class="inline">do-while</code> — quando precisa executar pelo menos uma vez</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 10 — CONVENÇÕES DE NOMENCLATURA
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec10">
+          <span class="icon" style="background:rgba(227,179,65,0.12);color:var(--accent4);">
+            <i class="fas fa-spell-check"></i>
+          </span>
+          10. Convenções de Nomenclatura
+        </h2>
+
+        <p>
+          Convenções de nomenclatura são <strong>recomendações</strong> para nomear variáveis, classes e métodos de forma padronizada. Seguir essas convenções torna o código mais <strong>legível</strong> e <strong>profissional</strong>.
+        </p>
+
+        <p>Os quatro padrões mais comuns são:</p>
+
+        <div class="conv-grid">
+          <div class="conv-card">
+            <div class="conv-name" style="color:var(--accent2);">camelCase</div>
+            <div class="conv-example" style="color:var(--accent2);">idadeDoAluno<br>valorFinal</div>
+            <div class="conv-desc">Primeira palavra minúscula, demais com inicial maiúscula.</div>
+          </div>
+          <div class="conv-card">
+            <div class="conv-name" style="color:var(--accent5);">PascalCase</div>
+            <div class="conv-example" style="color:var(--accent5);">IdadeDoAluno<br>ContaBancaria</div>
+            <div class="conv-desc">Todas as palavras com inicial maiúscula.</div>
+          </div>
+          <div class="conv-card">
+            <div class="conv-name" style="color:var(--accent4);">SCREAMING_SNAKE</div>
+            <div class="conv-example" style="color:var(--accent4);">VALOR_MAXIMO<br>PI</div>
+            <div class="conv-desc">Tudo maiúsculo com underline. Usado em constantes.</div>
+          </div>
+          <div class="conv-card">
+            <div class="conv-name" style="color:var(--accent3);">snake_case</div>
+            <div class="conv-example" style="color:var(--accent3);">idade_do_aluno<br>valor_final</div>
+            <div class="conv-desc">Tudo minúsculo com underline. Não é comum em Java.</div>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec10-java">Convenções específicas do Java</h3>
+
+        <p>Java define convenções claras para cada tipo de identificador:</p>
+
+        <table class="usage-table">
+          <thead>
+            <tr>
+              <th>O que é</th>
+              <th>Padrão</th>
+              <th>Exemplo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Variáveis</strong></td>
+              <td>
+                <span class="usage-badge" style="background:rgba(121,192,255,0.1);color:var(--accent2);border:1px solid rgba(121,192,255,0.2);">camelCase</span>
+              </td>
+              <td><code class="inline">idadeDoAluno</code>, <code class="inline">precoFinal</code></td>
+            </tr>
+            <tr>
+              <td><strong>Métodos</strong></td>
+              <td>
+                <span class="usage-badge" style="background:rgba(121,192,255,0.1);color:var(--accent2);border:1px solid rgba(121,192,255,0.2);">camelCase</span>
+              </td>
+              <td><code class="inline">calcularMedia()</code>, <code class="inline">getNome()</code></td>
+            </tr>
+            <tr>
+              <td><strong>Classes</strong></td>
+              <td>
+                <span class="usage-badge" style="background:rgba(188,140,255,0.1);color:var(--accent5);border:1px solid rgba(188,140,255,0.2);">PascalCase</span>
+              </td>
+              <td><code class="inline">ContaBancaria</code>, <code class="inline">Pessoa</code></td>
+            </tr>
+            <tr>
+              <td><strong>Constantes</strong></td>
+              <td>
+                <span class="usage-badge" style="background:rgba(227,179,65,0.1);color:var(--accent4);border:1px solid rgba(227,179,65,0.2);">SCREAMING_SNAKE</span>
+              </td>
+              <td><code class="inline">VALOR_MAXIMO</code>, <code class="inline">PI</code></td>
+            </tr>
+            <tr>
+              <td><strong>Pacotes</strong></td>
+              <td>
+                <span class="usage-badge" style="background:rgba(86,211,100,0.1);color:var(--accent3);border:1px solid rgba(86,211,100,0.2);">minúsculas</span>
+              </td>
+              <td><code class="inline">br.com.escola</code>, <code class="inline">util</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Convenções aplicadas na prática</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="cm">// Classe — PascalCase</span>
+<span class="kw">public class</span> <span class="nm">ContaBancaria</span> <span class="sy">{</span>
+
+    <span class="cm">// Constante — SCREAMING_SNAKE_CASE</span>
+    <span class="kw">static final double</span> <span class="vr">TAXA_JUROS</span> <span class="sy">=</span> <span class="nu">0.05</span><span class="sy">;</span>
+
+    <span class="cm">// Atributo — camelCase</span>
+    <span class="kw">private</span> <span class="tp">double</span> <span class="vr">saldoAtual</span><span class="sy">;</span>
+
+    <span class="cm">// Método — camelCase</span>
+    <span class="kw">public void</span> <span class="fn">calcularRendimento</span><span class="sy">() {</span>
+        <span class="vr">saldoAtual</span> <span class="sy">+=</span> <span class="vr">saldoAtual</span> <span class="sy">*</span> <span class="vr">TAXA_JUROS</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-green">
+          <i class="fas fa-check-circle"></i>
+          <div class="callout-body">
+            <p>Seguir as convenções não é obrigatório para o programa funcionar, mas é <strong>essencial para trabalhar em equipe</strong> e manter o código organizado e legível.</p>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             RESUMO
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec-resumo">
+          <span class="icon" style="background:rgba(188,140,255,0.12);color:var(--accent5);">
+            <i class="fas fa-check-double"></i>
+          </span>
+          Resumo da Unidade
+        </h2>
+
+        <div class="callout callout-purple">
+          <i class="fas fa-graduation-cap"></i>
+          <div class="callout-body">
+            <p><strong>O que você aprendeu nesta unidade:</strong></p>
+            <ul>
+              <li>Java é uma linguagem <strong>portável</strong> — o bytecode é executado pela JVM em qualquer sistema operacional.</li>
+              <li>Para programar em Java precisamos do <strong>JDK</strong> (compilador) e de uma <strong>IDE</strong> como o Eclipse.</li>
+              <li>Todo programa Java começa pela classe e pelo método <code class="inline">public static void main(String[] args)</code>.</li>
+              <li>Java é <strong>fortemente tipado</strong> — toda variável precisa de um tipo (<code class="inline">int</code>, <code class="inline">double</code>, <code class="inline">String</code>…).</li>
+              <li><code class="inline">System.out.println()</code> exibe dados no console; <code class="inline">Scanner</code> lê dados do usuário.</li>
+              <li>Operadores: <strong>aritméticos</strong> (+, -, *, /), <strong>relacionais</strong> (==, !=, >, <) e <strong>lógicos</strong> (&&, ||, !).</li>
+              <li><code class="inline">if/else</code> e <code class="inline">switch</code> controlam o fluxo condicional do programa.</li>
+              <li><code class="inline">for</code>, <code class="inline">while</code> e <code class="inline">do-while</code> repetem blocos de código.</li>
+              <li>Convenções Java: <strong>camelCase</strong> para variáveis e métodos, <strong>PascalCase</strong> para classes, <strong>SCREAMING_SNAKE</strong> para constantes.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Nav -->
+        <div class="lesson-nav">
+          <span class="nav-btn disabled">
+            <i class="fas fa-arrow-left"></i> Início
+          </span>
+          <a href="unidade02_Encapsulamento.html" class="nav-btn">
+            Unidade 02 <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+
+      </div>
+      <!-- /content -->
+
+      <!-- ═══════════════ TOC ═══════════════ -->
+      <aside class="toc">
+        <div class="toc-title"><i class="fas fa-list-ul"></i> Conteúdo</div>
+        <ol>
+          <li><a href="#sec1">1. O que é Java?</a></li>
+          <li><a href="#sec1-jvm">↳ A JVM</a></li>
+          <li><a href="#sec1-onde">↳ Onde é usado</a></li>
+          <li><a href="#sec2">2. Instalação</a></li>
+          <li><a href="#sec2-babel">↳ Eclipse em PT-BR</a></li>
+          <li><a href="#sec3">3. Estrutura Básica</a></li>
+          <li><a href="#sec4">4. Tipos de Dados</a></li>
+          <li><a href="#sec5">5. Variáveis</a></li>
+          <li><a href="#sec6">6. Entrada e Saída</a></li>
+          <li><a href="#sec6-saida">↳ System.out</a></li>
+          <li><a href="#sec6-entrada">↳ Scanner</a></li>
+          <li><a href="#sec7">7. Operadores</a></li>
+          <li><a href="#sec8">8. Condicionais</a></li>
+          <li><a href="#sec8-if">↳ if / else</a></li>
+          <li><a href="#sec8-switch">↳ switch</a></li>
+          <li><a href="#sec9">9. Repetição</a></li>
+          <li><a href="#sec9-for">↳ for</a></li>
+          <li><a href="#sec9-while">↳ while</a></li>
+          <li><a href="#sec9-dowhile">↳ do-while</a></li>
+          <li><a href="#sec10">10. Convenções</a></li>
+          <li><a href="#sec10-java">↳ Padrão Java</a></li>
+          <li><a href="#sec-resumo">Resumo</a></li>
+        </ol>
+      </aside>
+
+    </div><!-- /page-wrapper -->
+
+    <button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+      // Progress bar
+      const bar = document.getElementById('progressBar');
+      window.addEventListener('scroll', () => {
+        const doc  = document.documentElement;
+        const prog = doc.scrollTop / (doc.scrollHeight - doc.clientHeight);
+        bar.style.width = (prog * 100) + '%';
+      });
+
+      // Back to top
+      const btn = document.getElementById('backToTop');
+      window.addEventListener('scroll', () => {
+        btn.classList.toggle('visible', window.scrollY > 400);
+      });
+
+      // Active TOC
+      const sections = document.querySelectorAll('[id]');
+      const tocLinks = document.querySelectorAll('.toc a');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            tocLinks.forEach(l => l.classList.remove('active'));
+            const active = document.querySelector(`.toc a[href="#${e.target.id}"]`);
+            if (active) active.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-60px 0px -70% 0px' });
+      sections.forEach(s => observer.observe(s));
+
+      // OS Tabs
+      function switchOS(os) {
+        document.querySelectorAll('.os-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.os-panel').forEach(p => p.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('panel-' + os).classList.add('active');
+      }
+    </script>
+
+  </body>
+</html>
