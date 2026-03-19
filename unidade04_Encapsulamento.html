@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unidade 02 — Encapsulamento em Java</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg:       #0d1117;
+        --surface:  #161b22;
+        --surface2: #1c2330;
+        --surface3: #21262d;
+        --border:   #30363d;
+        --accent:   #f78166;
+        --accent2:  #79c0ff;
+        --accent3:  #56d364;
+        --accent4:  #e3b341;
+        --accent5:  #bc8cff;
+        --text:     #e6edf3;
+        --text-muted: #8b949e;
+        --text-dim:   #6e7681;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Sora', sans-serif;
+        font-size: 0.95rem;
+        line-height: 1.8;
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--border) 1px, transparent 1px),
+          linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.18;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ── HEADER ─────────────────────────────────── */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(13,17,23,0.96);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        padding: 0.75rem 2rem;
+      }
+
+      .header-nav {
+        max-width: 960px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .back-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-family: 'JetBrains Mono', monospace;
+        transition: color 0.15s;
+      }
+      .back-link:hover { color: var(--accent2); }
+
+      .lesson-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        padding: 0.28rem 0.75rem;
+        border-radius: 20px;
+        background: rgba(227,179,65,0.1);
+        color: var(--accent4);
+        border: 1px solid rgba(227,179,65,0.22);
+      }
+
+      /* ── LAYOUT ─────────────────────────────────── */
+      .page-wrapper {
+        position: relative;
+        z-index: 1;
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 3rem 2rem 6rem;
+        display: grid;
+        grid-template-columns: 1fr 220px;
+        gap: 3rem;
+        align-items: start;
+      }
+
+      .content { min-width: 0; }
+
+      /* ── SIDEBAR / TOC ───────────────────────────── */
+      .toc {
+        position: sticky;
+        top: 70px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.2rem;
+        font-size: 0.78rem;
+      }
+
+      .toc-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        font-weight: 700;
+        margin-bottom: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .toc ol { padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 0.15rem; }
+
+      .toc li a {
+        display: block;
+        padding: 0.3rem 0.5rem;
+        border-radius: 5px;
+        color: var(--text-muted);
+        text-decoration: none;
+        line-height: 1.4;
+        transition: background 0.15s, color 0.15s;
+      }
+      .toc li a:hover { background: var(--surface2); color: var(--accent2); }
+      .toc li a.active {
+        background: rgba(227,179,65,0.08);
+        color: var(--accent4);
+        border-left: 2px solid var(--accent4);
+        padding-left: calc(0.5rem - 2px);
+      }
+
+      /* ── HERO ────────────────────────────────────── */
+      .lesson-hero {
+        margin-bottom: 3rem;
+        padding-bottom: 2.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .lesson-num {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        color: var(--accent4);
+        text-transform: uppercase;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      h1.lesson-title {
+        font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+        margin-bottom: 1rem;
+      }
+
+      h1.lesson-title span {
+        background: linear-gradient(90deg, var(--accent4), var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .lesson-summary {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        max-width: 580px;
+        margin-bottom: 1.5rem;
+      }
+
+      .lesson-meta {
+        display: flex;
+        gap: 1.4rem;
+        flex-wrap: wrap;
+      }
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.77rem;
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--text-muted);
+      }
+      .meta-item i { color: var(--accent3); }
+
+      /* ── PROGRESS BAR ────────────────────────────── */
+      .progress-bar-wrap {
+        position: fixed; top: 0; left: 0;
+        width: 100%; height: 2px;
+        z-index: 200; background: transparent;
+      }
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent4), var(--accent));
+        width: 0%;
+        transition: width 0.1s linear;
+      }
+
+      /* ── SECTION HEADINGS ────────────────────────── */
+      h2.section-heading {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 3rem 0 1.2rem;
+        padding-bottom: 0.7rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        letter-spacing: -0.02em;
+        scroll-margin-top: 80px;
+      }
+
+      h2.section-heading .icon {
+        width: 30px; height: 30px;
+        border-radius: 6px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.82rem; flex-shrink: 0;
+      }
+
+      h3.subsection {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin: 2rem 0 0.8rem;
+        letter-spacing: -0.01em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        scroll-margin-top: 80px;
+      }
+
+      h3.subsection::before {
+        content: '';
+        display: inline-block;
+        width: 3px; height: 1em;
+        background: var(--accent4);
+        border-radius: 2px;
+        flex-shrink: 0;
+      }
+
+      h4.sub-sub {
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin: 1.6rem 0 0.6rem;
+        color: var(--accent4);
+        font-family: 'JetBrains Mono', monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+      }
+
+      /* ── BODY TEXT ───────────────────────────────── */
+      p { margin-bottom: 0.9rem; color: var(--text); }
+      ul, ol { padding-left: 1.6rem; margin-bottom: 1rem; }
+      li { margin-bottom: 0.35rem; color: var(--text); }
+      li strong { color: var(--accent4); }
+
+      /* ── CODE BLOCKS ─────────────────────────────── */
+      pre {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow-x: auto;
+        margin: 1.4rem 0;
+      }
+
+      .code-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.55rem 1rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface2);
+        border-radius: 10px 10px 0 0;
+      }
+
+      .code-lang {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.66rem; font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        display: flex; align-items: center; gap: 0.4rem;
+      }
+      .code-lang i { color: var(--accent4); }
+
+      .code-dots { display: flex; gap: 0.32rem; }
+      .code-dot  { width: 10px; height: 10px; border-radius: 50%; }
+
+      pre code {
+        display: block;
+        padding: 1.2rem 1.4rem;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.82rem;
+        line-height: 1.85;
+        color: #e6edf3;
+        white-space: pre;
+      }
+
+      /* Syntax highlighting */
+      .kw { color: #ff7b72; }
+      .tp { color: #ffa657; }
+      .st { color: #a5d6ff; }
+      .cm { color: #8b949e; font-style: italic; }
+      .fn { color: #d2a8ff; }
+      .nm { color: #79c0ff; }
+      .nu { color: #56d364; }
+      .sy { color: #e6edf3; }
+      .err { color: #f78166; }
+      .ok  { color: #56d364; }
+
+      code.inline {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.82em;
+        background: var(--surface3);
+        border: 1px solid var(--border);
+        padding: 0.12em 0.45em;
+        border-radius: 4px;
+        color: var(--accent4);
+      }
+
+      /* ── CALLOUT BOXES ───────────────────────────── */
+      .callout {
+        border-radius: 8px;
+        padding: 1rem 1.3rem;
+        margin: 1.4rem 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+        font-size: 0.88rem;
+      }
+      .callout i { margin-top: 0.18rem; flex-shrink: 0; }
+      .callout-body { flex: 1; }
+      .callout-body p { margin-bottom: 0.3rem; }
+      .callout-body strong { font-weight: 700; }
+      .callout-body ul { margin: 0.4rem 0 0 1rem; }
+      .callout-body li { margin-bottom: 0.2rem; }
+
+      .callout-blue   { background: rgba(121,192,255,0.07); border: 1px solid rgba(121,192,255,0.2); border-left: 3px solid var(--accent2); }
+      .callout-blue i { color: var(--accent2); }
+      .callout-green   { background: rgba(86,211,100,0.07); border: 1px solid rgba(86,211,100,0.2); border-left: 3px solid var(--accent3); }
+      .callout-green i { color: var(--accent3); }
+      .callout-orange   { background: rgba(247,129,102,0.07); border: 1px solid rgba(247,129,102,0.2); border-left: 3px solid var(--accent); }
+      .callout-orange i { color: var(--accent); }
+      .callout-yellow   { background: rgba(227,179,65,0.07); border: 1px solid rgba(227,179,65,0.2); border-left: 3px solid var(--accent4); }
+      .callout-yellow i { color: var(--accent4); }
+      .callout-purple   { background: rgba(188,140,255,0.07); border: 1px solid rgba(188,140,255,0.2); border-left: 3px solid var(--accent5); }
+      .callout-purple i { color: var(--accent5); }
+      .callout-red      { background: rgba(247,129,102,0.07); border: 1px solid rgba(247,129,102,0.25); border-left: 3px solid #f85149; }
+      .callout-red i    { color: #f85149; }
+
+      /* ── COMPARE GRID ────────────────────────────── */
+      .compare-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 1.4rem 0;
+      }
+      .compare-grid pre { margin: 0; }
+
+      .compare-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+      }
+
+      /* ── CONCEPT CARDS ───────────────────────────── */
+      .concept-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 0.8rem;
+        margin: 1.2rem 0;
+      }
+
+      .concept-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem 1.2rem;
+        transition: border-color 0.2s;
+      }
+      .concept-card:hover { border-color: var(--accent4); }
+      .concept-card .concept-icon { font-size: 1.4rem; margin-bottom: 0.6rem; }
+      .concept-card h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.3rem; }
+      .concept-card p  { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+
+      /* ── STEP LIST ───────────────────────────────── */
+      .step-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        margin: 1.2rem 0;
+      }
+      .step-item { display: flex; gap: 1rem; align-items: flex-start; }
+      .step-num {
+        width: 28px; height: 28px;
+        border-radius: 50%;
+        background: rgba(227,179,65,0.12);
+        border: 1px solid rgba(227,179,65,0.25);
+        color: var(--accent4);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; margin-top: 0.1rem;
+      }
+      .step-content { flex: 1; font-size: 0.9rem; }
+      .step-content strong { color: var(--text); }
+      .step-content p { margin: 0.2rem 0 0; color: var(--text-muted); font-size: 0.85rem; }
+
+      /* ── ATM ANALOGY CARD ────────────────────────── */
+      .atm-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 1.4rem 0;
+      }
+      .atm-header {
+        background: rgba(227,179,65,0.08);
+        border-bottom: 1px solid var(--border);
+        padding: 0.9rem 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+      .atm-header .atm-icon {
+        width: 40px; height: 40px;
+        border-radius: 8px;
+        background: rgba(227,179,65,0.15);
+        border: 1px solid rgba(227,179,65,0.3);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem;
+        color: var(--accent4);
+      }
+      .atm-header .atm-title { font-size: 0.95rem; font-weight: 700; }
+      .atm-header .atm-sub   { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.1rem; }
+
+      .atm-body { padding: 1.1rem 1.4rem; }
+      .atm-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.9rem;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.87rem;
+      }
+      .atm-row:last-child { border-bottom: none; }
+      .atm-row .atm-icon-sm {
+        width: 26px; height: 26px;
+        border-radius: 6px;
+        background: var(--surface2);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+        margin-top: 0.05rem;
+      }
+      .atm-row .atm-text strong { color: var(--text); }
+      .atm-row .atm-text span  { color: var(--text-muted); font-size: 0.82rem; display: block; }
+
+      /* ── GETTER/SETTER CARDS ─────────────────────── */
+      .gs-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 1.4rem 0;
+      }
+      .gs-header {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 0.9rem 1.3rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .gs-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        padding: 0.3rem 0.7rem;
+        border-radius: 20px;
+      }
+      .gs-badge-get  { background: rgba(121,192,255,0.12); color: var(--accent2); border: 1px solid rgba(121,192,255,0.25); }
+      .gs-badge-set  { background: rgba(247,129,102,0.12); color: var(--accent);  border: 1px solid rgba(247,129,102,0.25); }
+      .gs-title { font-size: 0.95rem; font-weight: 700; }
+      .gs-tagline { font-size: 0.8rem; color: var(--text-muted); }
+      .gs-body { padding: 1rem 1.3rem; }
+      .gs-body p { font-size: 0.88rem; margin-bottom: 0.7rem; }
+
+      /* ── CONVENTION TABLE ────────────────────────── */
+      .conv-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.85rem;
+      }
+      .conv-table th {
+        text-align: left;
+        padding: 0.55rem 1rem;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+      }
+      .conv-table td {
+        padding: 0.55rem 1rem;
+        border: 1px solid var(--border);
+        vertical-align: middle;
+      }
+      .conv-table tr:hover td { background: var(--surface2); }
+
+      /* ── BOTTOM NAV ──────────────────────────────── */
+      .lesson-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 4rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border);
+      }
+
+      .nav-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.65rem 1.1rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-family: 'JetBrains Mono', monospace;
+        transition: border-color 0.2s, color 0.2s;
+        cursor: pointer;
+      }
+      .nav-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+      .nav-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+      /* ── BACK TO TOP ─────────────────────────────── */
+      #backToTop {
+        position: fixed;
+        bottom: 1.5rem; right: 1.5rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        width: 38px; height: 38px;
+        border-radius: 8px;
+        display: none;
+        align-items: center; justify-content: center;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: border-color 0.2s, color 0.2s;
+        z-index: 50;
+      }
+      #backToTop:hover { border-color: var(--accent4); color: var(--accent4); }
+      #backToTop.visible { display: flex; }
+
+      /* ── RESPONSIVE ──────────────────────────────── */
+      @media (max-width: 800px) {
+        .page-wrapper { grid-template-columns: 1fr; padding: 2rem 1.2rem 4rem; }
+        .toc { display: none; }
+        .compare-grid { grid-template-columns: 1fr; }
+        header { padding: 0.65rem 1.2rem; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <header>
+      <div class="header-nav">
+        <a href="index.html" class="back-link">
+          <i class="fas fa-arrow-left"></i> POO em Java
+        </a>
+        <span class="lesson-badge">UNIDADE 02 · ENCAPSULAMENTO</span>
+      </div>
+    </header>
+
+    <div class="page-wrapper">
+
+      <!-- ═══════════════ CONTENT ═══════════════ -->
+      <div class="content">
+
+        <!-- HERO -->
+        <div class="lesson-hero">
+          <div class="lesson-num">
+            <i class="fas fa-circle" style="color:var(--accent4);font-size:0.45rem;"></i>
+            Unidade 02 · Encapsulamento
+          </div>
+          <h1 class="lesson-title">
+            Encapsulamento<br><span>e Modificadores de Acesso</span>
+          </h1>
+          <p class="lesson-summary">
+            Aprenda a proteger os dados de uma classe com modificadores de acesso, getters e setters — um dos pilares fundamentais da Programação Orientada a Objetos.
+          </p>
+          <div class="lesson-meta">
+            <div class="meta-item"><i class="fab fa-java"></i> Java</div>
+            <div class="meta-item"><i class="fas fa-clock"></i> ~60 min</div>
+            <div class="meta-item"><i class="fas fa-layer-group"></i> Intermediário</div>
+            <div class="meta-item"><i class="fas fa-shield-alt"></i> private</div>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 1 — O QUE É ENCAPSULAMENTO
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec1">
+          <span class="icon" style="background:rgba(227,179,65,0.12);color:var(--accent4);">
+            <i class="fas fa-lock"></i>
+          </span>
+          O que é Encapsulamento?
+        </h2>
+
+        <p>
+          O encapsulamento consiste em <strong>proteger os atributos de uma classe</strong>, permitindo acesso a eles apenas de forma controlada. Em vez de acessar diretamente uma variável, usamos métodos.
+        </p>
+
+        <div class="callout callout-yellow">
+          <i class="fas fa-quote-left"></i>
+          <div class="callout-body">
+            <p><strong>Definição:</strong> Esconder os detalhes internos de um objeto e permitir acesso controlado aos seus dados.</p>
+          </div>
+        </div>
+
+        <p>Ou seja:</p>
+        <ul>
+          <li>Os <strong>atributos ficam protegidos</strong></li>
+          <li>O acesso é feito <strong>somente por métodos definidos pela classe</strong></li>
+        </ul>
+
+        <!-- ─── O PROBLEMA ─── -->
+        <h3 class="subsection" id="sec1-problema">O problema sem encapsulamento</h3>
+
+        <p>
+          Sem encapsulamento, qualquer parte do sistema pode alterar os dados diretamente e de forma inválida:
+        </p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Sem encapsulamento — problema</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">public class</span> <span class="nm">Pessoa</span> <span class="sy">{</span>
+    <span class="kw">public</span> <span class="tp">int</span> <span class="vr">idade</span><span class="sy">;</span>   <span class="cm">// ⚠️ atributo público — qualquer um pode alterar</span>
+<span class="sy">}</span>
+
+<span class="kw">public class</span> <span class="nm">Main</span> <span class="sy">{</span>
+    <span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+        <span class="nm">Pessoa</span> <span class="vr">p</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Pessoa</span><span class="sy">();</span>
+        <span class="vr">p</span><span class="sy">.</span><span class="vr">idade</span> <span class="sy">=</span> <span class="err">-10</span><span class="sy">;</span>  <span class="cm">// ❌ dado alterado com valor inválido!</span>
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-red">
+          <i class="fas fa-exclamation-triangle"></i>
+          <div class="callout-body">
+            <p><strong>Problema:</strong> Uma idade negativa não faz sentido no mundo real, mas o programa aceita sem questionar. Isso pode causar erros silenciosos difíceis de encontrar.</p>
+          </div>
+        </div>
+
+        <!-- ─── A SOLUÇÃO ─── -->
+        <h3 class="subsection" id="sec1-solucao">A solução: encapsulamento</h3>
+
+        <p>
+          A solução é proteger o atributo com <code class="inline">private</code> e controlar o acesso por métodos. Assim, podemos <strong>validar os dados antes de aceitar qualquer alteração</strong>:
+        </p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Com encapsulamento — solução</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">public class</span> <span class="nm">Pessoa</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">int</span> <span class="vr">idade</span><span class="sy">;</span>  <span class="cm">// ✅ atributo protegido</span>
+
+    <span class="kw">public void</span> <span class="fn">setIdade</span><span class="sy">(</span><span class="tp">int</span> <span class="vr">idade</span><span class="sy">) {</span>
+        <span class="kw">if</span> <span class="sy">(</span><span class="vr">idade</span> <span class="sy">>=</span> <span class="nu">0</span><span class="sy">) {</span>          <span class="cm">// validação antes de aceitar</span>
+            <span class="kw">this</span><span class="sy">.</span><span class="vr">idade</span> <span class="sy">=</span> <span class="vr">idade</span><span class="sy">;</span>
+        <span class="sy">}</span>
+    <span class="sy">}</span>
+
+    <span class="kw">public</span> <span class="tp">int</span> <span class="fn">getIdade</span><span class="sy">() {</span>
+        <span class="kw">return</span> <span class="vr">idade</span><span class="sy">;</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="kw">public class</span> <span class="nm">Main</span> <span class="sy">{</span>
+    <span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+        <span class="nm">Pessoa</span> <span class="vr">p</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Pessoa</span><span class="sy">();</span>
+        <span class="vr">p</span><span class="sy">.</span><span class="fn">setIdade</span><span class="sy">(</span><span class="err">-10</span><span class="sy">);</span>  <span class="cm">// ❌ valor ignorado — validação barrou</span>
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-green">
+          <i class="fas fa-check-circle"></i>
+          <div class="callout-body">
+            <p><strong>Resultado:</strong> O valor <code class="inline">-10</code> é simplesmente ignorado pelo método, pois a condição <code class="inline">idade >= 0</code> não é satisfeita. O atributo permanece no valor padrão (<code class="inline">0</code>).</p>
+          </div>
+        </div>
+
+        <!-- ─── ANALOGIA ATM ─── -->
+        <h3 class="subsection" id="sec1-analogia">A analogia do caixa eletrônico</h3>
+
+        <p>
+          Pense no encapsulamento como um <strong>caixa eletrônico (ATM)</strong>:
+        </p>
+
+        <div class="atm-card">
+          <div class="atm-header">
+            <div class="atm-icon"><i class="fas fa-university"></i></div>
+            <div>
+              <div class="atm-title">Caixa Eletrônico (ATM)</div>
+              <div class="atm-sub">Analogia para encapsulamento</div>
+            </div>
+          </div>
+          <div class="atm-body">
+            <div class="atm-row">
+              <div class="atm-icon-sm" style="color:var(--accent);"><i class="fas fa-times"></i></div>
+              <div class="atm-text">
+                <strong>Você não acessa o dinheiro diretamente</strong>
+                <span>Não há como pegar notas sem usar a interface — assim como atributos <code class="inline">private</code> não podem ser acessados de fora.</span>
+              </div>
+            </div>
+            <div class="atm-row">
+              <div class="atm-icon-sm" style="color:var(--accent2);"><i class="fas fa-keyboard"></i></div>
+              <div class="atm-text">
+                <strong>Você usa uma interface (botões)</strong>
+                <span>Os botões são como os métodos <code class="inline">get</code> e <code class="inline">set</code> — a única forma de interagir com os dados internos.</span>
+              </div>
+            </div>
+            <div class="atm-row">
+              <div class="atm-icon-sm" style="color:var(--accent3);"><i class="fas fa-check"></i></div>
+              <div class="atm-text">
+                <strong>O sistema valida tudo internamente</strong>
+                <span>Saldo insuficiente? Senha errada? O ATM verifica antes de agir — assim como o setter pode validar antes de alterar.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-yellow">
+          <i class="fas fa-arrow-right"></i>
+          <div class="callout-body">
+            <p><strong>Encapsulamento é exatamente isso:</strong> você não mexe diretamente nos dados — usa "botões" (métodos) para interagir com eles.</p>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 2 — GETTERS E SETTERS
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec2">
+          <span class="icon" style="background:rgba(121,192,255,0.12);color:var(--accent2);">
+            <i class="fas fa-exchange-alt"></i>
+          </span>
+          Getters e Setters
+        </h2>
+
+        <p>
+          São métodos usados para <strong>acessar e modificar atributos privados</strong>. Eles são a base prática do encapsulamento, pois atributos <strong>não devem ser acessados diretamente</strong> de fora da classe.
+        </p>
+
+        <div class="concept-grid">
+          <div class="concept-card">
+            <div class="concept-icon">📤</div>
+            <h4 style="color:var(--accent2);">Getter</h4>
+            <p>Método de <strong>leitura</strong>. Retorna o valor de um atributo privado.</p>
+          </div>
+          <div class="concept-card">
+            <div class="concept-icon">📥</div>
+            <h4 style="color:var(--accent);">Setter</h4>
+            <p>Método de <strong>escrita</strong>. Altera o valor de um atributo privado.</p>
+          </div>
+        </div>
+
+        <!-- ─── GETTER ─── -->
+        <div class="gs-card" id="sec2-getter">
+          <div class="gs-header" style="background:rgba(121,192,255,0.05);">
+            <span class="gs-badge gs-badge-get">GET</span>
+            <div>
+              <div class="gs-title">Getter — método de acesso</div>
+              <div class="gs-tagline">Responsável por <strong>retornar</strong> o valor de um atributo</div>
+            </div>
+          </div>
+          <div class="gs-body">
+            <h4 class="sub-sub" style="margin-top:0;">Padrão</h4>
+            <pre>
+              <div class="code-header">
+                <span class="code-lang"><i class="fab fa-java"></i> Estrutura do getter</span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="kw">public</span> <span class="tp">Tipo</span> <span class="fn">getNomeAtributo</span><span class="sy">() {</span>
+    <span class="kw">return</span> <span class="vr">atributo</span><span class="sy">;</span>
+<span class="sy">}</span></code>
+            </pre>
+
+            <h4 class="sub-sub">Exemplo</h4>
+            <pre>
+              <div class="code-header">
+                <span class="code-lang"><i class="fab fa-java"></i> Getter para o atributo nome</span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="kw">public class</span> <span class="nm">Pessoa</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">String</span> <span class="vr">nome</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="tp">String</span> <span class="fn">getNome</span><span class="sy">() {</span>
+        <span class="kw">return</span> <span class="vr">nome</span><span class="sy">;</span>
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+            </pre>
+
+            <div class="callout callout-blue" style="margin-bottom:0;">
+              <i class="fas fa-info-circle"></i>
+              <div class="callout-body">
+                <p>O atributo <code class="inline">nome</code> é <strong>privado</strong>, então só pode ser lido de fora da classe pelo método <code class="inline">getNome()</code>. Sem esse método, o acesso seria impossível.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── SETTER ─── -->
+        <div class="gs-card" id="sec2-setter">
+          <div class="gs-header" style="background:rgba(247,129,102,0.05);">
+            <span class="gs-badge gs-badge-set">SET</span>
+            <div>
+              <div class="gs-title">Setter — método modificador</div>
+              <div class="gs-tagline">Responsável por <strong>alterar</strong> o valor de um atributo</div>
+            </div>
+          </div>
+          <div class="gs-body">
+            <h4 class="sub-sub" style="margin-top:0;">Padrão</h4>
+            <pre>
+              <div class="code-header">
+                <span class="code-lang"><i class="fab fa-java"></i> Estrutura do setter</span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="kw">public void</span> <span class="fn">setNomeAtributo</span><span class="sy">(</span><span class="tp">Tipo</span> <span class="vr">valor</span><span class="sy">) {</span>
+    <span class="kw">this</span><span class="sy">.</span><span class="vr">atributo</span> <span class="sy">=</span> <span class="vr">valor</span><span class="sy">;</span>
+<span class="sy">}</span></code>
+            </pre>
+
+            <h4 class="sub-sub">Exemplo</h4>
+            <pre>
+              <div class="code-header">
+                <span class="code-lang"><i class="fab fa-java"></i> Setter para o atributo nome</span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="kw">public class</span> <span class="nm">Pessoa</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">String</span> <span class="vr">nome</span><span class="sy">;</span>
+
+    <span class="kw">public void</span> <span class="fn">setNome</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">nome</span><span class="sy">) {</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">nome</span> <span class="sy">=</span> <span class="vr">nome</span><span class="sy">;</span>  <span class="cm">// this.nome = atributo da classe</span>
+                              <span class="cm">// nome      = parâmetro recebido</span>
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+            </pre>
+
+            <div class="callout callout-orange" style="margin-bottom:0;">
+              <i class="fas fa-code"></i>
+              <div class="callout-body">
+                <p><code class="inline">this.nome</code> se refere ao <strong>atributo da classe</strong>, enquanto <code class="inline">nome</code> (sem <code class="inline">this</code>) é o <strong>parâmetro recebido pelo método</strong>. Lembra do <code class="inline">this</code> da Unidade 01? É o mesmo conceito aplicado aqui.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 3 — EXEMPLO COMPLETO
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec3">
+          <span class="icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);">
+            <i class="fas fa-file-code"></i>
+          </span>
+          Exemplo Completo
+        </h2>
+
+        <p>
+          Veja a classe <code class="inline">Pessoa</code> com dois atributos privados, seus getters e setters — incluindo uma <strong>validação no setter de idade</strong>:
+        </p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Pessoa.java — classe com encapsulamento completo</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">public class</span> <span class="nm">Pessoa</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">String</span> <span class="vr">nome</span><span class="sy">;</span>
+    <span class="kw">private</span> <span class="tp">int</span>    <span class="vr">idade</span><span class="sy">;</span>
+
+    <span class="cm">// ── Getter ──────────────────────────────────────</span>
+    <span class="kw">public</span> <span class="tp">String</span> <span class="fn">getNome</span><span class="sy">() {</span>
+        <span class="kw">return</span> <span class="vr">nome</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="cm">// ── Setter ──────────────────────────────────────</span>
+    <span class="kw">public void</span> <span class="fn">setNome</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">nome</span><span class="sy">) {</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">nome</span> <span class="sy">=</span> <span class="vr">nome</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="cm">// ── Getter ──────────────────────────────────────</span>
+    <span class="kw">public</span> <span class="tp">int</span> <span class="fn">getIdade</span><span class="sy">() {</span>
+        <span class="kw">return</span> <span class="vr">idade</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="cm">// ── Setter com validação ─────────────────────────</span>
+    <span class="kw">public void</span> <span class="fn">setIdade</span><span class="sy">(</span><span class="tp">int</span> <span class="vr">idade</span><span class="sy">) {</span>
+        <span class="kw">if</span> <span class="sy">(</span><span class="vr">idade</span> <span class="sy">>=</span> <span class="nu">0</span><span class="sy">) {</span>  <span class="cm">// só aceita idade válida</span>
+            <span class="kw">this</span><span class="sy">.</span><span class="vr">idade</span> <span class="sy">=</span> <span class="vr">idade</span><span class="sy">;</span>
+        <span class="sy">}</span>
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 4 — USO NA PRÁTICA
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec4">
+          <span class="icon" style="background:rgba(188,140,255,0.12);color:var(--accent5);">
+            <i class="fas fa-play"></i>
+          </span>
+          Uso do Encapsulamento na Prática
+        </h2>
+
+        <p>
+          Veja como usar a classe <code class="inline">Pessoa</code> em um programa principal:
+        </p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Main.java — usando getters e setters</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">public class</span> <span class="nm">Main</span> <span class="sy">{</span>
+    <span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+
+        <span class="nm">Pessoa</span> <span class="vr">p</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Pessoa</span><span class="sy">();</span>
+
+        <span class="vr">p</span><span class="sy">.</span><span class="fn">setNome</span><span class="sy">(</span><span class="st">"Lucas"</span><span class="sy">);</span>   <span class="cm">// define o nome</span>
+        <span class="vr">p</span><span class="sy">.</span><span class="fn">setIdade</span><span class="sy">(</span><span class="nu">20</span><span class="sy">);</span>     <span class="cm">// define a idade (válida)</span>
+
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">p</span><span class="sy">.</span><span class="fn">getNome</span><span class="sy">());</span>   <span class="cm">// lê o nome</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">p</span><span class="sy">.</span><span class="fn">getIdade</span><span class="sy">());</span>  <span class="cm">// lê a idade</span>
+
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-green">
+          <i class="fas fa-terminal"></i>
+          <div class="callout-body">
+            <p><strong>Saída esperada no console:</strong></p>
+            <pre style="background:none;border:none;margin:0.4rem 0 0;"><code style="padding:0;font-size:0.82rem;color:var(--accent3);">Lucas
+20</code></pre>
+          </div>
+        </div>
+
+        <!-- ─── COMPARAÇÃO SEM vs COM ─── -->
+        <h3 class="subsection">Comparando: com e sem encapsulamento</h3>
+
+        <div class="compare-grid">
+          <div>
+            <div class="compare-label" style="color:var(--accent);">❌ Sem encapsulamento</div>
+            <pre style="margin-top:0;">
+              <div class="code-header">
+                <span class="code-lang"><i class="fab fa-java"></i></span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="nm">Pessoa</span> <span class="vr">p</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Pessoa</span><span class="sy">();</span>
+
+<span class="cm">// Acesso direto — perigoso!</span>
+<span class="vr">p</span><span class="sy">.</span><span class="vr">idade</span> <span class="sy">=</span> <span class="err">-5</span><span class="sy">;</span>
+<span class="vr">p</span><span class="sy">.</span><span class="vr">nome</span> <span class="sy">=</span> <span class="st">""</span><span class="sy">;</span>
+<span class="cm">// Nenhuma validação!</span></code>
+            </pre>
+          </div>
+          <div>
+            <div class="compare-label" style="color:var(--accent3);">✅ Com encapsulamento</div>
+            <pre style="margin-top:0;">
+              <div class="code-header">
+                <span class="code-lang"><i class="fab fa-java"></i></span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="nm">Pessoa</span> <span class="vr">p</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Pessoa</span><span class="sy">();</span>
+
+<span class="cm">// Acesso controlado — seguro!</span>
+<span class="vr">p</span><span class="sy">.</span><span class="fn">setIdade</span><span class="sy">(</span><span class="err">-5</span><span class="sy">);</span>  <span class="cm">// ignorado</span>
+<span class="vr">p</span><span class="sy">.</span><span class="fn">setNome</span><span class="sy">(</span><span class="st">"Lucas"</span><span class="sy">);</span>
+<span class="cm">// Validação automática!</span></code>
+            </pre>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 5 — POR QUE USAR
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec5">
+          <span class="icon" style="background:rgba(247,129,102,0.12);color:var(--accent);">
+            <i class="fas fa-question-circle"></i>
+          </span>
+          Por que usar Getters e Setters?
+        </h2>
+
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <strong>Segurança</strong>
+              <p>Evita acesso direto aos atributos com <code class="inline">private</code> e controla o que pode ser alterado ou lido.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <strong>Validação de dados</strong>
+              <p>O setter pode verificar se o valor recebido é válido antes de atribuir ao atributo — evitando dados inconsistentes no objeto.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <strong>Flexibilidade</strong>
+              <p>Você pode mudar a lógica interna da classe (como a forma de calcular ou armazenar um dado) sem afetar o código que usa a classe.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Validação em detalhe -->
+        <h3 class="subsection" id="sec5-validacao">Validação em detalhe</h3>
+
+        <p>O setter de <code class="inline">idade</code> é um bom exemplo de validação. Veja como ele funciona:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Validação dentro do setter</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">public void</span> <span class="fn">setIdade</span><span class="sy">(</span><span class="tp">int</span> <span class="vr">idade</span><span class="sy">) {</span>
+    <span class="kw">if</span> <span class="sy">(</span><span class="vr">idade</span> <span class="sy">>=</span> <span class="nu">0</span><span class="sy">) {</span>        <span class="cm">// se a idade for válida (zero ou positiva)...</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">idade</span> <span class="sy">=</span> <span class="vr">idade</span><span class="sy">;</span>  <span class="cm">// ...atualiza o atributo</span>
+    <span class="sy">}</span>
+    <span class="cm">// se não for válida, simplesmente não faz nada</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-blue">
+          <i class="fas fa-lightbulb"></i>
+          <div class="callout-body">
+            <p>Você pode tornar a validação ainda mais robusta — por exemplo, exibindo uma mensagem de erro, lançando uma exceção, ou limitando a idade a um valor máximo. O setter é o lugar ideal para isso.</p>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 6 — CONVENÇÃO DE NOMES
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec6">
+          <span class="icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);">
+            <i class="fas fa-tag"></i>
+          </span>
+          Convenção de Nomes em Java
+        </h2>
+
+        <p>
+          Java define uma convenção clara para nomear getters e setters. Seguir essa convenção é importante porque muitas ferramentas e frameworks reconhecem automaticamente esses métodos.
+        </p>
+
+        <table class="conv-table">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Padrão</th>
+              <th>Exemplo</th>
+              <th>Retorno</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:var(--accent2);">Getter</strong></td>
+              <td><code class="inline">get + NomeAtributo()</code></td>
+              <td><code class="inline">getNome()</code></td>
+              <td>Tipo do atributo</td>
+            </tr>
+            <tr>
+              <td><strong style="color:var(--accent);">Setter</strong></td>
+              <td><code class="inline">set + NomeAtributo(valor)</code></td>
+              <td><code class="inline">setNome(String nome)</code></td>
+              <td><code class="inline">void</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 class="subsection" id="sec6-boolean">Caso especial: atributos boolean</h3>
+
+        <p>
+          Para atributos do tipo <code class="inline">boolean</code>, a convenção Java usa o prefixo <code class="inline">is</code> no lugar de <code class="inline">get</code>:
+        </p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Getter para boolean</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">public class</span> <span class="nm">Conta</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">boolean</span> <span class="vr">ativo</span><span class="sy">;</span>
+
+    <span class="cm">// Para boolean: prefixo "is" em vez de "get"</span>
+    <span class="kw">public</span> <span class="tp">boolean</span> <span class="fn">isAtivo</span><span class="sy">() {</span>
+        <span class="kw">return</span> <span class="vr">ativo</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="kw">public void</span> <span class="fn">setAtivo</span><span class="sy">(</span><span class="tp">boolean</span> <span class="vr">ativo</span><span class="sy">) {</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">ativo</span> <span class="sy">=</span> <span class="vr">ativo</span><span class="sy">;</span>
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-yellow">
+          <i class="fas fa-star"></i>
+          <div class="callout-body">
+            <p><strong>Resumo da convenção:</strong></p>
+            <ul>
+              <li><code class="inline">getNome()</code> — para tipos como <code class="inline">String</code>, <code class="inline">int</code>, <code class="inline">float</code>…</li>
+              <li><code class="inline">isAtivo()</code> — exclusivo para <code class="inline">boolean</code></li>
+              <li><code class="inline">setNome()</code> / <code class="inline">setAtivo()</code> — setter sempre usa <code class="inline">set</code></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             SEÇÃO 7 — CONSTRUTOR VAZIO
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec7">
+          <span class="icon" style="background:rgba(121,192,255,0.12);color:var(--accent2);">
+            <i class="fas fa-box-open"></i>
+          </span>
+          O Construtor Vazio
+        </h2>
+
+        <p>
+          O <strong>construtor vazio (ou padrão)</strong> é um construtor <strong>sem parâmetros</strong>, usado para criar um objeto <strong>sem precisar passar valores iniciais</strong> no momento da criação.
+        </p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Construtor vazio — estrutura</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">public class</span> <span class="nm">Pessoa</span> <span class="sy">{</span>
+
+    <span class="kw">private</span> <span class="tp">String</span> <span class="vr">nome</span><span class="sy">;</span>
+
+    <span class="cm">// construtor vazio — sem parâmetros</span>
+    <span class="kw">public</span> <span class="nm">Pessoa</span><span class="sy">() {</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span>
+
+<span class="cm">// Uso:</span>
+<span class="nm">Pessoa</span> <span class="vr">p</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Pessoa</span><span class="sy">();</span>  <span class="cm">// chama o construtor vazio</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec7-para-que">Para que ele serve?</h3>
+
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <strong>Criar objetos "em branco" e definir valores depois</strong>
+              <p>Você cria o objeto primeiro e usa setters para preencher os dados em seguida. Muito comum em sistemas reais.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <strong>Compatibilidade com frameworks</strong>
+              <p>Muitos frameworks como JPA/Hibernate, serialização JSON/XML e ferramentas de GUI exigem o construtor vazio para criar objetos automaticamente e depois preencher os dados.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <strong>Inicialização padrão</strong>
+              <p>Você pode usar o construtor vazio para definir valores padrão no momento da criação do objeto.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <strong>Flexibilidade em testes</strong>
+              <p>Permite criar objetos sem obrigar o preenchimento de todos os dados de uma vez, facilitando testes unitários.</p>
+            </div>
+          </div>
+        </div>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Objeto criado em branco e preenchido depois</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="nm">Pessoa</span> <span class="vr">p</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Pessoa</span><span class="sy">();</span>   <span class="cm">// objeto criado sem dados</span>
+<span class="vr">p</span><span class="sy">.</span><span class="fn">setNome</span><span class="sy">(</span><span class="st">"Lucas"</span><span class="sy">);</span>          <span class="cm">// dados definidos depois via setter</span></code>
+        </pre>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Construtor vazio com valor padrão</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">public</span> <span class="nm">Pessoa</span><span class="sy">() {</span>
+    <span class="vr">nome</span> <span class="sy">=</span> <span class="st">"Sem nome"</span><span class="sy">;</span>  <span class="cm">// valor padrão definido no construtor</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <!-- ─── COMPORTAMENTO DO JAVA ─── -->
+        <h3 class="subsection" id="sec7-comportamento">Comportamento automático do Java</h3>
+
+        <div class="callout callout-blue">
+          <i class="fas fa-info-circle"></i>
+          <div class="callout-body">
+            <p><strong>Se você NÃO criar nenhum construtor</strong>, o Java cria automaticamente um construtor vazio:</p>
+            <pre style="background:none;border:none;margin:0.5rem 0 0;"><code style="padding:0;font-size:0.82rem;color:var(--accent3);">public Pessoa() { }  // criado automaticamente pelo Java</code></pre>
+          </div>
+        </div>
+
+        <div class="callout callout-red">
+          <i class="fas fa-exclamation-triangle"></i>
+          <div class="callout-body">
+            <p><strong>Atenção:</strong> se você criar <em>qualquer</em> construtor com parâmetros, o Java <strong>não cria mais o construtor vazio automaticamente</strong>. Isso vai causar erro:</p>
+          </div>
+        </div>
+
+        <div class="compare-grid">
+          <div>
+            <div class="compare-label" style="color:var(--accent);">❌ Causa erro</div>
+            <pre style="margin-top:0.5rem;">
+              <div class="code-header">
+                <span class="code-lang"><i class="fab fa-java"></i></span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="kw">public class</span> <span class="nm">Pessoa</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">String</span> <span class="vr">nome</span><span class="sy">;</span>
+
+    <span class="cm">// só este construtor existe</span>
+    <span class="kw">public</span> <span class="nm">Pessoa</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">nome</span><span class="sy">) {</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">nome</span> <span class="sy">=</span> <span class="vr">nome</span><span class="sy">;</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="cm">// ❌ ERRO — construtor vazio não existe!</span>
+<span class="nm">Pessoa</span> <span class="vr">p</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Pessoa</span><span class="sy">();</span></code>
+            </pre>
+          </div>
+          <div>
+            <div class="compare-label" style="color:var(--accent3);">✅ Funciona</div>
+            <pre style="margin-top:0.5rem;">
+              <div class="code-header">
+                <span class="code-lang"><i class="fab fa-java"></i></span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="kw">public class</span> <span class="nm">Pessoa</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">String</span> <span class="vr">nome</span><span class="sy">;</span>
+
+    <span class="cm">// construtor vazio — declarado explicitamente</span>
+    <span class="kw">public</span> <span class="nm">Pessoa</span><span class="sy">() {</span> <span class="sy">}</span>
+
+    <span class="kw">public</span> <span class="nm">Pessoa</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">nome</span><span class="sy">) {</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">nome</span> <span class="sy">=</span> <span class="vr">nome</span><span class="sy">;</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="cm">// ✅ Ambos funcionam!</span>
+<span class="nm">Pessoa</span> <span class="vr">p1</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Pessoa</span><span class="sy">();</span>
+<span class="nm">Pessoa</span> <span class="vr">p2</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Pessoa</span><span class="sy">(</span><span class="st">"Lucas"</span><span class="sy">);</span></code>
+            </pre>
+          </div>
+        </div>
+
+        <!-- ─── COMPARAÇÃO DIRETA ─── -->
+        <h3 class="subsection" id="sec7-quando">Quando usar cada tipo?</h3>
+
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num" style="background:rgba(86,211,100,0.12);border-color:rgba(86,211,100,0.25);color:var(--accent3);">✔</div>
+            <div class="step-content">
+              <strong>Use o construtor vazio quando…</strong>
+              <p>Vai usar setters depois, precisa de compatibilidade com frameworks, ou o objeto pode nascer "incompleto" e ser preenchido aos poucos.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num" style="background:rgba(247,129,102,0.12);border-color:rgba(247,129,102,0.25);color:var(--accent);">✘</div>
+            <div class="step-content">
+              <strong>Evite o construtor vazio quando…</strong>
+              <p>O objeto não pode existir sem dados válidos. Por exemplo, uma conta bancária sem saldo definido é inconsistente — é melhor forçar a informação via construtor com parâmetro.</p>
+            </div>
+          </div>
+        </div>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Exemplo — quando forçar o construtor com parâmetro</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="cm">// ❌ Ruim: conta sem saldo inicial definido é inconsistente</span>
+<span class="nm">ContaBancaria</span> <span class="vr">c</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">ContaBancaria</span><span class="sy">();</span>
+
+<span class="cm">// ✅ Melhor: forçar o saldo inicial via construtor</span>
+<span class="kw">public</span> <span class="nm">ContaBancaria</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">saldoInicial</span><span class="sy">) {</span>
+    <span class="kw">this</span><span class="sy">.</span><span class="vr">saldo</span> <span class="sy">=</span> <span class="vr">saldoInicial</span><span class="sy">;</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-purple">
+          <i class="fas fa-graduation-cap"></i>
+          <div class="callout-body">
+            <p><strong>Resumo técnico:</strong> O construtor vazio serve para permitir a criação de objetos sem inicialização obrigatória, sendo essencial para flexibilidade, frameworks e criação incremental de estado.</p>
+          </div>
+        </div>
+
+        <!-- ─────────────────────────────────────────────
+             RESUMO
+        ──────────────────────────────────────────────── -->
+        <h2 class="section-heading" id="sec-resumo">
+          <span class="icon" style="background:rgba(188,140,255,0.12);color:var(--accent5);">
+            <i class="fas fa-check-double"></i>
+          </span>
+          Resumo da Unidade
+        </h2>
+
+        <div class="callout callout-purple">
+          <i class="fas fa-graduation-cap"></i>
+          <div class="callout-body">
+            <p><strong>O que você aprendeu nesta unidade:</strong></p>
+            <ul>
+              <li><strong>Encapsulamento</strong> protege os atributos de uma classe de acessos externos não controlados.</li>
+              <li>Atributos devem ser declarados como <code class="inline">private</code> — o nível de acesso mais restritivo.</li>
+              <li><strong>Getters</strong> (<code class="inline">get + Nome</code>) são métodos para <strong>ler</strong> o valor de um atributo privado.</li>
+              <li><strong>Setters</strong> (<code class="inline">set + Nome</code>) são métodos para <strong>alterar</strong> o valor de um atributo privado.</li>
+              <li>Setters podem incluir <strong>validações</strong> para garantir a consistência dos dados.</li>
+              <li>Para atributos <code class="inline">boolean</code>, o getter usa o prefixo <code class="inline">is</code>.</li>
+              <li>O <strong>construtor vazio</strong> permite criar objetos sem dados iniciais e é exigido por muitos frameworks.</li>
+              <li>Se você criar qualquer construtor com parâmetros, o Java <strong>não gera mais o construtor vazio automaticamente</strong>.</li>
+              <li>Encapsulamento torna o código mais <strong>seguro</strong>, <strong>organizado</strong> e <strong>fácil de manter</strong>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Nav -->
+        <div class="lesson-nav">
+          <a href="unidade01_Fundamentos.html" class="nav-btn">
+            <i class="fas fa-arrow-left"></i> Unidade 01
+          </a>
+          <span class="nav-btn disabled" title="Próxima unidade em breve">
+            Unidade 03 <i class="fas fa-lock"></i>
+          </span>
+        </div>
+
+      </div>
+      <!-- /content -->
+
+      <!-- ═══════════════ SIDEBAR / TOC ═══════════════ -->
+      <aside class="toc">
+        <div class="toc-title"><i class="fas fa-list-ul"></i> Conteúdo</div>
+        <ol>
+          <li><a href="#sec1">O que é Encapsulamento</a></li>
+          <li><a href="#sec1-problema">↳ O problema</a></li>
+          <li><a href="#sec1-solucao">↳ A solução</a></li>
+          <li><a href="#sec1-analogia">↳ Analogia ATM</a></li>
+          <li><a href="#sec2">Getters e Setters</a></li>
+          <li><a href="#sec2-getter">↳ Getter</a></li>
+          <li><a href="#sec2-setter">↳ Setter</a></li>
+          <li><a href="#sec3">Exemplo Completo</a></li>
+          <li><a href="#sec4">Uso na Prática</a></li>
+          <li><a href="#sec5">Por que usar?</a></li>
+          <li><a href="#sec5-validacao">↳ Validação</a></li>
+          <li><a href="#sec6">Convenção de Nomes</a></li>
+          <li><a href="#sec6-boolean">↳ Boolean</a></li>
+          <li><a href="#sec7">Construtor Vazio</a></li>
+          <li><a href="#sec7-para-que">↳ Para que serve</a></li>
+          <li><a href="#sec7-comportamento">↳ Comportamento Java</a></li>
+          <li><a href="#sec7-quando">↳ Quando usar</a></li>
+          <li><a href="#sec-resumo">Resumo</a></li>
+        </ol>
+      </aside>
+
+    </div><!-- /page-wrapper -->
+
+    <button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+      // Progress bar
+      const bar = document.getElementById('progressBar');
+      window.addEventListener('scroll', () => {
+        const doc  = document.documentElement;
+        const prog = doc.scrollTop / (doc.scrollHeight - doc.clientHeight);
+        bar.style.width = (prog * 100) + '%';
+      });
+
+      // Back to top
+      const btn = document.getElementById('backToTop');
+      window.addEventListener('scroll', () => {
+        btn.classList.toggle('visible', window.scrollY > 400);
+      });
+
+      // Active TOC highlight
+      const sections = document.querySelectorAll('[id]');
+      const tocLinks = document.querySelectorAll('.toc a');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            tocLinks.forEach(l => l.classList.remove('active'));
+            const active = document.querySelector(`.toc a[href="#${e.target.id}"]`);
+            if (active) active.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-60px 0px -70% 0px' });
+      sections.forEach(s => observer.observe(s));
+    </script>
+
+  </body>
+</html>

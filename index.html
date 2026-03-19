@@ -181,6 +181,9 @@
           border-color 0.2s ease,
           box-shadow 0.2s ease;
         position: relative;
+            display: flex;
+        flex-direction: column;
+        justify-content: space-between;
       }
 
       .module-card:hover {
@@ -572,7 +575,7 @@
         <!-- Unidade 3 -->
         <div
           class="module-card available strip-orange"
-          onclick="window.location.href = 'unidade01_Fundamentos.html'"
+          onclick="window.location.href = 'unidade03_classes-objetos-construtores.html'"
         >
           <div class="card-header">
             <div
@@ -609,7 +612,8 @@
         </div>
 
         <!-- Unidade 4 -->
-        <div class="module-card locked strip-yellow">
+        <div class="module-card available strip-orange"
+          onclick="window.location.href = 'unidade04_Encapsulamento.html'">
           <div class="card-header">
             <div
               class="card-icon"
@@ -622,32 +626,22 @@
             </div>
             <div class="card-meta">
               <span class="card-num">UNIDADE 04</span>
-              <span class="card-title">Encapsulamento e Pacotes</span>
+              <span class="card-title">Encapsulamento e Modificadores de Acesso</span>
             </div>
-            <span class="card-status"
-              ><i
-                class="fas fa-lock"
-                style="color: var(--text-muted); font-size: 0.8rem"
-              ></i
-            ></span>
+             <span class="card-status"><span class="dot-available"></span></span>
           </div>
           <div class="card-body">
             <p class="card-desc">
-              Modificadores de acesso, getters e setters, encapsulamento na
-              prática, organização em pacotes e refatoração de código.
+              Encapsulamento, getters e setters, modificadores de acesso e construtor vazio.
             </p>
           </div>
           <div class="card-footer">
             <div class="card-tags">
               <span class="tag tag-yellow">private</span>
               <span class="tag tag-yellow">get / set</span>
-              <span class="tag tag-yellow">Pacotes</span>
-              <span class="tag tag-gray">Em breve</span>
+              <span class="tag tag-yellow">Construtor</span>
             </div>
-            <i
-              class="fas fa-lock card-arrow"
-              style="color: var(--text-muted)"
-            ></i>
+            <i class="fas fa-arrow-right card-arrow"></i>
           </div>
         </div>
 
