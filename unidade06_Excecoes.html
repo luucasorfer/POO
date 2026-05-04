@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unidade 06 — Tratamento de Exceções em Java</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg:         #0d1117;
+        --surface:    #161b22;
+        --surface2:   #1c2330;
+        --surface3:   #21262d;
+        --border:     #30363d;
+        --accent:     #f78166;
+        --accent2:    #79c0ff;
+        --accent3:    #56d364;
+        --accent4:    #e3b341;
+        --accent5:    #bc8cff;
+        --pink:       #ff7eb3;
+        --text:       #e6edf3;
+        --text-muted: #8b949e;
+        --text-dim:   #6e7681;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+
+      body {
+        background: var(--bg); color: var(--text);
+        font-family: 'Sora', sans-serif;
+        font-size: 0.95rem; line-height: 1.8;
+      }
+
+      body::before {
+        content: ''; position: fixed; inset: 0;
+        background-image:
+          linear-gradient(var(--border) 1px, transparent 1px),
+          linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.18; pointer-events: none; z-index: 0;
+      }
+
+      /* ── PROGRESS BAR ── */
+      .progress-bar-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 2px; z-index: 200; }
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--pink), var(--accent5));
+        width: 0%; transition: width 0.1s linear;
+      }
+
+      /* ── HEADER ── */
+      header {
+        position: sticky; top: 0; z-index: 100;
+        background: rgba(13,17,23,0.96); backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border); padding: 0.75rem 2rem;
+      }
+      .header-nav {
+        max-width: 960px; margin: 0 auto;
+        display: flex; align-items: center; justify-content: space-between;
+      }
+      .back-link {
+        display: flex; align-items: center; gap: 0.5rem;
+        color: var(--text-muted); text-decoration: none;
+        font-size: 0.8rem; font-family: 'JetBrains Mono', monospace;
+        transition: color 0.15s;
+      }
+      .back-link:hover { color: var(--accent2); }
+      .lesson-badge {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em;
+        padding: 0.28rem 0.75rem; border-radius: 20px;
+        background: rgba(255,126,179,0.1); color: var(--pink);
+        border: 1px solid rgba(255,126,179,0.22);
+      }
+
+      /* ── LAYOUT ── */
+      .page-wrapper {
+        position: relative; z-index: 1;
+        max-width: 960px; margin: 0 auto;
+        padding: 3rem 2rem 6rem;
+        display: grid; grid-template-columns: 1fr 220px;
+        gap: 3rem; align-items: start;
+      }
+      .content { min-width: 0; }
+
+      /* ── TOC ── */
+      .toc {
+        position: sticky; top: 70px;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 10px; padding: 1.2rem; font-size: 0.78rem;
+      }
+      .toc-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+        color: var(--text-muted); font-weight: 700; margin-bottom: 0.9rem;
+        display: flex; align-items: center; gap: 0.4rem;
+      }
+      .toc ol { padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 0.15rem; }
+      .toc li a {
+        display: block; padding: 0.3rem 0.5rem; border-radius: 5px;
+        color: var(--text-muted); text-decoration: none; line-height: 1.4;
+        transition: background 0.15s, color 0.15s;
+      }
+      .toc li a:hover { background: var(--surface2); color: var(--pink); }
+      .toc li a.active {
+        background: rgba(255,126,179,0.08); color: var(--pink);
+        border-left: 2px solid var(--pink); padding-left: calc(0.5rem - 2px);
+      }
+
+      /* ── HERO ── */
+      .lesson-hero {
+        margin-bottom: 3rem; padding-bottom: 2.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .lesson-num {
+        font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+        font-weight: 700; letter-spacing: 0.15em; color: var(--pink);
+        text-transform: uppercase; margin-bottom: 0.8rem;
+        display: flex; align-items: center; gap: 0.5rem;
+      }
+      h1.lesson-title {
+        font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 800;
+        letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 1rem;
+      }
+      h1.lesson-title span {
+        background: linear-gradient(90deg, var(--pink), var(--accent5));
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .lesson-summary { color: var(--text-muted); font-size: 0.95rem; max-width: 580px; margin-bottom: 1.5rem; }
+      .lesson-meta { display: flex; gap: 1.4rem; flex-wrap: wrap; }
+      .meta-item {
+        display: flex; align-items: center; gap: 0.4rem;
+        font-size: 0.77rem; font-family: 'JetBrains Mono', monospace;
+        color: var(--text-muted);
+      }
+      .meta-item i { color: var(--accent3); }
+
+      /* ── HEADINGS ── */
+      h2.section-heading {
+        font-size: 1.25rem; font-weight: 700;
+        margin: 3rem 0 1.2rem; padding-bottom: 0.7rem;
+        border-bottom: 1px solid var(--border);
+        display: flex; align-items: center; gap: 0.7rem;
+        letter-spacing: -0.02em; scroll-margin-top: 80px;
+      }
+      h2.section-heading .icon {
+        width: 30px; height: 30px; border-radius: 6px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.82rem; flex-shrink: 0;
+      }
+      h3.subsection {
+        font-size: 1.05rem; font-weight: 700; margin: 2rem 0 0.8rem;
+        letter-spacing: -0.01em; display: flex; align-items: center;
+        gap: 0.5rem; scroll-margin-top: 80px;
+      }
+      h3.subsection::before {
+        content: ''; display: inline-block; width: 3px; height: 1em;
+        background: var(--pink); border-radius: 2px; flex-shrink: 0;
+      }
+      h4.sub-sub {
+        font-size: 0.8rem; font-weight: 700; margin: 1.6rem 0 0.6rem;
+        color: var(--accent4); font-family: 'JetBrains Mono', monospace;
+        text-transform: uppercase; letter-spacing: 0.07em;
+      }
+
+      /* ── BODY TEXT ── */
+      p { margin-bottom: 0.9rem; }
+      ul, ol { padding-left: 1.6rem; margin-bottom: 1rem; }
+      li { margin-bottom: 0.35rem; }
+      li strong { color: var(--pink); }
+
+      /* ── CODE ── */
+      pre {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 10px; overflow-x: auto; margin: 1.4rem 0;
+      }
+      .code-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0.55rem 1rem; border-bottom: 1px solid var(--border);
+        background: var(--surface2); border-radius: 10px 10px 0 0;
+      }
+      .code-lang {
+        font-family: 'JetBrains Mono', monospace; font-size: 0.66rem;
+        font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted);
+        text-transform: uppercase; display: flex; align-items: center; gap: 0.4rem;
+      }
+      .code-lang i { color: var(--accent4); }
+      .code-dots { display: flex; gap: 0.32rem; }
+      .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+      pre code {
+        display: block; padding: 1.2rem 1.4rem;
+        font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
+        line-height: 1.85; color: #e6edf3; white-space: pre;
+      }
+      .kw { color: #ff7b72; }
+      .tp { color: #ffa657; }
+      .st { color: #a5d6ff; }
+      .cm { color: #8b949e; font-style: italic; }
+      .fn { color: #d2a8ff; }
+      .nm { color: #79c0ff; }
+      .nu { color: #56d364; }
+      .sy { color: #e6edf3; }
+      .ex { color: #ff7eb3; }  /* exception names */
+
+      code.inline {
+        font-family: 'JetBrains Mono', monospace; font-size: 0.82em;
+        background: var(--surface3); border: 1px solid var(--border);
+        padding: 0.12em 0.45em; border-radius: 4px; color: var(--pink);
+      }
+
+      /* ── CALLOUTS ── */
+      .callout {
+        border-radius: 8px; padding: 1rem 1.3rem; margin: 1.4rem 0;
+        display: flex; align-items: flex-start; gap: 0.85rem; font-size: 0.88rem;
+      }
+      .callout i { margin-top: 0.18rem; flex-shrink: 0; }
+      .callout-body { flex: 1; }
+      .callout-body p { margin-bottom: 0.3rem; }
+      .callout-body strong { font-weight: 700; }
+      .callout-body ul { margin: 0.4rem 0 0 1rem; }
+      .callout-body li { margin-bottom: 0.2rem; }
+
+      .callout-blue   { background: rgba(121,192,255,0.07); border: 1px solid rgba(121,192,255,0.2); border-left: 3px solid var(--accent2); }
+      .callout-blue i { color: var(--accent2); }
+      .callout-green   { background: rgba(86,211,100,0.07); border: 1px solid rgba(86,211,100,0.2); border-left: 3px solid var(--accent3); }
+      .callout-green i { color: var(--accent3); }
+      .callout-orange   { background: rgba(247,129,102,0.07); border: 1px solid rgba(247,129,102,0.2); border-left: 3px solid var(--accent); }
+      .callout-orange i { color: var(--accent); }
+      .callout-yellow   { background: rgba(227,179,65,0.07); border: 1px solid rgba(227,179,65,0.2); border-left: 3px solid var(--accent4); }
+      .callout-yellow i { color: var(--accent4); }
+      .callout-purple   { background: rgba(188,140,255,0.07); border: 1px solid rgba(188,140,255,0.2); border-left: 3px solid var(--accent5); }
+      .callout-purple i { color: var(--accent5); }
+      .callout-pink   { background: rgba(255,126,179,0.07); border: 1px solid rgba(255,126,179,0.2); border-left: 3px solid var(--pink); }
+      .callout-pink i { color: var(--pink); }
+      .callout-red    { background: rgba(248,81,73,0.07); border: 1px solid rgba(248,81,73,0.25); border-left: 3px solid #f85149; }
+      .callout-red i  { color: #f85149; }
+
+      /* ── STEP LIST ── */
+      .step-list { display: flex; flex-direction: column; gap: 0.8rem; margin: 1.2rem 0; }
+      .step-item { display: flex; gap: 1rem; align-items: flex-start; }
+      .step-num {
+        width: 28px; height: 28px; border-radius: 50%;
+        background: rgba(255,126,179,0.12); border: 1px solid rgba(255,126,179,0.25);
+        color: var(--pink); font-family: 'JetBrains Mono', monospace;
+        font-size: 0.75rem; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; margin-top: 0.1rem;
+      }
+      .step-content { flex: 1; font-size: 0.9rem; }
+      .step-content strong { color: var(--text); }
+      .step-content p { margin: 0.2rem 0 0; color: var(--text-muted); font-size: 0.85rem; }
+
+      /* ── COMPARE ── */
+      .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.4rem 0; }
+      .compare-grid pre { margin: 0; }
+      .compare-label {
+        font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+        font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+        margin-bottom: 0.5rem;
+      }
+
+      /* ── HIERARCHY DIAGRAM ── */
+      .hier-wrap {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 10px; padding: 1.8rem; margin: 1.4rem 0;
+        font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+        overflow-x: auto;
+      }
+      .hier-node {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        padding: 0.3rem 0.8rem; border-radius: 6px;
+        font-weight: 700; font-size: 0.78rem; white-space: nowrap;
+      }
+      .hier-row { display: flex; align-items: center; gap: 0; margin: 0.35rem 0; }
+      .hier-indent { color: var(--text-dim); padding-right: 0.2rem; user-select: none; }
+      .node-throwable  { background: rgba(188,140,255,0.12); color: var(--accent5); border: 1px solid rgba(188,140,255,0.3); }
+      .node-error      { background: rgba(248,81,73,0.1);   color: #f85149;         border: 1px solid rgba(248,81,73,0.25); }
+      .node-exception  { background: rgba(227,179,65,0.1);  color: var(--accent4);  border: 1px solid rgba(227,179,65,0.25); }
+      .node-runtime    { background: rgba(247,129,102,0.1); color: var(--accent);   border: 1px solid rgba(247,129,102,0.25); }
+      .node-checked    { background: rgba(121,192,255,0.1); color: var(--accent2);  border: 1px solid rgba(121,192,255,0.25); }
+      .node-custom     { background: rgba(255,126,179,0.1); color: var(--pink);     border: 1px solid rgba(255,126,179,0.25); }
+      .hier-legend { display: flex; gap: 1.2rem; flex-wrap: wrap; margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+      .hier-legend-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; }
+      .hier-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+      /* ── EXCEPTION TABLE ── */
+      .exc-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.84rem; }
+      .exc-table th {
+        text-align: left; padding: 0.6rem 1rem;
+        background: var(--surface2); border: 1px solid var(--border);
+        font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+        text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted);
+      }
+      .exc-table td { padding: 0.6rem 1rem; border: 1px solid var(--border); vertical-align: middle; }
+      .exc-table tr:hover td { background: var(--surface2); }
+
+      /* ── BLOCK ANATOMY ── */
+      .block-anatomy {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 10px; overflow: hidden; margin: 1.4rem 0;
+      }
+      .ba-row {
+        display: flex; align-items: stretch; border-bottom: 1px solid var(--border);
+      }
+      .ba-row:last-child { border-bottom: none; }
+      .ba-keyword {
+        padding: 0.9rem 1.2rem; min-width: 100px;
+        font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        border-right: 1px solid var(--border); flex-shrink: 0;
+      }
+      .ba-desc { padding: 0.9rem 1.3rem; font-size: 0.87rem; }
+      .ba-desc strong { display: block; margin-bottom: 0.2rem; }
+      .ba-desc span { color: var(--text-muted); font-size: 0.82rem; }
+
+      /* ── BEST PRACTICE CARDS ── */
+      .bp-list { display: flex; flex-direction: column; gap: 0.7rem; margin: 1.2rem 0; }
+      .bp-item {
+        display: flex; align-items: flex-start; gap: 0.9rem;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 8px; padding: 0.9rem 1.1rem; font-size: 0.88rem;
+        transition: border-color 0.2s;
+      }
+      .bp-item:hover { border-color: var(--pink); }
+      .bp-icon {
+        width: 30px; height: 30px; border-radius: 6px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center; font-size: 0.85rem;
+      }
+      .bp-text strong { color: var(--text); display: block; margin-bottom: 0.15rem; }
+      .bp-text span { color: var(--text-muted); font-size: 0.82rem; }
+
+      /* ── EXERCISE CARDS ── */
+      .exercise-list { display: flex; flex-direction: column; gap: 1.2rem; margin: 1.4rem 0; }
+      .exercise-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+      .ex-header {
+        display: flex; align-items: center; gap: 1rem;
+        padding: 0.9rem 1.3rem; border-bottom: 1px solid var(--border);
+        background: var(--surface2);
+      }
+      .ex-num {
+        width: 32px; height: 32px; border-radius: 8px;
+        font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700;
+        display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      }
+      .ex-title { font-size: 0.92rem; font-weight: 700; }
+      .ex-level {
+        margin-left: auto; font-family: 'JetBrains Mono', monospace;
+        font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em;
+        padding: 0.2rem 0.55rem; border-radius: 20px; text-transform: uppercase;
+      }
+      .level-1 { background: rgba(86,211,100,0.1); color: var(--accent3); border: 1px solid rgba(86,211,100,0.2); }
+      .level-2 { background: rgba(227,179,65,0.1); color: var(--accent4); border: 1px solid rgba(227,179,65,0.2); }
+      .level-3 { background: rgba(255,126,179,0.1); color: var(--pink); border: 1px solid rgba(255,126,179,0.2); }
+      .ex-body { padding: 1rem 1.3rem; }
+      .ex-body p { font-size: 0.88rem; margin-bottom: 0.6rem; }
+      .ex-body ul { font-size: 0.85rem; margin-bottom: 0.6rem; }
+      .ex-body pre { margin: 0.8rem 0 0; }
+
+      /* ── NAV ── */
+      .lesson-nav {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border);
+      }
+      .nav-btn {
+        display: flex; align-items: center; gap: 0.5rem;
+        padding: 0.65rem 1.1rem; border: 1px solid var(--border);
+        border-radius: 8px; background: var(--surface);
+        color: var(--text-muted); text-decoration: none;
+        font-size: 0.8rem; font-family: 'JetBrains Mono', monospace;
+        transition: border-color 0.2s, color 0.2s; cursor: pointer;
+      }
+      .nav-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+      .nav-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+      /* ── BACK TO TOP ── */
+      #backToTop {
+        position: fixed; bottom: 1.5rem; right: 1.5rem;
+        background: var(--surface); border: 1px solid var(--border);
+        color: var(--text-muted); width: 38px; height: 38px;
+        border-radius: 8px; display: none;
+        align-items: center; justify-content: center;
+        cursor: pointer; font-size: 0.85rem;
+        transition: border-color 0.2s, color 0.2s; z-index: 50;
+      }
+      #backToTop:hover { border-color: var(--pink); color: var(--pink); }
+      #backToTop.visible { display: flex; }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 800px) {
+        .page-wrapper { grid-template-columns: 1fr; padding: 2rem 1.2rem 4rem; }
+        .toc { display: none; }
+        .compare-grid { grid-template-columns: 1fr; }
+        header { padding: 0.65rem 1.2rem; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <header>
+      <div class="header-nav">
+        <a href="index.html" class="back-link">
+          <i class="fas fa-arrow-left"></i> POO em Java
+        </a>
+        <span class="lesson-badge">UNIDADE 06 · EXCEÇÕES</span>
+      </div>
+    </header>
+
+    <div class="page-wrapper">
+      <div class="content">
+
+        <!-- ══ HERO ══ -->
+        <div class="lesson-hero">
+          <div class="lesson-num">
+            <i class="fas fa-circle" style="color:var(--pink);font-size:0.45rem;"></i>
+            Unidade 06 · Tratamento de Exceções
+          </div>
+          <h1 class="lesson-title">
+            Tratamento de<br><span>Exceções em Java</span>
+          </h1>
+          <p class="lesson-summary">
+            Aprenda a lidar com erros em tempo de execução de forma controlada usando <code style="font-family:monospace;font-size:0.9em;color:var(--pink);">try</code>, <code style="font-family:monospace;font-size:0.9em;color:var(--pink);">catch</code>, <code style="font-family:monospace;font-size:0.9em;color:var(--pink);">finally</code>, <code style="font-family:monospace;font-size:0.9em;color:var(--pink);">throw</code> e a criar suas próprias exceções personalizadas.
+          </p>
+          <div class="lesson-meta">
+            <div class="meta-item"><i class="fab fa-java"></i> Java</div>
+            <div class="meta-item"><i class="fas fa-clock"></i> ~90 min</div>
+            <div class="meta-item"><i class="fas fa-layer-group"></i> Intermediário</div>
+            <div class="meta-item"><i class="fas fa-puzzle-piece"></i> 4 exercícios</div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════
+             SEÇÃO 1 — O QUE É UMA EXCEÇÃO
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec1">
+          <span class="icon" style="background:rgba(255,126,179,0.12);color:var(--pink);">
+            <i class="fas fa-bolt"></i>
+          </span>
+          1. O que é uma Exceção?
+        </h2>
+
+        <p>
+          Uma <strong>exceção</strong> é um evento inesperado que ocorre durante a execução de um programa e interrompe seu fluxo normal. Em vez de deixar o programa travar de forma abrupta, Java oferece um mecanismo para <strong>capturar e tratar esses erros</strong> de maneira controlada.
+        </p>
+
+        <div class="callout callout-pink">
+          <i class="fas fa-quote-left"></i>
+          <div class="callout-body">
+            <p><strong>Definição:</strong> Exceção é uma condição anormal que surge durante a execução de um programa. O Java usa objetos para representar essas condições e permite que o código as trate sem encerrar o programa de forma inesperada.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec1-sem">O que acontece sem tratamento</h3>
+
+        <p>Sem tratamento de exceções, um erro simples como dividir por zero ou acessar um índice inexistente <strong>encerra o programa imediatamente</strong> e exibe uma mensagem de erro no console:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Sem tratamento — programa encerra abruptamente</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">public class</span> <span class="nm">Main</span> <span class="sy">{</span>
+    <span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+        <span class="tp">int</span> <span class="vr">resultado</span> <span class="sy">=</span> <span class="nu">10</span> <span class="sy">/</span> <span class="nu">0</span><span class="sy">;</span>  <span class="cm">// ❌ divisão por zero</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">resultado</span><span class="sy">);</span>  <span class="cm">// nunca chega aqui</span>
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-red">
+          <i class="fas fa-terminal"></i>
+          <div class="callout-body">
+            <p><strong>Saída — erro no console:</strong></p>
+            <pre style="background:none;border:none;margin:0.4rem 0 0;"><code style="padding:0;font-size:0.8rem;color:#f85149;">Exception in thread "main" java.lang.ArithmeticException: / by zero
+    at Main.main(Main.java:3)</code></pre>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec1-tipos">Tipos de erro em Java</h3>
+
+        <p>Java distingue três categorias de problemas:</p>
+
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num" style="background:rgba(248,81,73,0.1);border-color:rgba(248,81,73,0.25);color:#f85149;">E</div>
+            <div class="step-content">
+              <strong>Error — erros graves da JVM</strong>
+              <p>Problemas que o programa não pode tratar: falta de memória (<code class="inline">OutOfMemoryError</code>), estouro de pilha (<code class="inline">StackOverflowError</code>). O programa geralmente não consegue se recuperar.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num" style="background:rgba(247,129,102,0.1);border-color:rgba(247,129,102,0.25);color:var(--accent);">R</div>
+            <div class="step-content">
+              <strong>RuntimeException — exceções não verificadas</strong>
+              <p>Ocorrem em tempo de execução por bugs no código: divisão por zero, índice inválido, referência nula. O compilador <strong>não obriga</strong> o tratamento.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num" style="background:rgba(121,192,255,0.1);border-color:rgba(121,192,255,0.25);color:var(--accent2);">C</div>
+            <div class="step-content">
+              <strong>Checked Exceptions — exceções verificadas</strong>
+              <p>Condições previsíveis que podem ocorrer: arquivo não encontrado, falha de rede. O compilador <strong>exige</strong> que sejam tratadas ou declaradas.</p>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- ══════════════════════════════════════════
+             SEÇÃO 2 — HIERARQUIA
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec2">
+          <span class="icon" style="background:rgba(188,140,255,0.12);color:var(--accent5);">
+            <i class="fas fa-sitemap"></i>
+          </span>
+          2. Hierarquia de Exceções
+        </h2>
+
+        <p>
+          Em Java, todas as exceções são classes que herdam de <code class="inline">Throwable</code>. Conhecer essa hierarquia é fundamental para saber qual tipo capturar:
+        </p>
+
+        <div class="hier-wrap">
+          <div class="hier-row">
+            <span class="hier-node node-throwable">Throwable</span>
+          </div>
+          <div class="hier-row" style="margin-left:1.4rem;">
+            <span class="hier-indent">├─</span>
+            <span class="hier-node node-error">Error</span>
+            <span style="color:var(--text-dim);font-size:0.75rem;margin-left:0.6rem;">OutOfMemoryError, StackOverflowError</span>
+          </div>
+          <div class="hier-row" style="margin-left:1.4rem;">
+            <span class="hier-indent">└─</span>
+            <span class="hier-node node-exception">Exception</span>
+          </div>
+          <div class="hier-row" style="margin-left:3.2rem;">
+            <span class="hier-indent">├─</span>
+            <span class="hier-node node-runtime">RuntimeException</span>
+            <span style="color:var(--text-dim);font-size:0.75rem;margin-left:0.6rem;">(não verificadas)</span>
+          </div>
+          <div class="hier-row" style="margin-left:5rem;">
+            <span class="hier-indent">├─</span>
+            <span class="hier-node node-runtime" style="font-weight:400;font-size:0.74rem;">NullPointerException</span>
+          </div>
+          <div class="hier-row" style="margin-left:5rem;">
+            <span class="hier-indent">├─</span>
+            <span class="hier-node node-runtime" style="font-weight:400;font-size:0.74rem;">ArithmeticException</span>
+          </div>
+          <div class="hier-row" style="margin-left:5rem;">
+            <span class="hier-indent">├─</span>
+            <span class="hier-node node-runtime" style="font-weight:400;font-size:0.74rem;">ArrayIndexOutOfBoundsException</span>
+          </div>
+          <div class="hier-row" style="margin-left:5rem;">
+            <span class="hier-indent">└─</span>
+            <span class="hier-node node-runtime" style="font-weight:400;font-size:0.74rem;">NumberFormatException</span>
+          </div>
+          <div class="hier-row" style="margin-left:3.2rem;">
+            <span class="hier-indent">├─</span>
+            <span class="hier-node node-checked">IOException</span>
+            <span style="color:var(--text-dim);font-size:0.75rem;margin-left:0.6rem;">(verificadas)</span>
+          </div>
+          <div class="hier-row" style="margin-left:5rem;">
+            <span class="hier-indent">└─</span>
+            <span class="hier-node node-checked" style="font-weight:400;font-size:0.74rem;">FileNotFoundException</span>
+          </div>
+          <div class="hier-row" style="margin-left:3.2rem;">
+            <span class="hier-indent">└─</span>
+            <span class="hier-node node-custom">SuaExcecaoCustom</span>
+            <span style="color:var(--text-dim);font-size:0.75rem;margin-left:0.6rem;">(criada por você)</span>
+          </div>
+
+          <div class="hier-legend">
+            <div class="hier-legend-item"><div class="hier-dot" style="background:var(--accent5);"></div><span style="color:var(--accent5);">Throwable</span></div>
+            <div class="hier-legend-item"><div class="hier-dot" style="background:#f85149;"></div><span style="color:#f85149;">Error</span></div>
+            <div class="hier-legend-item"><div class="hier-dot" style="background:var(--accent4);"></div><span style="color:var(--accent4);">Exception</span></div>
+            <div class="hier-legend-item"><div class="hier-dot" style="background:var(--accent);"></div><span style="color:var(--accent);">RuntimeException (não verificada)</span></div>
+            <div class="hier-legend-item"><div class="hier-dot" style="background:var(--accent2);"></div><span style="color:var(--accent2);">Checked Exception</span></div>
+            <div class="hier-legend-item"><div class="hier-dot" style="background:var(--pink);"></div><span style="color:var(--pink);">Exception personalizada</span></div>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec2-comuns">Exceções mais comuns</h3>
+
+        <table class="exc-table">
+          <thead>
+            <tr>
+              <th>Exceção</th>
+              <th>Tipo</th>
+              <th>Causa comum</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">NullPointerException</code></td>
+              <td><span style="color:var(--accent);font-size:0.78rem;font-family:monospace;">Runtime</span></td>
+              <td>Acessar método ou atributo de uma referência <code class="inline">null</code></td>
+            </tr>
+            <tr>
+              <td><code class="inline">ArithmeticException</code></td>
+              <td><span style="color:var(--accent);font-size:0.78rem;font-family:monospace;">Runtime</span></td>
+              <td>Divisão por zero com inteiros</td>
+            </tr>
+            <tr>
+              <td><code class="inline">ArrayIndexOutOfBoundsException</code></td>
+              <td><span style="color:var(--accent);font-size:0.78rem;font-family:monospace;">Runtime</span></td>
+              <td>Acessar índice inexistente em um array</td>
+            </tr>
+            <tr>
+              <td><code class="inline">NumberFormatException</code></td>
+              <td><span style="color:var(--accent);font-size:0.78rem;font-family:monospace;">Runtime</span></td>
+              <td>Converter uma String inválida em número (<code class="inline">Integer.parseInt("abc")</code>)</td>
+            </tr>
+            <tr>
+              <td><code class="inline">ClassCastException</code></td>
+              <td><span style="color:var(--accent);font-size:0.78rem;font-family:monospace;">Runtime</span></td>
+              <td>Conversão de tipo incompatível</td>
+            </tr>
+            <tr>
+              <td><code class="inline">FileNotFoundException</code></td>
+              <td><span style="color:var(--accent2);font-size:0.78rem;font-family:monospace;">Checked</span></td>
+              <td>Tentar abrir um arquivo que não existe</td>
+            </tr>
+            <tr>
+              <td><code class="inline">IOException</code></td>
+              <td><span style="color:var(--accent2);font-size:0.78rem;font-family:monospace;">Checked</span></td>
+              <td>Falha em operação de entrada e saída</td>
+            </tr>
+          </tbody>
+        </table>
+
+
+        <!-- ══════════════════════════════════════════
+             SEÇÃO 3 — TRY / CATCH / FINALLY
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec3">
+          <span class="icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);">
+            <i class="fas fa-shield-alt"></i>
+          </span>
+          3. try / catch / finally
+        </h2>
+
+        <p>
+          O mecanismo principal de tratamento de exceções em Java usa três blocos: <code class="inline">try</code>, <code class="inline">catch</code> e <code class="inline">finally</code>.
+        </p>
+
+        <div class="block-anatomy">
+          <div class="ba-row">
+            <div class="ba-keyword" style="background:rgba(86,211,100,0.08);color:var(--accent3);">try</div>
+            <div class="ba-desc">
+              <strong>Bloco protegido</strong>
+              <span>Contém o código que pode lançar uma exceção. Se uma exceção ocorrer aqui, a execução é interrompida e vai direto para o <code class="inline">catch</code>.</span>
+            </div>
+          </div>
+          <div class="ba-row">
+            <div class="ba-keyword" style="background:rgba(247,129,102,0.08);color:var(--accent);">catch</div>
+            <div class="ba-desc">
+              <strong>Captura e trata a exceção</strong>
+              <span>Executado <em>somente</em> se a exceção declarada ocorrer no <code class="inline">try</code>. Pode haver múltiplos <code class="inline">catch</code> para tipos diferentes.</span>
+            </div>
+          </div>
+          <div class="ba-row">
+            <div class="ba-keyword" style="background:rgba(121,192,255,0.08);color:var(--accent2);">finally</div>
+            <div class="ba-desc">
+              <strong>Sempre executado — opcional</strong>
+              <span>Roda independentemente de ter ocorrido exceção ou não. Ideal para liberar recursos (fechar arquivos, conexões, etc.).</span>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec3-basico">Estrutura básica</h3>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> try / catch — estrutura básica</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">public class</span> <span class="nm">Main</span> <span class="sy">{</span>
+    <span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+
+        <span class="kw">try</span> <span class="sy">{</span>
+            <span class="tp">int</span> <span class="vr">resultado</span> <span class="sy">=</span> <span class="nu">10</span> <span class="sy">/</span> <span class="nu">0</span><span class="sy">;</span>  <span class="cm">// lança ArithmeticException</span>
+            <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">resultado</span><span class="sy">);</span>  <span class="cm">// não executa</span>
+        <span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">ArithmeticException</span> <span class="vr">e</span><span class="sy">) {</span>
+            <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Erro: divisão por zero!"</span><span class="sy">);</span>
+            <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">e</span><span class="sy">.</span><span class="fn">getMessage</span><span class="sy">());</span>  <span class="cm">// detalhe do erro</span>
+        <span class="sy">}</span>
+
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Programa continua normalmente."</span><span class="sy">);</span>
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-green">
+          <i class="fas fa-terminal"></i>
+          <div class="callout-body">
+            <p><strong>Saída:</strong></p>
+            <pre style="background:none;border:none;margin:0.4rem 0 0;"><code style="padding:0;font-size:0.8rem;color:var(--accent3);">Erro: divisão por zero!
+/ by zero
+Programa continua normalmente.</code></pre>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec3-finally">O bloco finally</h3>
+
+        <p>O <code class="inline">finally</code> é executado <strong>sempre</strong> — seja com exceção ou sem. É o lugar certo para liberar recursos:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> try / catch / finally</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">try</span> <span class="sy">{</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Tentando executar..."</span><span class="sy">);</span>
+    <span class="tp">int</span> <span class="vr">x</span> <span class="sy">=</span> <span class="nu">5</span> <span class="sy">/</span> <span class="nu">0</span><span class="sy">;</span>                 <span class="cm">// lança exceção aqui</span>
+<span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">ArithmeticException</span> <span class="vr">e</span><span class="sy">) {</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Exceção capturada: "</span> <span class="sy">+</span> <span class="vr">e</span><span class="sy">.</span><span class="fn">getMessage</span><span class="sy">());</span>
+<span class="sy">}</span> <span class="kw">finally</span> <span class="sy">{</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"finally: sempre executa!"</span><span class="sy">);</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-green">
+          <i class="fas fa-terminal"></i>
+          <div class="callout-body">
+            <p><strong>Saída:</strong></p>
+            <pre style="background:none;border:none;margin:0.4rem 0 0;"><code style="padding:0;font-size:0.8rem;color:var(--accent3);">Tentando executar...
+Exceção capturada: / by zero
+finally: sempre executa!</code></pre>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec3-multiplos">Múltiplos catch</h3>
+
+        <p>Você pode encadear vários <code class="inline">catch</code> para tratar diferentes tipos de exceção de formas distintas. O Java verifica cada <code class="inline">catch</code> em ordem e executa apenas o primeiro que corresponder:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Múltiplos catch — tratamentos específicos</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">import</span> <span class="nm">java.util.Scanner</span><span class="sy">;</span>
+
+<span class="nm">Scanner</span> <span class="vr">sc</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Scanner</span><span class="sy">(</span><span class="nm">System</span><span class="sy">.</span><span class="vr">in</span><span class="sy">);</span>
+
+<span class="kw">try</span> <span class="sy">{</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">print</span><span class="sy">(</span><span class="st">"Digite um número: "</span><span class="sy">);</span>
+    <span class="tp">int</span> <span class="vr">numero</span> <span class="sy">=</span> <span class="nm">Integer</span><span class="sy">.</span><span class="fn">parseInt</span><span class="sy">(</span><span class="vr">sc</span><span class="sy">.</span><span class="fn">nextLine</span><span class="sy">());</span>
+
+    <span class="tp">int</span><span class="sy">[]</span> <span class="vr">vetor</span> <span class="sy">=</span> <span class="sy">{</span><span class="nu">10</span><span class="sy">,</span> <span class="nu">20</span><span class="sy">,</span> <span class="nu">30</span><span class="sy">};</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">vetor</span><span class="sy">[</span><span class="vr">numero</span><span class="sy">]);</span>
+
+<span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">NumberFormatException</span> <span class="vr">e</span><span class="sy">) {</span>
+    <span class="cm">// usuário digitou texto ao invés de número</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Entrada inválida — digite apenas números."</span><span class="sy">);</span>
+
+<span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">ArrayIndexOutOfBoundsException</span> <span class="vr">e</span><span class="sy">) {</span>
+    <span class="cm">// índice fora do tamanho do vetor</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Índice inválido — use 0, 1 ou 2."</span><span class="sy">);</span>
+
+<span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">Exception</span> <span class="vr">e</span><span class="sy">) {</span>
+    <span class="cm">// captura qualquer outra exceção não prevista</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Erro inesperado: "</span> <span class="sy">+</span> <span class="vr">e</span><span class="sy">.</span><span class="fn">getMessage</span><span class="sy">());</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-yellow">
+          <i class="fas fa-exclamation-triangle"></i>
+          <div class="callout-body">
+            <p><strong>Regra importante:</strong> sempre coloque os <code class="inline">catch</code> do tipo <strong>mais específico para o mais genérico</strong>. Se <code class="inline">Exception</code> vier primeiro, ele capturará tudo e os outros <code class="inline">catch</code> jamais serão executados — o compilador acusará erro.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec3-multi-catch">Multi-catch — um catch, vários tipos</h3>
+
+        <p>Desde o Java 7, você pode capturar múltiplos tipos em um único <code class="inline">catch</code> usando <code class="inline">|</code>:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Multi-catch (Java 7+)</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">try</span> <span class="sy">{</span>
+    <span class="cm">// código que pode lançar diferentes exceções</span>
+<span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">NumberFormatException</span> <span class="sy">|</span> <span class="ex">ArrayIndexOutOfBoundsException</span> <span class="vr">e</span><span class="sy">) {</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Erro de formato ou índice: "</span> <span class="sy">+</span> <span class="vr">e</span><span class="sy">.</span><span class="fn">getMessage</span><span class="sy">());</span>
+<span class="sy">}</span></code>
+        </pre>
+
+
+        <!-- ══════════════════════════════════════════
+             SEÇÃO 4 — THROW E THROWS
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec4">
+          <span class="icon" style="background:rgba(247,129,102,0.12);color:var(--accent);">
+            <i class="fas fa-paper-plane"></i>
+          </span>
+          4. throw e throws
+        </h2>
+
+        <p>Além de capturar exceções, você pode <strong>lançá-las manualmente</strong> com <code class="inline">throw</code>, e declarar que um método pode lançar exceções com <code class="inline">throws</code>.</p>
+
+        <div class="compare-grid">
+          <div>
+            <div class="compare-label" style="color:var(--accent);">throw</div>
+            <p style="font-size:0.85rem;margin-bottom:0.5rem;">Lança uma exceção explicitamente dentro do código.</p>
+          </div>
+          <div>
+            <div class="compare-label" style="color:var(--accent2);">throws</div>
+            <p style="font-size:0.85rem;margin-bottom:0.5rem;">Declara na assinatura do método que ele pode lançar uma exceção.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec4-throw">Usando throw</h3>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Lançando uma exceção com throw</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">static void</span> <span class="fn">setIdade</span><span class="sy">(</span><span class="tp">int</span> <span class="vr">idade</span><span class="sy">) {</span>
+    <span class="kw">if</span> <span class="sy">(</span><span class="vr">idade</span> <span class="sy"><</span> <span class="nu">0</span><span class="sy">) {</span>
+        <span class="kw">throw new</span> <span class="ex">IllegalArgumentException</span><span class="sy">(</span>
+            <span class="st">"Idade inválida: "</span> <span class="sy">+</span> <span class="vr">idade</span> <span class="sy">+</span> <span class="st">". Deve ser >= 0."</span>
+        <span class="sy">);</span>
+    <span class="sy">}</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Idade definida: "</span> <span class="sy">+</span> <span class="vr">idade</span><span class="sy">);</span>
+<span class="sy">}</span>
+
+<span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+    <span class="kw">try</span> <span class="sy">{</span>
+        <span class="fn">setIdade</span><span class="sy">(</span><span class="nu">25</span><span class="sy">);</span>   <span class="cm">// OK → Idade definida: 25</span>
+        <span class="fn">setIdade</span><span class="sy">(</span><span class="nu">-5</span><span class="sy">);</span>   <span class="cm">// lança IllegalArgumentException</span>
+    <span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">IllegalArgumentException</span> <span class="vr">e</span><span class="sy">) {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Capturado: "</span> <span class="sy">+</span> <span class="vr">e</span><span class="sy">.</span><span class="fn">getMessage</span><span class="sy">());</span>
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec4-throws">Usando throws — propagando exceções</h3>
+
+        <p>Quando um método não quer tratar a exceção localmente, ele pode <strong>propagar</strong> para quem o chamou usando <code class="inline">throws</code> na assinatura:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> throws — declaração na assinatura do método</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">import</span> <span class="nm">java.io</span><span class="sy">.*;</span>
+
+<span class="cm">// Método declara que PODE lançar IOException</span>
+<span class="kw">static void</span> <span class="fn">lerArquivo</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">caminho</span><span class="sy">)</span> <span class="kw">throws</span> <span class="ex">IOException</span> <span class="sy">{</span>
+    <span class="nm">FileReader</span> <span class="vr">leitor</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">FileReader</span><span class="sy">(</span><span class="vr">caminho</span><span class="sy">);</span>
+    <span class="cm">// quem chamar lerArquivo() é responsável por tratar a exceção</span>
+<span class="sy">}</span>
+
+<span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+    <span class="kw">try</span> <span class="sy">{</span>
+        <span class="fn">lerArquivo</span><span class="sy">(</span><span class="st">"dados.txt"</span><span class="sy">);</span>
+    <span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">IOException</span> <span class="vr">e</span><span class="sy">) {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Arquivo não encontrado: "</span> <span class="sy">+</span> <span class="vr">e</span><span class="sy">.</span><span class="fn">getMessage</span><span class="sy">());</span>
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-blue">
+          <i class="fas fa-info-circle"></i>
+          <div class="callout-body">
+            <p><strong>throw</strong> vs <strong>throws</strong> em resumo:</p>
+            <ul>
+              <li><code class="inline">throw</code> — <em>ação</em>: lança um objeto de exceção</li>
+              <li><code class="inline">throws</code> — <em>declaração</em>: avisa que o método pode lançar uma exceção</li>
+            </ul>
+          </div>
+        </div>
+
+
+        <!-- ══════════════════════════════════════════
+             SEÇÃO 5 — EXCEÇÕES PERSONALIZADAS
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec5">
+          <span class="icon" style="background:rgba(255,126,179,0.12);color:var(--pink);">
+            <i class="fas fa-magic"></i>
+          </span>
+          5. Exceções Personalizadas
+        </h2>
+
+        <p>
+          Você pode criar suas próprias exceções para representar erros específicos do seu domínio de negócio. Para isso, basta criar uma classe que herda de <code class="inline">Exception</code> (checked) ou de <code class="inline">RuntimeException</code> (unchecked).
+        </p>
+
+        <div class="callout callout-purple">
+          <i class="fas fa-lightbulb"></i>
+          <div class="callout-body">
+            <p><strong>Quando criar uma exceção personalizada?</strong></p>
+            <ul>
+              <li>Quando nenhuma exceção padrão do Java descreve bem o erro do seu sistema</li>
+              <li>Quando você quer fornecer uma mensagem mais clara e específica</li>
+              <li>Quando quer separar erros de negócio de erros técnicos</li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec5-criando">Criando uma exceção personalizada</h3>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> SaldoInsuficienteException.java</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="cm">// Herda de Exception (checked) — obriga o tratamento</span>
+<span class="kw">public class</span> <span class="ex">SaldoInsuficienteException</span> <span class="kw">extends</span> <span class="ex">Exception</span> <span class="sy">{</span>
+
+    <span class="kw">private</span> <span class="tp">double</span> <span class="vr">saldoDisponivel</span><span class="sy">;</span>
+    <span class="kw">private</span> <span class="tp">double</span> <span class="vr">valorSolicitado</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="ex">SaldoInsuficienteException</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">saldo</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">valor</span><span class="sy">) {</span>
+        <span class="kw">super</span><span class="sy">(</span><span class="st">"Saldo insuficiente. Disponível: R$ "</span> <span class="sy">+</span> <span class="vr">saldo</span>
+              <span class="sy">+</span> <span class="st">", Solicitado: R$ "</span> <span class="sy">+</span> <span class="vr">valor</span><span class="sy">);</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">saldoDisponivel</span> <span class="sy">=</span> <span class="vr">saldo</span><span class="sy">;</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">valorSolicitado</span>  <span class="sy">=</span> <span class="vr">valor</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="kw">public</span> <span class="tp">double</span> <span class="fn">getSaldoDisponivel</span><span class="sy">() {</span> <span class="kw">return</span> <span class="vr">saldoDisponivel</span><span class="sy">; }</span>
+    <span class="kw">public</span> <span class="tp">double</span> <span class="fn">getValorSolicitado</span><span class="sy">()  {</span> <span class="kw">return</span> <span class="vr">valorSolicitado</span><span class="sy">; }</span>
+
+<span class="sy">}</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec5-usando">Usando a exceção personalizada</h3>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> ContaBancaria.java — usando a exceção customizada</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">public class</span> <span class="nm">ContaBancaria</span> <span class="sy">{</span>
+
+    <span class="kw">private</span> <span class="tp">double</span> <span class="vr">saldo</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">ContaBancaria</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">saldo</span><span class="sy">) {</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">saldo</span> <span class="sy">=</span> <span class="vr">saldo</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="kw">public void</span> <span class="fn">sacar</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">valor</span><span class="sy">)</span> <span class="kw">throws</span> <span class="ex">SaldoInsuficienteException</span> <span class="sy">{</span>
+        <span class="kw">if</span> <span class="sy">(</span><span class="vr">valor</span> <span class="sy">></span> <span class="vr">saldo</span><span class="sy">) {</span>
+            <span class="kw">throw new</span> <span class="ex">SaldoInsuficienteException</span><span class="sy">(</span><span class="vr">saldo</span><span class="sy">,</span> <span class="vr">valor</span><span class="sy">);</span>
+        <span class="sy">}</span>
+        <span class="vr">saldo</span> <span class="sy">-=</span> <span class="vr">valor</span><span class="sy">;</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Saque de R$ "</span> <span class="sy">+</span> <span class="vr">valor</span> <span class="sy">+</span> <span class="st">" realizado."</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span>
+
+<span class="cm">// Uso na Main:</span>
+<span class="nm">ContaBancaria</span> <span class="vr">conta</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">ContaBancaria</span><span class="sy">(</span><span class="nu">500.00</span><span class="sy">);</span>
+
+<span class="kw">try</span> <span class="sy">{</span>
+    <span class="vr">conta</span><span class="sy">.</span><span class="fn">sacar</span><span class="sy">(</span><span class="nu">200.00</span><span class="sy">);</span>  <span class="cm">// OK → Saque de R$ 200.0 realizado.</span>
+    <span class="vr">conta</span><span class="sy">.</span><span class="fn">sacar</span><span class="sy">(</span><span class="nu">400.00</span><span class="sy">);</span>  <span class="cm">// lança SaldoInsuficienteException</span>
+<span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">SaldoInsuficienteException</span> <span class="vr">e</span><span class="sy">) {</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="vr">e</span><span class="sy">.</span><span class="fn">getMessage</span><span class="sy">());</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Disponível: R$ "</span> <span class="sy">+</span> <span class="vr">e</span><span class="sy">.</span><span class="fn">getSaldoDisponivel</span><span class="sy">());</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-green">
+          <i class="fas fa-terminal"></i>
+          <div class="callout-body">
+            <p><strong>Saída:</strong></p>
+            <pre style="background:none;border:none;margin:0.4rem 0 0;"><code style="padding:0;font-size:0.8rem;color:var(--accent3);">Saque de R$ 200.0 realizado.
+Saldo insuficiente. Disponível: R$ 300.0, Solicitado: R$ 400.0
+Disponível: R$ 300.0</code></pre>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec5-runtime">Exceção unchecked personalizada</h3>
+
+        <p>Se quiser que o compilador <strong>não obrigue</strong> o tratamento, herde de <code class="inline">RuntimeException</code>:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Exceção unchecked — herda de RuntimeException</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="cm">// Não obriga o uso de throws / try-catch</span>
+<span class="kw">public class</span> <span class="ex">IdadeInvalidaException</span> <span class="kw">extends</span> <span class="ex">RuntimeException</span> <span class="sy">{</span>
+
+    <span class="kw">public</span> <span class="ex">IdadeInvalidaException</span><span class="sy">(</span><span class="tp">int</span> <span class="vr">idade</span><span class="sy">) {</span>
+        <span class="kw">super</span><span class="sy">(</span><span class="st">"Idade inválida: "</span> <span class="sy">+</span> <span class="vr">idade</span> <span class="sy">+</span> <span class="st">". Deve ser entre 0 e 150."</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+        </pre>
+
+
+        <!-- ══════════════════════════════════════════
+             SEÇÃO 6 — MÉTODOS ÚTEIS
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec6">
+          <span class="icon" style="background:rgba(227,179,65,0.12);color:var(--accent4);">
+            <i class="fas fa-tools"></i>
+          </span>
+          6. Métodos Úteis de Exception
+        </h2>
+
+        <p>Todo objeto de exceção em Java herda métodos que ajudam a entender e registrar o que aconteceu:</p>
+
+        <pre>
+          <div class="code-header">
+            <span class="code-lang"><i class="fab fa-java"></i> Métodos do objeto de exceção</span>
+            <div class="code-dots">
+              <div class="code-dot" style="background:#ff5f57"></div>
+              <div class="code-dot" style="background:#febc2e"></div>
+              <div class="code-dot" style="background:#28c840"></div>
+            </div>
+          </div>
+          <code><span class="kw">try</span> <span class="sy">{</span>
+    <span class="tp">int</span> <span class="vr">x</span> <span class="sy">=</span> <span class="nu">10</span> <span class="sy">/</span> <span class="nu">0</span><span class="sy">;</span>
+
+<span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">ArithmeticException</span> <span class="vr">e</span><span class="sy">) {</span>
+
+    <span class="vr">e</span><span class="sy">.</span><span class="fn">getMessage</span><span class="sy">();</span>
+    <span class="cm">// → "/ by zero"   — mensagem resumida do erro</span>
+
+    <span class="vr">e</span><span class="sy">.</span><span class="fn">toString</span><span class="sy">();</span>
+    <span class="cm">// → "java.lang.ArithmeticException: / by zero"</span>
+
+    <span class="vr">e</span><span class="sy">.</span><span class="fn">printStackTrace</span><span class="sy">();</span>
+    <span class="cm">// → imprime a pilha completa de chamadas no console</span>
+    <span class="cm">//   útil para depuração, mas evite em produção</span>
+
+    <span class="vr">e</span><span class="sy">.</span><span class="fn">getClass</span><span class="sy">().</span><span class="fn">getName</span><span class="sy">();</span>
+    <span class="cm">// → "java.lang.ArithmeticException" — nome completo da classe</span>
+
+<span class="sy">}</span></code>
+        </pre>
+
+        <table class="exc-table">
+          <thead><tr><th>Método</th><th>Retorna</th><th>Uso</th></tr></thead>
+          <tbody>
+            <tr><td><code class="inline">getMessage()</code></td><td>String</td><td>Mensagem resumida do erro</td></tr>
+            <tr><td><code class="inline">toString()</code></td><td>String</td><td>Tipo + mensagem completa</td></tr>
+            <tr><td><code class="inline">printStackTrace()</code></td><td>void</td><td>Pilha completa — útil em debug</td></tr>
+            <tr><td><code class="inline">getClass().getName()</code></td><td>String</td><td>Nome completo da classe da exceção</td></tr>
+            <tr><td><code class="inline">getCause()</code></td><td>Throwable</td><td>Exceção original que causou esta</td></tr>
+          </tbody>
+        </table>
+
+
+        <!-- ══════════════════════════════════════════
+             SEÇÃO 7 — BOAS PRÁTICAS
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec7">
+          <span class="icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);">
+            <i class="fas fa-star"></i>
+          </span>
+          7. Boas Práticas
+        </h2>
+
+        <div class="bp-list">
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(247,129,102,0.12);color:var(--accent);">
+              <i class="fas fa-crosshairs"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Capture exceções específicas, não genéricas</strong>
+              <span>Prefira <code class="inline">catch (NumberFormatException e)</code> a <code class="inline">catch (Exception e)</code>. Capturar tudo esconde bugs e dificulta a depuração.</span>
+            </div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(248,81,73,0.1);color:#f85149;">
+              <i class="fas fa-ban"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Nunca deixe o catch vazio</strong>
+              <span>Um <code class="inline">catch (Exception e) { }</code> vazio engole o erro silenciosamente — o pior tipo de bug. Sempre registre ou trate a exceção.</span>
+            </div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(121,192,255,0.12);color:var(--accent2);">
+              <i class="fas fa-recycle"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Use finally para liberar recursos</strong>
+              <span>Fechar conexões, arquivos e streams no <code class="inline">finally</code> garante que isso aconteça mesmo se uma exceção ocorrer.</span>
+            </div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(188,140,255,0.12);color:var(--accent5);">
+              <i class="fas fa-comment-alt"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Mensagens de exceção devem ser úteis</strong>
+              <span>Ao criar exceções, forneça mensagens claras e informativas. <code class="inline">"Idade inválida: -3. Deve ser >= 0"</code> é muito melhor que apenas <code class="inline">"erro"</code>.</span>
+            </div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(227,179,65,0.12);color:var(--accent4);">
+              <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Não use exceções para controle de fluxo</strong>
+              <span>Exceções são para situações excepcionais, não para lógica normal. Usar <code class="inline">try/catch</code> no lugar de <code class="inline">if/else</code> torna o código lento e confuso.</span>
+            </div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Registre as exceções em produção</strong>
+              <span>Use um logger (<code class="inline">java.util.logging</code> ou bibliotecas como Log4j) em vez de <code class="inline">printStackTrace()</code> para registrar erros em sistemas reais.</span>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec7-exemplo">Aplicando as boas práticas</h3>
+
+        <div class="compare-grid">
+          <div>
+            <div class="compare-label" style="color:var(--accent);">❌ Ruim</div>
+            <pre style="margin-top:0.5rem;">
+              <div class="code-header">
+                <span class="code-lang"><i class="fab fa-java"></i></span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="kw">try</span> <span class="sy">{</span>
+    <span class="fn">processarDados</span><span class="sy">();</span>
+<span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">Exception</span> <span class="vr">e</span><span class="sy">) {</span>
+    <span class="cm">// catch vazio — erro sumiu!</span>
+<span class="sy">}</span></code>
+            </pre>
+          </div>
+          <div>
+            <div class="compare-label" style="color:var(--accent3);">✅ Bom</div>
+            <pre style="margin-top:0.5rem;">
+              <div class="code-header">
+                <span class="code-lang"><i class="fab fa-java"></i></span>
+                <div class="code-dots">
+                  <div class="code-dot" style="background:#ff5f57"></div>
+                  <div class="code-dot" style="background:#febc2e"></div>
+                  <div class="code-dot" style="background:#28c840"></div>
+                </div>
+              </div>
+              <code><span class="kw">try</span> <span class="sy">{</span>
+    <span class="fn">processarDados</span><span class="sy">();</span>
+<span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">IOException</span> <span class="vr">e</span><span class="sy">) {</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">err</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span>
+        <span class="st">"Falha na leitura: "</span>
+        <span class="sy">+</span> <span class="vr">e</span><span class="sy">.</span><span class="fn">getMessage</span><span class="sy">());</span>
+<span class="sy">}</span></code>
+            </pre>
+          </div>
+        </div>
+
+
+        <!-- ══════════════════════════════════════════
+             SEÇÃO 8 — EXERCÍCIOS
+        ═══════════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec8">
+          <span class="icon" style="background:rgba(247,129,102,0.12);color:var(--accent);">
+            <i class="fas fa-dumbbell"></i>
+          </span>
+          8. Exercícios Práticos
+        </h2>
+
+        <div class="exercise-list">
+
+          <!-- EX 1 -->
+          <div class="exercise-card" id="ex1">
+            <div class="ex-header">
+              <div class="ex-num" style="background:rgba(86,211,100,0.12);color:var(--accent3);border:1px solid rgba(86,211,100,0.25);">01</div>
+              <div>
+                <div class="ex-title">Divisão Segura com try/catch</div>
+              </div>
+              <span class="ex-level level-1">Nível 1</span>
+            </div>
+            <div class="ex-body">
+              <p>Crie um método <code class="inline">dividir(int a, int b)</code> que retorne o resultado da divisão. Use <code class="inline">try/catch</code> para tratar <code class="inline">ArithmeticException</code> e retorne <code class="inline">0</code> em caso de divisão por zero, exibindo uma mensagem clara.</p>
+              <pre>
+                <div class="code-header">
+                  <span class="code-lang"><i class="fab fa-java"></i> Solução</span>
+                  <div class="code-dots">
+                    <div class="code-dot" style="background:#ff5f57"></div>
+                    <div class="code-dot" style="background:#febc2e"></div>
+                    <div class="code-dot" style="background:#28c840"></div>
+                  </div>
+                </div>
+                <code><span class="kw">static</span> <span class="tp">int</span> <span class="fn">dividir</span><span class="sy">(</span><span class="tp">int</span> <span class="vr">a</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">b</span><span class="sy">) {</span>
+    <span class="kw">try</span> <span class="sy">{</span>
+        <span class="kw">return</span> <span class="vr">a</span> <span class="sy">/</span> <span class="vr">b</span><span class="sy">;</span>
+    <span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">ArithmeticException</span> <span class="vr">e</span><span class="sy">) {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Erro: não é possível dividir por zero."</span><span class="sy">);</span>
+        <span class="kw">return</span> <span class="nu">0</span><span class="sy">;</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="cm">// Teste</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">dividir</span><span class="sy">(</span><span class="nu">10</span><span class="sy">,</span> <span class="nu">2</span><span class="sy">));</span>   <span class="cm">// 5</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">dividir</span><span class="sy">(</span><span class="nu">10</span><span class="sy">,</span> <span class="nu">0</span><span class="sy">));</span>   <span class="cm">// Erro: não é possível dividir por zero. → 0</span></code>
+              </pre>
+            </div>
+          </div>
+
+          <!-- EX 2 -->
+          <div class="exercise-card" id="ex2">
+            <div class="ex-header">
+              <div class="ex-num" style="background:rgba(86,211,100,0.12);color:var(--accent3);border:1px solid rgba(86,211,100,0.25);">02</div>
+              <div>
+                <div class="ex-title">Leitura de Número com Validação</div>
+              </div>
+              <span class="ex-level level-1">Nível 1</span>
+            </div>
+            <div class="ex-body">
+              <p>Crie um método <code class="inline">lerInteiro(String texto)</code> que tente converter uma String em inteiro. Se a conversão falhar por <code class="inline">NumberFormatException</code>, retorne <code class="inline">-1</code> e exiba uma mensagem informativa.</p>
+              <pre>
+                <div class="code-header">
+                  <span class="code-lang"><i class="fab fa-java"></i> Solução</span>
+                  <div class="code-dots">
+                    <div class="code-dot" style="background:#ff5f57"></div>
+                    <div class="code-dot" style="background:#febc2e"></div>
+                    <div class="code-dot" style="background:#28c840"></div>
+                  </div>
+                </div>
+                <code><span class="kw">static</span> <span class="tp">int</span> <span class="fn">lerInteiro</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">texto</span><span class="sy">) {</span>
+    <span class="kw">try</span> <span class="sy">{</span>
+        <span class="kw">return</span> <span class="nm">Integer</span><span class="sy">.</span><span class="fn">parseInt</span><span class="sy">(</span><span class="vr">texto</span><span class="sy">);</span>
+    <span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">NumberFormatException</span> <span class="vr">e</span><span class="sy">) {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"\""</span> <span class="sy">+</span> <span class="vr">texto</span>
+            <span class="sy">+</span> <span class="st">"\" não é um número inteiro válido."</span><span class="sy">);</span>
+        <span class="kw">return</span> <span class="nu">-1</span><span class="sy">;</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="cm">// Teste</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">lerInteiro</span><span class="sy">(</span><span class="st">"42"</span><span class="sy">));</span>    <span class="cm">// 42</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">lerInteiro</span><span class="sy">(</span><span class="st">"abc"</span><span class="sy">));</span>   <span class="cm">// "abc" não é um número... → -1</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">lerInteiro</span><span class="sy">(</span><span class="st">"3.14"</span><span class="sy">));</span>  <span class="cm">// "3.14" não é um número... → -1</span></code>
+              </pre>
+            </div>
+          </div>
+
+          <!-- EX 3 -->
+          <div class="exercise-card" id="ex3">
+            <div class="ex-header">
+              <div class="ex-num" style="background:rgba(227,179,65,0.12);color:var(--accent4);border:1px solid rgba(227,179,65,0.25);">03</div>
+              <div>
+                <div class="ex-title">Múltiplos catch — Acesso a Array</div>
+              </div>
+              <span class="ex-level level-2">Nível 2</span>
+            </div>
+            <div class="ex-body">
+              <p>Crie um método <code class="inline">acessarElemento(String[] vetor, String indiceTexto)</code> que converta o texto em índice e retorne o elemento. Trate com <code class="inline">catch</code> separados: <code class="inline">NumberFormatException</code> (índice não é número) e <code class="inline">ArrayIndexOutOfBoundsException</code> (índice fora do vetor). Use <code class="inline">finally</code> para sempre exibir "Operação finalizada."</p>
+              <pre>
+                <div class="code-header">
+                  <span class="code-lang"><i class="fab fa-java"></i> Solução</span>
+                  <div class="code-dots">
+                    <div class="code-dot" style="background:#ff5f57"></div>
+                    <div class="code-dot" style="background:#febc2e"></div>
+                    <div class="code-dot" style="background:#28c840"></div>
+                  </div>
+                </div>
+                <code><span class="kw">static</span> <span class="tp">String</span> <span class="fn">acessarElemento</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">vetor</span><span class="sy">,</span> <span class="tp">String</span> <span class="vr">indiceTexto</span><span class="sy">) {</span>
+    <span class="kw">try</span> <span class="sy">{</span>
+        <span class="tp">int</span> <span class="vr">i</span> <span class="sy">=</span> <span class="nm">Integer</span><span class="sy">.</span><span class="fn">parseInt</span><span class="sy">(</span><span class="vr">indiceTexto</span><span class="sy">);</span>
+        <span class="kw">return</span> <span class="vr">vetor</span><span class="sy">[</span><span class="vr">i</span><span class="sy">];</span>
+
+    <span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">NumberFormatException</span> <span class="vr">e</span><span class="sy">) {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Índice inválido — não é um número: "</span>
+            <span class="sy">+</span> <span class="vr">indiceTexto</span><span class="sy">);</span>
+        <span class="kw">return</span> <span class="kw">null</span><span class="sy">;</span>
+
+    <span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">ArrayIndexOutOfBoundsException</span> <span class="vr">e</span><span class="sy">) {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Índice fora do intervalo (0 a "</span>
+            <span class="sy">+</span> <span class="sy">(</span><span class="vr">vetor</span><span class="sy">.</span><span class="vr">length</span> <span class="sy">-</span> <span class="nu">1</span><span class="sy">) +</span> <span class="st">"): "</span>
+            <span class="sy">+</span> <span class="vr">indiceTexto</span><span class="sy">);</span>
+        <span class="kw">return</span> <span class="kw">null</span><span class="sy">;</span>
+
+    <span class="sy">}</span> <span class="kw">finally</span> <span class="sy">{</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Operação finalizada."</span><span class="sy">);</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="cm">// Teste</span>
+<span class="tp">String</span><span class="sy">[]</span> <span class="vr">frutas</span> <span class="sy">= {</span><span class="st">"maçã"</span><span class="sy">,</span> <span class="st">"banana"</span><span class="sy">,</span> <span class="st">"laranja"</span><span class="sy">};</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">acessarElemento</span><span class="sy">(</span><span class="vr">frutas</span><span class="sy">,</span> <span class="st">"1"</span><span class="sy">));</span>    <span class="cm">// banana</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">acessarElemento</span><span class="sy">(</span><span class="vr">frutas</span><span class="sy">,</span> <span class="st">"abc"</span><span class="sy">));</span>  <span class="cm">// índice não é número</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="fn">acessarElemento</span><span class="sy">(</span><span class="vr">frutas</span><span class="sy">,</span> <span class="st">"10"</span><span class="sy">));</span>  <span class="cm">// índice fora</span></code>
+              </pre>
+            </div>
+          </div>
+
+          <!-- EX 4 -->
+          <div class="exercise-card" id="ex4">
+            <div class="ex-header">
+              <div class="ex-num" style="background:rgba(255,126,179,0.12);color:var(--pink);border:1px solid rgba(255,126,179,0.25);">04</div>
+              <div>
+                <div class="ex-title">Sistema de Cadastro com Exceção Personalizada</div>
+              </div>
+              <span class="ex-level level-3">Nível 3</span>
+            </div>
+            <div class="ex-body">
+              <p>Crie uma exceção personalizada <code class="inline">CpfInvalidoException</code> e uma classe <code class="inline">Pessoa</code> que lance essa exceção ao receber um CPF com comprimento diferente de 11 dígitos. Trate a exceção na <code class="inline">main</code>.</p>
+              <pre>
+                <div class="code-header">
+                  <span class="code-lang"><i class="fab fa-java"></i> Solução</span>
+                  <div class="code-dots">
+                    <div class="code-dot" style="background:#ff5f57"></div>
+                    <div class="code-dot" style="background:#febc2e"></div>
+                    <div class="code-dot" style="background:#28c840"></div>
+                  </div>
+                </div>
+                <code><span class="cm">// ── CpfInvalidoException.java ───────────────────────</span>
+<span class="kw">public class</span> <span class="ex">CpfInvalidoException</span> <span class="kw">extends</span> <span class="ex">Exception</span> <span class="sy">{</span>
+
+    <span class="kw">public</span> <span class="ex">CpfInvalidoException</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">cpf</span><span class="sy">) {</span>
+        <span class="kw">super</span><span class="sy">(</span><span class="st">"CPF inválido: \""</span> <span class="sy">+</span> <span class="vr">cpf</span>
+              <span class="sy">+</span> <span class="st">"\". Deve ter exatamente 11 dígitos."</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span>
+
+<span class="cm">// ── Pessoa.java ─────────────────────────────────────</span>
+<span class="kw">public class</span> <span class="nm">Pessoa</span> <span class="sy">{</span>
+
+    <span class="kw">private</span> <span class="tp">String</span> <span class="vr">nome</span><span class="sy">;</span>
+    <span class="kw">private</span> <span class="tp">String</span> <span class="vr">cpf</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">Pessoa</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">nome</span><span class="sy">,</span> <span class="tp">String</span> <span class="vr">cpf</span><span class="sy">)</span>
+            <span class="kw">throws</span> <span class="ex">CpfInvalidoException</span> <span class="sy">{</span>
+
+        <span class="kw">if</span> <span class="sy">(</span><span class="vr">cpf</span> <span class="sy">==</span> <span class="kw">null</span> <span class="sy">||</span> <span class="vr">cpf</span><span class="sy">.</span><span class="fn">length</span><span class="sy">()</span> <span class="sy">!=</span> <span class="nu">11</span><span class="sy">) {</span>
+            <span class="kw">throw new</span> <span class="ex">CpfInvalidoException</span><span class="sy">(</span><span class="vr">cpf</span><span class="sy">);</span>
+        <span class="sy">}</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">nome</span> <span class="sy">=</span> <span class="vr">nome</span><span class="sy">;</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">cpf</span>  <span class="sy">=</span> <span class="vr">cpf</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="kw">public</span> <span class="tp">String</span> <span class="fn">toString</span><span class="sy">() {</span>
+        <span class="kw">return</span> <span class="vr">nome</span> <span class="sy">+</span> <span class="st">" — CPF: "</span> <span class="sy">+</span> <span class="vr">cpf</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span>
+
+<span class="cm">// ── Main.java ────────────────────────────────────────</span>
+<span class="kw">public class</span> <span class="nm">Main</span> <span class="sy">{</span>
+    <span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+
+        <span class="kw">try</span> <span class="sy">{</span>
+            <span class="nm">Pessoa</span> <span class="vr">p1</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Pessoa</span><span class="sy">(</span><span class="st">"Lucas"</span><span class="sy">,</span> <span class="st">"12345678901"</span><span class="sy">);</span>
+            <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Cadastrado: "</span> <span class="sy">+</span> <span class="vr">p1</span><span class="sy">);</span>
+
+            <span class="nm">Pessoa</span> <span class="vr">p2</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Pessoa</span><span class="sy">(</span><span class="st">"Ana"</span><span class="sy">,</span> <span class="st">"123"</span><span class="sy">);</span>  <span class="cm">// lança!</span>
+            <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Cadastrado: "</span> <span class="sy">+</span> <span class="vr">p2</span><span class="sy">);</span>  <span class="cm">// não executa</span>
+
+        <span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="ex">CpfInvalidoException</span> <span class="vr">e</span><span class="sy">) {</span>
+            <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Erro de cadastro: "</span> <span class="sy">+</span> <span class="vr">e</span><span class="sy">.</span><span class="fn">getMessage</span><span class="sy">());</span>
+        <span class="sy">}</span>
+
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+              </pre>
+              <div class="callout callout-green" style="margin-top:0.8rem;margin-bottom:0;">
+                <i class="fas fa-terminal"></i>
+                <div class="callout-body">
+                  <pre style="background:none;border:none;margin:0;"><code style="padding:0;font-size:0.8rem;color:var(--accent3);">Cadastrado: Lucas — CPF: 12345678901
+Erro de cadastro: CPF inválido: "123". Deve ter exatamente 11 dígitos.</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /exercise-list -->
+
+
+        <!-- ══ RESUMO ══ -->
+        <h2 class="section-heading" id="sec-resumo">
+          <span class="icon" style="background:rgba(188,140,255,0.12);color:var(--accent5);">
+            <i class="fas fa-check-double"></i>
+          </span>
+          Resumo da Unidade
+        </h2>
+
+        <div class="callout callout-purple">
+          <i class="fas fa-graduation-cap"></i>
+          <div class="callout-body">
+            <p><strong>O que você aprendeu nesta unidade:</strong></p>
+            <ul>
+              <li>Uma <strong>exceção</strong> é um evento inesperado que interrompe o fluxo normal do programa — Java permite capturá-la e tratá-la de forma controlada.</li>
+              <li>A hierarquia parte de <code class="inline">Throwable</code> → <code class="inline">Error</code> / <code class="inline">Exception</code> → <code class="inline">RuntimeException</code> (unchecked) ou checked.</li>
+              <li><code class="inline">try</code> protege o código; <code class="inline">catch</code> captura a exceção; <code class="inline">finally</code> sempre executa.</li>
+              <li>Vários <code class="inline">catch</code> devem ir do <strong>mais específico para o mais genérico</strong>. O multi-catch com <code class="inline">|</code> simplifica quando o tratamento é igual.</li>
+              <li><code class="inline">throw</code> lança uma exceção explicitamente; <code class="inline">throws</code> declara na assinatura que o método pode lançá-la.</li>
+              <li>Exceções personalizadas estendem <code class="inline">Exception</code> (checked) ou <code class="inline">RuntimeException</code> (unchecked) e permitem erros mais expressivos.</li>
+              <li>Boas práticas: <strong>nunca deixar catch vazio</strong>, capturar tipos <strong>específicos</strong>, usar <strong>finally</strong> para liberar recursos e fornecer <strong>mensagens claras</strong>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Nav -->
+        <div class="lesson-nav">
+          <a href="unidade05_Heranca.html" class="nav-btn">
+            <i class="fas fa-arrow-left"></i> Unidade 05
+          </a>
+          <span class="nav-btn disabled">
+            Conclusão <i class="fas fa-lock"></i>
+          </span>
+        </div>
+
+      </div><!-- /content -->
+
+      <!-- ══ TOC ══ -->
+      <aside class="toc">
+        <div class="toc-title"><i class="fas fa-list-ul"></i> Conteúdo</div>
+        <ol>
+          <li><a href="#sec1">1. O que é uma Exceção?</a></li>
+          <li><a href="#sec1-sem">↳ Sem tratamento</a></li>
+          <li><a href="#sec1-tipos">↳ Tipos de erro</a></li>
+          <li><a href="#sec2">2. Hierarquia</a></li>
+          <li><a href="#sec2-comuns">↳ Exceções comuns</a></li>
+          <li><a href="#sec3">3. try / catch / finally</a></li>
+          <li><a href="#sec3-basico">↳ Estrutura básica</a></li>
+          <li><a href="#sec3-finally">↳ finally</a></li>
+          <li><a href="#sec3-multiplos">↳ Múltiplos catch</a></li>
+          <li><a href="#sec3-multi-catch">↳ Multi-catch</a></li>
+          <li><a href="#sec4">4. throw e throws</a></li>
+          <li><a href="#sec4-throw">↳ throw</a></li>
+          <li><a href="#sec4-throws">↳ throws</a></li>
+          <li><a href="#sec5">5. Exceções Personalizadas</a></li>
+          <li><a href="#sec5-criando">↳ Criando</a></li>
+          <li><a href="#sec5-usando">↳ Usando</a></li>
+          <li><a href="#sec5-runtime">↳ Unchecked</a></li>
+          <li><a href="#sec6">6. Métodos Úteis</a></li>
+          <li><a href="#sec7">7. Boas Práticas</a></li>
+          <li><a href="#sec7-exemplo">↳ Exemplo comparado</a></li>
+          <li><a href="#sec8">8. Exercícios</a></li>
+          <li><a href="#ex1">↳ Ex 1 — Divisão</a></li>
+          <li><a href="#ex2">↳ Ex 2 — Leitura</a></li>
+          <li><a href="#ex3">↳ Ex 3 — Array</a></li>
+          <li><a href="#ex4">↳ Ex 4 — CPF</a></li>
+          <li><a href="#sec-resumo">Resumo</a></li>
+        </ol>
+      </aside>
+
+    </div><!-- /page-wrapper -->
+
+    <button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+      const bar = document.getElementById('progressBar');
+      window.addEventListener('scroll', () => {
+        const doc = document.documentElement;
+        bar.style.width = (doc.scrollTop / (doc.scrollHeight - doc.clientHeight) * 100) + '%';
+      });
+
+      const btn = document.getElementById('backToTop');
+      window.addEventListener('scroll', () => btn.classList.toggle('visible', window.scrollY > 400));
+
+      const sections = document.querySelectorAll('[id]');
+      const tocLinks = document.querySelectorAll('.toc a');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            tocLinks.forEach(l => l.classList.remove('active'));
+            const a = document.querySelector(`.toc a[href="#${e.target.id}"]`);
+            if (a) a.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-60px 0px -70% 0px' });
+      sections.forEach(s => observer.observe(s));
+    </script>
+
+  </body>
+</html>

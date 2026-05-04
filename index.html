@@ -181,7 +181,7 @@
           border-color 0.2s ease,
           box-shadow 0.2s ease;
         position: relative;
-            display: flex;
+        display: flex;
         flex-direction: column;
         justify-content: space-between;
       }
@@ -348,6 +348,9 @@
       .strip-pink::before {
         background: #ff7eb3;
       }
+      .strip-teal::before {
+        background: #39d3c3;
+      }
 
       /* Info banner */
       .info-banner {
@@ -462,10 +465,8 @@
         </p>
 
         <div class="stats-row">
-          <div class="stat"><i class="fas fa-book-open"></i> 6 unidades</div>
-          <div class="stat">
-            <i class="fas fa-check-circle"></i> 4 disponível
-          </div>
+          <div class="stat"><i class="fas fa-book-open"></i> 7 unidades</div>
+          <div class="stat"><i class="fas fa-laptop-code"></i> Eclipse IDE</div>
           <div class="stat"><i class="fas fa-code"></i> Java 21+</div>
         </div>
       </div>
@@ -476,8 +477,7 @@
         <i class="fas fa-info-circle"></i>
         <p>
           As aulas são liberadas progressivamente.
-          <strong>Clique nos cards disponíveis</strong> para acessar o conteúdo
-          completo.
+          <strong>Clique nos cards</strong> para acessar o conteúdo completo.
         </p>
       </div>
 
@@ -487,7 +487,7 @@
       </div>
 
       <div class="modules-grid">
-        <!-- Unidade 1 — Disponível -->
+        <!-- Unidade 1 -->
         <div
           class="module-card available strip-green"
           onclick="window.location.href = 'unidade01_introducao-java.html'"
@@ -525,8 +525,11 @@
         </div>
 
         <!-- Unidade 2 -->
-        <div class="module-card available strip-blue"
-        onclick="window.location.href = 'unidade02_metodos-organizacao-codigo.html'"
+        <div
+          class="module-card available strip-blue"
+          onclick="
+            window.location.href = 'unidade02_metodos-organizacao-codigo.html'
+          "
         >
           <div class="card-header">
             <div
@@ -536,13 +539,13 @@
                 color: var(--accent2);
               "
             >
-            <i class="fas fa-puzzle-piece"></i>
+              <i class="fas fa-puzzle-piece"></i>
             </div>
             <div class="card-meta">
               <span class="card-num">UNIDADE 02</span>
               <span class="card-title">Métodos e Organização do Código</span>
             </div>
-           <span class="card-status"><span class="dot-available"></span></span>
+            <span class="card-status"><span class="dot-available"></span></span>
           </div>
           <div class="card-body">
             <p class="card-desc">
@@ -563,7 +566,9 @@
         <!-- Unidade 3 -->
         <div
           class="module-card available strip-orange"
-          onclick="window.location.href = 'unidade03_classes-objetos-construtores.html'"
+          onclick="
+            window.location.href = 'unidade03_classes-objetos-construtores.html'
+          "
         >
           <div class="card-header">
             <div
@@ -600,8 +605,10 @@
         </div>
 
         <!-- Unidade 4 -->
-        <div class="module-card available strip-yellow"
-          onclick="window.location.href = 'unidade04_Encapsulamento.html'">
+        <div
+          class="module-card available strip-yellow"
+          onclick="window.location.href = 'unidade04_Encapsulamento.html'"
+        >
           <div class="card-header">
             <div
               class="card-icon"
@@ -614,13 +621,16 @@
             </div>
             <div class="card-meta">
               <span class="card-num">UNIDADE 04</span>
-              <span class="card-title">Encapsulamento e Modificadores de Acesso</span>
+              <span class="card-title"
+                >Encapsulamento e Modificadores de Acesso</span
+              >
             </div>
-             <span class="card-status"><span class="dot-available"></span></span>
+            <span class="card-status"><span class="dot-available"></span></span>
           </div>
           <div class="card-body">
             <p class="card-desc">
-              Encapsulamento, getters e setters, modificadores de acesso e construtor vazio.
+              Encapsulamento, getters e setters, modificadores de acesso e
+              construtor vazio.
             </p>
           </div>
           <div class="card-footer">
@@ -634,7 +644,13 @@
         </div>
 
         <!-- Unidade 5 -->
-        <div class="module-card locked strip-purple">
+        <div
+          class="module-card available strip-purple"
+          onclick="
+            window.location.href =
+              'unidade05_heranca-polimorfismo-interfaces.html'
+          "
+        >
           <div class="card-header">
             <div
               class="card-icon"
@@ -646,12 +662,7 @@
               <span class="card-num">UNIDADE 05</span>
               <span class="card-title">Herança, Polimorfismo e Interfaces</span>
             </div>
-            <span class="card-status"
-              ><i
-                class="fas fa-lock"
-                style="color: var(--text-muted); font-size: 0.8rem"
-              ></i
-            ></span>
+            <span class="card-status"><span class="dot-available"></span></span>
           </div>
           <div class="card-body">
             <p class="card-desc">
@@ -689,43 +700,33 @@
                 "
                 >interface</span
               >
-              <span class="tag tag-gray">Em breve</span>
             </div>
-            <i
-              class="fas fa-lock card-arrow"
-              style="color: var(--text-muted)"
-            ></i>
+            <i class="fas fa-arrow-right card-arrow"></i>
           </div>
         </div>
 
         <!-- Unidade 6 -->
-        <div class="module-card locked strip-pink">
+        <div
+          class="module-card available strip-pink"
+          onclick="window.location.href = 'unidade06_Excecoes.html'"
+        >
           <div class="card-header">
             <div
               class="card-icon"
               style="background: rgba(255, 126, 179, 0.12); color: #ff7eb3"
             >
-              <i class="fas fa-lock"></i>
+              <i class="fas fa-exclamation-triangle"></i>
             </div>
             <div class="card-meta">
               <span class="card-num">UNIDADE 06</span>
-              <span class="card-title">Interface Gráfica e Exceções</span>
+              <span class="card-title">Tratamento de Exceções</span>
             </div>
-            <span class="card-status"
-              ><i
-                class="fas fa-lock"
-                style="color: var(--text-muted); font-size: 0.8rem"
-              ></i
-            ></span>
+            <span class="card-status"><span class="dot-available"></span></span>
           </div>
           <div class="card-body">
             <p class="card-desc">
-              Introdução ao Swing ou JavaFX, componentes básicos, eventos,
-              tratamento de exceções com
-              <code style="font-family: monospace; font-size: 0.8em"
-                >try/catch</code
-              >
-              e criação de uma aplicação completa.
+              Hierarquia de exceções, try/catch/finally, throw e throws, criação
+              de exceções personalizadas e boas práticas de tratamento de erros.
             </p>
           </div>
           <div class="card-footer">
@@ -737,7 +738,7 @@
                   color: #ff7eb3;
                   border: 1px solid rgba(255, 126, 179, 0.2);
                 "
-                >Swing / JavaFX</span
+                >try-catch</span
               >
               <span
                 class="tag"
@@ -746,14 +747,81 @@
                   color: #ff7eb3;
                   border: 1px solid rgba(255, 126, 179, 0.2);
                 "
-                >try-catch</span
+                >throw</span
               >
-              <span class="tag tag-gray">Em breve</span>
+              <span
+                class="tag"
+                style="
+                  background: rgba(255, 126, 179, 0.12);
+                  color: #ff7eb3;
+                  border: 1px solid rgba(255, 126, 179, 0.2);
+                "
+                >Exception</span
+              >
             </div>
-            <i
-              class="fas fa-lock card-arrow"
-              style="color: var(--text-muted)"
-            ></i>
+            <i class="fas fa-arrow-right card-arrow"></i>
+          </div>
+        </div>
+
+        <!-- Unidade 7 -->
+        <div
+          class="module-card available strip-teal"
+          onclick="window.location.href = 'unidade07_InterfaceGrafica.html'"
+        >
+          <div class="card-header">
+            <div
+              class="card-icon"
+              style="background: rgba(57, 211, 195, 0.12); color: #39d3c3"
+            >
+              <i class="fas fa-desktop"></i>
+            </div>
+            <div class="card-meta">
+              <span class="card-num">UNIDADE 07</span>
+              <span class="card-title">Interface Gráfica e Exceções</span>
+            </div>
+            <span class="card-status"><span class="dot-available"></span></span>
+          </div>
+          <div class="card-body">
+            <p class="card-desc">
+              Introdução ao Swing, componentes básicos, eventos, layouts,
+              tratamento de exceções com
+              <code style="font-family: monospace; font-size: 0.8em"
+                >try/catch</code
+              >
+              e criação de uma aplicação desktop completa.
+            </p>
+          </div>
+          <div class="card-footer">
+            <div class="card-tags">
+              <span
+                class="tag"
+                style="
+                  background: rgba(57, 211, 195, 0.12);
+                  color: #39d3c3;
+                  border: 1px solid rgba(57, 211, 195, 0.2);
+                "
+                >JFrame</span
+              >
+              <span
+                class="tag"
+                style="
+                  background: rgba(57, 211, 195, 0.12);
+                  color: #39d3c3;
+                  border: 1px solid rgba(57, 211, 195, 0.2);
+                "
+                >Swing</span
+              >
+              <span
+                class="tag"
+                style="
+                  background: rgba(57, 211, 195, 0.12);
+                  color: #39d3c3;
+                  border: 1px solid rgba(57, 211, 195, 0.2);
+                "
+                >Eventos</span
+              >
+            </div>
+            <i class="fas fa-arrow-right card-arrow"></i>
           </div>
         </div>
       </div>

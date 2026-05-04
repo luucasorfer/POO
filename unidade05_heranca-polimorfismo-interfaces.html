@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unidade 05 — Herança, Polimorfismo e Interfaces</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Sora:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg:         #0d1117;
+        --surface:    #161b22;
+        --surface2:   #1c2330;
+        --surface3:   #21262d;
+        --border:     #30363d;
+        --accent:     #f78166;
+        --accent2:    #79c0ff;
+        --accent3:    #56d364;
+        --accent4:    #e3b341;
+        --accent5:    #bc8cff;
+        --text:       #e6edf3;
+        --text-muted: #8b949e;
+        --text-dim:   #6e7681;
+      }
+
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body {
+        background: var(--bg); color: var(--text);
+        font-family: 'Sora', sans-serif; font-size: 0.95rem; line-height: 1.8;
+      }
+      body::before {
+        content: ''; position: fixed; inset: 0;
+        background-image:
+          linear-gradient(var(--border) 1px, transparent 1px),
+          linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: 40px 40px; opacity: 0.18;
+        pointer-events: none; z-index: 0;
+      }
+
+      /* ── PROGRESS ── */
+      .progress-bar-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 2px; z-index: 200; }
+      .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent5), var(--accent2)); width: 0%; transition: width 0.1s linear; }
+
+      /* ── HEADER ── */
+      header {
+        position: sticky; top: 0; z-index: 100;
+        background: rgba(13,17,23,0.96); backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border); padding: 0.75rem 2rem;
+      }
+      .header-nav { max-width: 960px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+      .back-link { display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); text-decoration: none; font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; transition: color 0.15s; }
+      .back-link:hover { color: var(--accent2); }
+      .lesson-badge { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; padding: 0.28rem 0.75rem; border-radius: 20px; background: rgba(188,140,255,0.1); color: var(--accent5); border: 1px solid rgba(188,140,255,0.22); }
+
+      /* ── LAYOUT ── */
+      .page-wrapper { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 3rem 2rem 6rem; display: grid; grid-template-columns: 1fr 220px; gap: 3rem; align-items: start; }
+      .content { min-width: 0; }
+
+      /* ── TOC ── */
+      .toc { position: sticky; top: 70px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; font-size: 0.78rem; }
+      .toc-title { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 0.9rem; display: flex; align-items: center; gap: 0.4rem; }
+      .toc ol { padding-left: 0; list-style: none; display: flex; flex-direction: column; gap: 0.15rem; }
+      .toc li a { display: block; padding: 0.3rem 0.5rem; border-radius: 5px; color: var(--text-muted); text-decoration: none; line-height: 1.4; transition: background 0.15s, color 0.15s; }
+      .toc li a:hover { background: var(--surface2); color: var(--accent5); }
+      .toc li a.active { background: rgba(188,140,255,0.08); color: var(--accent5); border-left: 2px solid var(--accent5); padding-left: calc(0.5rem - 2px); }
+
+      /* ── HERO ── */
+      .lesson-hero { margin-bottom: 3rem; padding-bottom: 2.5rem; border-bottom: 1px solid var(--border); }
+      .lesson-num { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.15em; color: var(--accent5); text-transform: uppercase; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
+      h1.lesson-title { font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 1rem; }
+      h1.lesson-title span { background: linear-gradient(90deg, var(--accent5), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+      .lesson-summary { color: var(--text-muted); font-size: 0.95rem; max-width: 580px; margin-bottom: 1.5rem; }
+      .lesson-meta { display: flex; gap: 1.4rem; flex-wrap: wrap; }
+      .meta-item { display: flex; align-items: center; gap: 0.4rem; font-size: 0.77rem; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); }
+      .meta-item i { color: var(--accent3); }
+
+      /* ── HEADINGS ── */
+      h2.section-heading { font-size: 1.25rem; font-weight: 700; margin: 3rem 0 1.2rem; padding-bottom: 0.7rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.7rem; letter-spacing: -0.02em; scroll-margin-top: 80px; }
+      h2.section-heading .icon { width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; flex-shrink: 0; }
+      h3.subsection { font-size: 1.05rem; font-weight: 700; margin: 2rem 0 0.8rem; letter-spacing: -0.01em; display: flex; align-items: center; gap: 0.5rem; scroll-margin-top: 80px; }
+      h3.subsection::before { content: ''; display: inline-block; width: 3px; height: 1em; background: var(--accent5); border-radius: 2px; flex-shrink: 0; }
+      h4.sub-sub { font-size: 0.8rem; font-weight: 700; margin: 1.6rem 0 0.6rem; color: var(--accent4); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.07em; }
+
+      /* ── TEXT ── */
+      p { margin-bottom: 0.9rem; }
+      ul, ol { padding-left: 1.6rem; margin-bottom: 1rem; }
+      li { margin-bottom: 0.35rem; }
+      li strong { color: var(--accent5); }
+
+      /* ── CODE ── */
+      pre { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow-x: auto; margin: 1.4rem 0; }
+      .code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.55rem 1rem; border-bottom: 1px solid var(--border); background: var(--surface2); border-radius: 10px 10px 0 0; }
+      .code-lang { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; color: var(--text-muted); text-transform: uppercase; display: flex; align-items: center; gap: 0.4rem; }
+      .code-lang i { color: var(--accent4); }
+      .code-dots { display: flex; gap: 0.32rem; }
+      .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+      pre code { display: block; padding: 1.2rem 1.4rem; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.85; color: #e6edf3; white-space: pre; }
+      .kw  { color: #ff7b72; }
+      .tp  { color: #ffa657; }
+      .st  { color: #a5d6ff; }
+      .cm  { color: #8b949e; font-style: italic; }
+      .fn  { color: #d2a8ff; }
+      .nm  { color: #79c0ff; }
+      .nu  { color: #56d364; }
+      .sy  { color: #e6edf3; }
+      .an  { color: #bc8cff; } /* annotations */
+
+      code.inline { font-family: 'JetBrains Mono', monospace; font-size: 0.82em; background: var(--surface3); border: 1px solid var(--border); padding: 0.12em 0.45em; border-radius: 4px; color: var(--accent5); }
+
+      /* ── CALLOUTS ── */
+      .callout { border-radius: 8px; padding: 1rem 1.3rem; margin: 1.4rem 0; display: flex; align-items: flex-start; gap: 0.85rem; font-size: 0.88rem; }
+      .callout i { margin-top: 0.18rem; flex-shrink: 0; }
+      .callout-body { flex: 1; }
+      .callout-body p { margin-bottom: 0.3rem; }
+      .callout-body strong { font-weight: 700; }
+      .callout-body ul { margin: 0.4rem 0 0 1rem; }
+      .callout-body li { margin-bottom: 0.2rem; }
+
+      .callout-blue   { background: rgba(121,192,255,0.07); border: 1px solid rgba(121,192,255,0.2);   border-left: 3px solid var(--accent2); }
+      .callout-blue i { color: var(--accent2); }
+      .callout-green   { background: rgba(86,211,100,0.07);  border: 1px solid rgba(86,211,100,0.2);    border-left: 3px solid var(--accent3); }
+      .callout-green i { color: var(--accent3); }
+      .callout-orange   { background: rgba(247,129,102,0.07); border: 1px solid rgba(247,129,102,0.2);  border-left: 3px solid var(--accent); }
+      .callout-orange i { color: var(--accent); }
+      .callout-yellow   { background: rgba(227,179,65,0.07);  border: 1px solid rgba(227,179,65,0.2);   border-left: 3px solid var(--accent4); }
+      .callout-yellow i { color: var(--accent4); }
+      .callout-purple   { background: rgba(188,140,255,0.07); border: 1px solid rgba(188,140,255,0.2);  border-left: 3px solid var(--accent5); }
+      .callout-purple i { color: var(--accent5); }
+      .callout-red    { background: rgba(248,81,73,0.07);   border: 1px solid rgba(248,81,73,0.25);   border-left: 3px solid #f85149; }
+      .callout-red i  { color: #f85149; }
+
+      /* ── STEP LIST ── */
+      .step-list { display: flex; flex-direction: column; gap: 0.8rem; margin: 1.2rem 0; }
+      .step-item { display: flex; gap: 1rem; align-items: flex-start; }
+      .step-num { width: 28px; height: 28px; border-radius: 50%; background: rgba(188,140,255,0.12); border: 1px solid rgba(188,140,255,0.25); color: var(--accent5); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 0.1rem; }
+      .step-content { flex: 1; font-size: 0.9rem; }
+      .step-content strong { color: var(--text); }
+      .step-content p { margin: 0.2rem 0 0; color: var(--text-muted); font-size: 0.85rem; }
+
+      /* ── COMPARE ── */
+      .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.4rem 0; }
+      .compare-grid pre { margin: 0; }
+      .compare-label { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.5rem; }
+
+      /* ── UML CLASS DIAGRAMS ── */
+      .uml-wrap { display: flex; gap: 1.2rem; flex-wrap: wrap; margin: 1.4rem 0; align-items: flex-start; }
+      .uml-diagram { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; font-family: 'JetBrains Mono', monospace; display: inline-block; min-width: 200px; }
+      .uml-class-name { background: rgba(188,140,255,0.1); border-bottom: 1px solid var(--border); padding: 0.65rem 1.3rem; text-align: center; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.04em; }
+      .uml-class-name.abstract { font-style: italic; background: rgba(227,179,65,0.1); color: var(--accent4); }
+      .uml-class-name.interface-nm { background: rgba(86,211,100,0.1); color: var(--accent3); }
+      .uml-class-name.interface-nm::before { content: '«interface» '; font-size: 0.7rem; display: block; font-weight: 400; color: var(--text-muted); }
+      .uml-section { padding: 0.55rem 1.3rem; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
+      .uml-section:last-child { border-bottom: none; }
+      .uml-row { padding: 0.2rem 0; display: flex; align-items: center; gap: 0.35rem; }
+      .uml-vis-pub  { color: var(--accent3); font-weight: 700; }
+      .uml-vis-priv { color: var(--accent);  font-weight: 700; }
+      .uml-vis-prot { color: var(--accent2); font-weight: 700; }
+      .uml-type { color: var(--accent4); font-size: 0.76rem; }
+      .uml-method { color: var(--accent5); }
+      .uml-abstract-method { color: var(--accent4); font-style: italic; }
+      .uml-arrow { font-size: 2rem; color: var(--text-dim); align-self: center; }
+      .uml-label { font-size: 0.68rem; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); text-align: center; margin-top: 0.4rem; }
+
+      /* ── HIERARCHY TREE ── */
+      .hier-box { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem 1.8rem; margin: 1.4rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; overflow-x: auto; }
+      .hier-row { display: flex; align-items: center; margin: 0.3rem 0; }
+      .hier-indent { color: var(--text-dim); padding-right: 0.2rem; user-select: none; }
+      .hier-node { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.7rem; border-radius: 6px; font-weight: 700; font-size: 0.78rem; white-space: nowrap; }
+      .hn-base    { background: rgba(188,140,255,0.12); color: var(--accent5); border: 1px solid rgba(188,140,255,0.3); }
+      .hn-child   { background: rgba(121,192,255,0.1);  color: var(--accent2); border: 1px solid rgba(121,192,255,0.25); }
+      .hn-grandch { background: rgba(86,211,100,0.1);   color: var(--accent3); border: 1px solid rgba(86,211,100,0.25); }
+      .hn-abs     { background: rgba(227,179,65,0.1);   color: var(--accent4); border: 1px solid rgba(227,179,65,0.25); font-style: italic; }
+
+      /* ── PILLAR CARDS ── */
+      .pillar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 0.8rem; margin: 1.2rem 0; }
+      .pillar-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; transition: border-color 0.2s; }
+      .pillar-card:hover { border-color: var(--accent5); }
+      .pillar-card .ci { font-size: 1.3rem; margin-bottom: 0.5rem; }
+      .pillar-card h4 { font-size: 0.88rem; font-weight: 700; margin-bottom: 0.3rem; }
+      .pillar-card p { font-size: 0.78rem; color: var(--text-muted); margin: 0; }
+
+      /* ── ABSTRACT vs INTERFACE TABLE ── */
+      .comp-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.84rem; }
+      .comp-table th { text-align: left; padding: 0.6rem 1rem; background: var(--surface2); border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+      .comp-table td { padding: 0.6rem 1rem; border: 1px solid var(--border); vertical-align: middle; }
+      .comp-table tr:hover td { background: var(--surface2); }
+      .tag-yes { color: var(--accent3); font-weight: 700; }
+      .tag-no  { color: var(--accent);  font-weight: 700; }
+      .tag-par { color: var(--accent4); font-weight: 700; }
+
+      /* ── BEST PRACTICES ── */
+      .bp-list { display: flex; flex-direction: column; gap: 0.7rem; margin: 1.2rem 0; }
+      .bp-item { display: flex; align-items: flex-start; gap: 0.9rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 0.9rem 1.1rem; font-size: 0.88rem; transition: border-color 0.2s; }
+      .bp-item:hover { border-color: var(--accent5); }
+      .bp-icon { width: 30px; height: 30px; border-radius: 6px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
+      .bp-text strong { color: var(--text); display: block; margin-bottom: 0.15rem; }
+      .bp-text span { color: var(--text-muted); font-size: 0.82rem; }
+
+      /* ── EXERCISE CARDS ── */
+      .exercise-list { display: flex; flex-direction: column; gap: 1.2rem; margin: 1.4rem 0; }
+      .exercise-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+      .ex-header { display: flex; align-items: center; gap: 1rem; padding: 0.9rem 1.3rem; border-bottom: 1px solid var(--border); background: var(--surface2); }
+      .ex-num { width: 32px; height: 32px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .ex-title { font-size: 0.92rem; font-weight: 700; }
+      .ex-level { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.08em; padding: 0.2rem 0.55rem; border-radius: 20px; text-transform: uppercase; }
+      .level-1 { background: rgba(86,211,100,0.1); color: var(--accent3); border: 1px solid rgba(86,211,100,0.2); }
+      .level-2 { background: rgba(227,179,65,0.1); color: var(--accent4); border: 1px solid rgba(227,179,65,0.2); }
+      .level-3 { background: rgba(188,140,255,0.1); color: var(--accent5); border: 1px solid rgba(188,140,255,0.2); }
+      .ex-body { padding: 1rem 1.3rem; }
+      .ex-body p { font-size: 0.88rem; margin-bottom: 0.6rem; }
+      .ex-body ul { font-size: 0.85rem; margin-bottom: 0.6rem; }
+      .ex-body pre { margin: 0.8rem 0 0; }
+
+      /* ── NAV ── */
+      .lesson-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+      .nav-btn { display: flex; align-items: center; gap: 0.5rem; padding: 0.65rem 1.1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-muted); text-decoration: none; font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; transition: border-color 0.2s, color 0.2s; cursor: pointer; }
+      .nav-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+      .nav-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+      /* ── BACK TO TOP ── */
+      #backToTop { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); width: 38px; height: 38px; border-radius: 8px; display: none; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem; transition: border-color 0.2s, color 0.2s; z-index: 50; }
+      #backToTop:hover { border-color: var(--accent5); color: var(--accent5); }
+      #backToTop.visible { display: flex; }
+
+      @media (max-width: 800px) {
+        .page-wrapper { grid-template-columns: 1fr; padding: 2rem 1.2rem 4rem; }
+        .toc { display: none; }
+        .compare-grid { grid-template-columns: 1fr; }
+        header { padding: 0.65rem 1.2rem; }
+        .uml-wrap { flex-direction: column; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+    <header>
+      <div class="header-nav">
+        <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> POO em Java</a>
+        <span class="lesson-badge">UNIDADE 05 · HERANÇA</span>
+      </div>
+    </header>
+
+    <div class="page-wrapper">
+      <div class="content">
+
+        <!-- ══ HERO ══ -->
+        <div class="lesson-hero">
+          <div class="lesson-num">
+            <i class="fas fa-circle" style="color:var(--accent5);font-size:0.45rem;"></i>
+            Unidade 05 · Herança, Polimorfismo e Interfaces
+          </div>
+          <h1 class="lesson-title">Herança,<br><span>Polimorfismo e Interfaces</span></h1>
+          <p class="lesson-summary">Reutilize código com herança, escreva métodos flexíveis com polimorfismo, defina contratos com interfaces e entenda como o Java decide qual método chamar em tempo de execução.</p>
+          <div class="lesson-meta">
+            <div class="meta-item"><i class="fab fa-java"></i> Java</div>
+            <div class="meta-item"><i class="fas fa-clock"></i> ~120 min</div>
+            <div class="meta-item"><i class="fas fa-layer-group"></i> Intermediário</div>
+            <div class="meta-item"><i class="fas fa-puzzle-piece"></i> 4 exercícios</div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════
+             SEÇÃO 1 — HERANÇA
+        ═══════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec1">
+          <span class="icon" style="background:rgba(188,140,255,0.12);color:var(--accent5);"><i class="fas fa-sitemap"></i></span>
+          1. Herança
+        </h2>
+
+        <p>
+          <strong>Herança</strong> é o mecanismo pelo qual uma classe (<strong>subclasse</strong> ou classe filha) pode <strong>herdar atributos e métodos</strong> de outra classe (<strong>superclasse</strong> ou classe mãe). É o pilar da reutilização de código em POO.
+        </p>
+
+        <div class="callout callout-purple">
+          <i class="fas fa-quote-left"></i>
+          <div class="callout-body">
+            <p><strong>Princípio:</strong> se B herda de A, então tudo que A faz, B também faz — e pode fazer mais.</p>
+          </div>
+        </div>
+
+        <div class="pillar-grid">
+          <div class="pillar-card">
+            <div class="ci">🔁</div>
+            <h4 style="color:var(--accent5);">Reutilização</h4>
+            <p>Escreva o código uma vez na superclasse e todas as subclasses herdam automaticamente.</p>
+          </div>
+          <div class="pillar-card">
+            <div class="ci">📐</div>
+            <h4 style="color:var(--accent2);">Especialização</h4>
+            <p>Subclasses podem adicionar comportamentos específicos sem alterar a superclasse.</p>
+          </div>
+          <div class="pillar-card">
+            <div class="ci">🏗️</div>
+            <h4 style="color:var(--accent3);">Hierarquia</h4>
+            <p>Organiza classes em árvores que refletem relações do mundo real.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec1-extends">A palavra-chave extends</h3>
+
+        <p>Em Java, a herança é declarada com <code class="inline">extends</code>. Uma subclasse pode ter <strong>somente uma</strong> superclasse direta (herança simples):</p>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Superclasse Pessoa</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="kw">public class</span> <span class="nm">Pessoa</span> <span class="sy">{</span>
+
+    <span class="kw">protected</span> <span class="tp">String</span> <span class="vr">nome</span><span class="sy">;</span>
+    <span class="kw">protected</span> <span class="tp">int</span>    <span class="vr">idade</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">Pessoa</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">nome</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">idade</span><span class="sy">) {</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">nome</span>  <span class="sy">=</span> <span class="vr">nome</span><span class="sy">;</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">idade</span> <span class="sy">=</span> <span class="vr">idade</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="kw">public void</span> <span class="fn">apresentar</span><span class="sy">() {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Nome: "</span> <span class="sy">+</span> <span class="vr">nome</span> <span class="sy">+</span> <span class="st">", Idade: "</span> <span class="sy">+</span> <span class="vr">idade</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+        </pre>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Subclasse Aluno — herda de Pessoa</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="kw">public class</span> <span class="nm">Aluno</span> <span class="kw">extends</span> <span class="nm">Pessoa</span> <span class="sy">{</span>
+
+    <span class="kw">private</span> <span class="tp">String</span> <span class="vr">matricula</span><span class="sy">;</span>
+    <span class="kw">private</span> <span class="tp">double</span> <span class="vr">media</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">Aluno</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">nome</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">idade</span><span class="sy">,</span> <span class="tp">String</span> <span class="vr">matricula</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">media</span><span class="sy">) {</span>
+        <span class="kw">super</span><span class="sy">(</span><span class="vr">nome</span><span class="sy">,</span> <span class="vr">idade</span><span class="sy">);</span>  <span class="cm">// chama o construtor da superclasse</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">matricula</span> <span class="sy">=</span> <span class="vr">matricula</span><span class="sy">;</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">media</span>      <span class="sy">=</span> <span class="vr">media</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="cm">// método próprio da subclasse</span>
+    <span class="kw">public void</span> <span class="fn">exibirBoletim</span><span class="sy">() {</span>
+        <span class="fn">apresentar</span><span class="sy">();</span>  <span class="cm">// método herdado de Pessoa</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Matrícula: "</span> <span class="sy">+</span> <span class="vr">matricula</span><span class="sy">);</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Média: "</span>     <span class="sy">+</span> <span class="vr">media</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-blue">
+          <i class="fas fa-key"></i>
+          <div class="callout-body">
+            <p><strong><code class="inline">super</code></strong> — referencia a superclasse. Pode ser usado para chamar o <strong>construtor</strong> (<code class="inline">super(...)</code>) ou um <strong>método</strong> (<code class="inline">super.metodo()</code>) da classe mãe. Quando usado no construtor, deve ser a <em>primeira</em> instrução.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec1-protected">protected — visibilidade para subclasses</h3>
+
+        <p>O modificador <code class="inline">protected</code> torna atributos e métodos acessíveis às <strong>subclasses</strong> e classes do mesmo pacote, mas não ao mundo externo:</p>
+
+        <div class="comp-table" style="margin-top:1rem;">
+          <table class="comp-table">
+            <thead><tr><th>Modificador</th><th>Própria classe</th><th>Subclasse</th><th>Mesmo pacote</th><th>Qualquer classe</th></tr></thead>
+            <tbody>
+              <tr><td><code class="inline">private</code></td><td class="tag-yes">✔</td><td class="tag-no">✘</td><td class="tag-no">✘</td><td class="tag-no">✘</td></tr>
+              <tr><td><code class="inline">protected</code></td><td class="tag-yes">✔</td><td class="tag-yes">✔</td><td class="tag-yes">✔</td><td class="tag-no">✘</td></tr>
+              <tr><td><code class="inline">public</code></td><td class="tag-yes">✔</td><td class="tag-yes">✔</td><td class="tag-yes">✔</td><td class="tag-yes">✔</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="subsection" id="sec1-hierarquia">Hierarquia de classes</h3>
+
+        <div class="hier-box">
+          <div class="hier-row"><span class="hier-node hn-base">Pessoa</span><span style="color:var(--text-dim);font-size:0.75rem;margin-left:0.8rem;">nome, idade, apresentar()</span></div>
+          <div class="hier-row" style="margin-left:1.4rem;"><span class="hier-indent">├─</span><span class="hier-node hn-child">Aluno</span><span style="color:var(--text-dim);font-size:0.75rem;margin-left:0.5rem;">matricula, media, exibirBoletim()</span></div>
+          <div class="hier-row" style="margin-left:1.4rem;"><span class="hier-indent">└─</span><span class="hier-node hn-child">Professor</span><span style="color:var(--text-dim);font-size:0.75rem;margin-left:0.5rem;">departamento, salario, exibirFicha()</span></div>
+          <div class="hier-row" style="margin-left:3rem;"><span class="hier-indent">└─</span><span class="hier-node hn-grandch">ProfessorTitular</span><span style="color:var(--text-dim);font-size:0.75rem;margin-left:0.5rem;">titulo, exibirTitulacao()</span></div>
+        </div>
+
+        <div class="callout callout-yellow">
+          <i class="fas fa-exclamation-triangle"></i>
+          <div class="callout-body">
+            <p>Java suporta apenas <strong>herança simples</strong> de classes — uma subclasse pode ter apenas uma superclasse direta. Para múltipla herança de comportamento, Java usa <strong>interfaces</strong> (veremos na seção 5).</p>
+          </div>
+        </div>
+
+
+        <!-- ══════════════════════════════════════
+             SEÇÃO 2 — SOBRESCRITA
+        ═══════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec2">
+          <span class="icon" style="background:rgba(247,129,102,0.12);color:var(--accent);"><i class="fas fa-pen-to-square"></i></span>
+          2. Sobrescrita de Métodos
+        </h2>
+
+        <p>
+          <strong>Sobrescrita</strong> (ou <em>override</em>) ocorre quando uma subclasse <strong>redefine um método herdado</strong> da superclasse, fornecendo uma implementação específica. O método deve ter o <em>mesmo nome</em>, os <em>mesmos parâmetros</em> e o <em>mesmo tipo de retorno</em>.
+        </p>
+
+        <div class="callout callout-yellow">
+          <i class="fas fa-not-equal"></i>
+          <div class="callout-body">
+            <p><strong>Sobrescrita</strong> vs <strong>Sobrecarga</strong> — não confunda:</p>
+            <ul>
+              <li><strong>Sobrescrita</strong> — mesma assinatura, na subclasse, comportamento diferente</li>
+              <li><strong>Sobrecarga</strong> — mesmo nome, parâmetros diferentes, na mesma classe</li>
+            </ul>
+          </div>
+        </div>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Sobrescrita com @Override</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="kw">public class</span> <span class="nm">Animal</span> <span class="sy">{</span>
+    <span class="kw">public void</span> <span class="fn">emitirSom</span><span class="sy">() {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Animal faz um som."</span><span class="sy">);</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="kw">public class</span> <span class="nm">Cachorro</span> <span class="kw">extends</span> <span class="nm">Animal</span> <span class="sy">{</span>
+
+    <span class="an">@Override</span>
+    <span class="kw">public void</span> <span class="fn">emitirSom</span><span class="sy">() {</span>          <span class="cm">// redefine o comportamento</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Au au!"</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span>
+
+<span class="kw">public class</span> <span class="nm">Gato</span> <span class="kw">extends</span> <span class="nm">Animal</span> <span class="sy">{</span>
+
+    <span class="an">@Override</span>
+    <span class="kw">public void</span> <span class="fn">emitirSom</span><span class="sy">() {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Miau!"</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-blue">
+          <i class="fas fa-tag"></i>
+          <div class="callout-body">
+            <p><code class="inline">@Override</code> é uma <strong>anotação</strong> que avisa o compilador que você está sobrescrevendo um método da superclasse. Se o método não existir lá (por ex. por um erro de digitação), o compilador acusará erro — é uma proteção valiosa. Sempre use <code class="inline">@Override</code> ao sobrescrever.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec2-super">Chamando o método original com super</h3>
+
+        <p>A subclasse pode sobrescrever e ainda <strong>aproveitar</strong> a implementação da superclasse usando <code class="inline">super.metodo()</code>:</p>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Estendendo o comportamento com super</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="kw">public class</span> <span class="nm">Aluno</span> <span class="kw">extends</span> <span class="nm">Pessoa</span> <span class="sy">{</span>
+
+    <span class="kw">private</span> <span class="tp">String</span> <span class="vr">matricula</span><span class="sy">;</span>
+
+    <span class="an">@Override</span>
+    <span class="kw">public void</span> <span class="fn">apresentar</span><span class="sy">() {</span>
+        <span class="kw">super</span><span class="sy">.</span><span class="fn">apresentar</span><span class="sy">();</span>               <span class="cm">// executa o método da Pessoa</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Matrícula: "</span> <span class="sy">+</span> <span class="vr">matricula</span><span class="sy">);</span>  <span class="cm">// adiciona mais</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span>
+
+<span class="cm">// Saída de new Aluno("Lucas", 20, "2024001").apresentar():</span>
+<span class="cm">// Nome: Lucas, Idade: 20</span>
+<span class="cm">// Matrícula: 2024001</span></code>
+        </pre>
+
+
+        <!-- ══════════════════════════════════════
+             SEÇÃO 3 — POLIMORFISMO
+        ═══════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec3">
+          <span class="icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);"><i class="fas fa-shapes"></i></span>
+          3. Polimorfismo
+        </h2>
+
+        <p>
+          <strong>Polimorfismo</strong> significa "muitas formas". Em Java, é a capacidade de uma variável do tipo da <em>superclasse</em> referenciar objetos de <em>subclasses diferentes</em>, e de cada objeto responder à mesma chamada de método de forma diferente.
+        </p>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Polimorfismo — mesma chamada, comportamentos diferentes</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="nm">Animal</span> <span class="vr">a1</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Cachorro</span><span class="sy">();</span>  <span class="cm">// variável Animal, objeto Cachorro</span>
+<span class="nm">Animal</span> <span class="vr">a2</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Gato</span><span class="sy">();</span>      <span class="cm">// variável Animal, objeto Gato</span>
+<span class="nm">Animal</span> <span class="vr">a3</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Animal</span><span class="sy">();</span>    <span class="cm">// variável Animal, objeto Animal</span>
+
+<span class="vr">a1</span><span class="sy">.</span><span class="fn">emitirSom</span><span class="sy">();</span>  <span class="cm">// Au au!</span>
+<span class="vr">a2</span><span class="sy">.</span><span class="fn">emitirSom</span><span class="sy">();</span>  <span class="cm">// Miau!</span>
+<span class="vr">a3</span><span class="sy">.</span><span class="fn">emitirSom</span><span class="sy">();</span>  <span class="cm">// Animal faz um som.</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec3-lista">Polimorfismo com listas</h3>
+
+        <p>O poder do polimorfismo fica evidente quando trabalhamos com coleções de objetos de tipos diferentes:</p>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Lista polimórfica — trata tipos diferentes de forma uniforme</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="kw">import</span> <span class="nm">java.util.ArrayList</span><span class="sy">;</span>
+
+<span class="nm">ArrayList</span><span class="sy">&lt;</span><span class="nm">Animal</span><span class="sy">&gt;</span> <span class="vr">animais</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">ArrayList</span><span class="sy">&lt;&gt;();</span>
+
+<span class="vr">animais</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">Cachorro</span><span class="sy">());</span>
+<span class="vr">animais</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">Gato</span><span class="sy">());</span>
+<span class="vr">animais</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">Cachorro</span><span class="sy">());</span>
+
+<span class="kw">for</span> <span class="sy">(</span><span class="nm">Animal</span> <span class="vr">a</span> <span class="sy">:</span> <span class="vr">animais</span><span class="sy">) {</span>
+    <span class="vr">a</span><span class="sy">.</span><span class="fn">emitirSom</span><span class="sy">();</span>  <span class="cm">// cada objeto chama sua versão do método</span>
+<span class="sy">}</span>
+
+<span class="cm">// Au au!</span>
+<span class="cm">// Miau!</span>
+<span class="cm">// Au au!</span></code>
+        </pre>
+
+        <div class="callout callout-green">
+          <i class="fas fa-lightbulb"></i>
+          <div class="callout-body">
+            <p>O código do <code class="inline">for</code> não precisa saber se o objeto é <code class="inline">Cachorro</code> ou <code class="inline">Gato</code>. Ele só sabe que é um <code class="inline">Animal</code> e que todo <code class="inline">Animal</code> tem <code class="inline">emitirSom()</code>. Isso é a <strong>essência do polimorfismo</strong>.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec3-casting">instanceof e casting</h3>
+
+        <p>Quando precisar acessar métodos <em>específicos</em> de uma subclasse a partir de uma variável do tipo da superclasse, use <code class="inline">instanceof</code> para verificar e depois faça o <strong>casting</strong>:</p>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> instanceof e casting seguro</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="nm">Animal</span> <span class="vr">animal</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Cachorro</span><span class="sy">();</span>
+
+<span class="kw">if</span> <span class="sy">(</span><span class="vr">animal</span> <span class="kw">instanceof</span> <span class="nm">Cachorro</span><span class="sy">) {</span>
+    <span class="nm">Cachorro</span> <span class="vr">c</span> <span class="sy">=</span> <span class="sy">(</span><span class="nm">Cachorro</span><span class="sy">)</span> <span class="vr">animal</span><span class="sy">;</span>  <span class="cm">// cast explícito</span>
+    <span class="vr">c</span><span class="sy">.</span><span class="fn">buscarBola</span><span class="sy">();</span>  <span class="cm">// método exclusivo de Cachorro</span>
+<span class="sy">}</span>
+
+<span class="cm">// Java 16+: pattern matching simplifica:</span>
+<span class="kw">if</span> <span class="sy">(</span><span class="vr">animal</span> <span class="kw">instanceof</span> <span class="nm">Cachorro</span> <span class="vr">c</span><span class="sy">) {</span>
+    <span class="vr">c</span><span class="sy">.</span><span class="fn">buscarBola</span><span class="sy">();</span>  <span class="cm">// c já é do tipo Cachorro</span>
+<span class="sy">}</span></code>
+        </pre>
+
+
+        <!-- ══════════════════════════════════════
+             SEÇÃO 4 — CLASSES ABSTRATAS
+        ═══════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec4">
+          <span class="icon" style="background:rgba(227,179,65,0.12);color:var(--accent4);"><i class="fas fa-ghost"></i></span>
+          4. Classes Abstratas
+        </h2>
+
+        <p>
+          Uma <strong>classe abstrata</strong> é uma classe que <strong>não pode ser instanciada diretamente</strong> — ela existe para ser herdada. Serve como modelo obrigatório: define a estrutura comum e pode incluir <strong>métodos abstratos</strong> que cada subclasse <em>deve</em> implementar.
+        </p>
+
+        <div class="callout callout-yellow">
+          <i class="fas fa-info-circle"></i>
+          <div class="callout-body">
+            <p><strong>Método abstrato</strong> é um método sem implementação — apenas a assinatura. A subclasse concreta <em>é obrigada</em> a sobrescrevê-lo. Se não fizer isso, a subclasse também deve ser abstrata.</p>
+          </div>
+        </div>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Classe abstrata Forma</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="kw">public abstract class</span> <span class="nm">Forma</span> <span class="sy">{</span>
+
+    <span class="kw">protected</span> <span class="tp">String</span> <span class="vr">cor</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">Forma</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">cor</span><span class="sy">) {</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">cor</span> <span class="sy">=</span> <span class="vr">cor</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="cm">// método abstrato — sem implementação, subclasse DEVE implementar</span>
+    <span class="kw">public abstract double</span> <span class="fn">calcularArea</span><span class="sy">();</span>
+
+    <span class="cm">// método concreto — herdado normalmente</span>
+    <span class="kw">public void</span> <span class="fn">exibir</span><span class="sy">() {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Cor: "</span> <span class="sy">+</span> <span class="vr">cor</span>
+            <span class="sy">+</span> <span class="st">" | Área: "</span> <span class="sy">+</span> <span class="fn">calcularArea</span><span class="sy">());</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+        </pre>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Subclasses concretas — implementam calcularArea()</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="kw">public class</span> <span class="nm">Circulo</span> <span class="kw">extends</span> <span class="nm">Forma</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">double</span> <span class="vr">raio</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">Circulo</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">cor</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">raio</span><span class="sy">) {</span>
+        <span class="kw">super</span><span class="sy">(</span><span class="vr">cor</span><span class="sy">);</span> <span class="kw">this</span><span class="sy">.</span><span class="vr">raio</span> <span class="sy">=</span> <span class="vr">raio</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="an">@Override</span>
+    <span class="kw">public double</span> <span class="fn">calcularArea</span><span class="sy">() {</span>
+        <span class="kw">return</span> <span class="nm">Math</span><span class="sy">.</span><span class="vr">PI</span> <span class="sy">*</span> <span class="vr">raio</span> <span class="sy">*</span> <span class="vr">raio</span><span class="sy">;</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="kw">public class</span> <span class="nm">Retangulo</span> <span class="kw">extends</span> <span class="nm">Forma</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">double</span> <span class="vr">largura</span><span class="sy">,</span> <span class="vr">altura</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">Retangulo</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">cor</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">largura</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">altura</span><span class="sy">) {</span>
+        <span class="kw">super</span><span class="sy">(</span><span class="vr">cor</span><span class="sy">);</span> <span class="kw">this</span><span class="sy">.</span><span class="vr">largura</span> <span class="sy">=</span> <span class="vr">largura</span><span class="sy">;</span> <span class="kw">this</span><span class="sy">.</span><span class="vr">altura</span> <span class="sy">=</span> <span class="vr">altura</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="an">@Override</span>
+    <span class="kw">public double</span> <span class="fn">calcularArea</span><span class="sy">() {</span>
+        <span class="kw">return</span> <span class="vr">largura</span> <span class="sy">*</span> <span class="vr">altura</span><span class="sy">;</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="cm">// Uso polimórfico:</span>
+<span class="nm">Forma</span><span class="sy">[]</span> <span class="vr">formas</span> <span class="sy">= {</span>
+    <span class="kw">new</span> <span class="nm">Circulo</span><span class="sy">(</span><span class="st">"Azul"</span><span class="sy">,</span> <span class="nu">5</span><span class="sy">),</span>
+    <span class="kw">new</span> <span class="nm">Retangulo</span><span class="sy">(</span><span class="st">"Vermelho"</span><span class="sy">,</span> <span class="nu">4</span><span class="sy">,</span> <span class="nu">6</span><span class="sy">)</span>
+<span class="sy">};</span>
+
+<span class="kw">for</span> <span class="sy">(</span><span class="nm">Forma</span> <span class="vr">f</span> <span class="sy">:</span> <span class="vr">formas</span><span class="sy">)</span> <span class="vr">f</span><span class="sy">.</span><span class="fn">exibir</span><span class="sy">();</span>
+<span class="cm">// Cor: Azul | Área: 78.53...</span>
+<span class="cm">// Cor: Vermelho | Área: 24.0</span></code>
+        </pre>
+
+        <div class="uml-wrap">
+          <div>
+            <div class="uml-diagram" style="min-width:220px;">
+              <div class="uml-class-name abstract">«abstract» Forma</div>
+              <div class="uml-section">
+                <div class="uml-row"><span class="uml-vis-prot">#</span><span>cor</span><span class="uml-type">: String</span></div>
+              </div>
+              <div class="uml-section">
+                <div class="uml-row"><span class="uml-vis-pub">+</span><span class="uml-abstract-method">calcularArea()</span><span class="uml-type">: double</span></div>
+                <div class="uml-row"><span class="uml-vis-pub">+</span><span class="uml-method">exibir()</span><span class="uml-type">: void</span></div>
+              </div>
+            </div>
+            <div class="uml-label">superclasse abstrata</div>
+          </div>
+          <div class="uml-arrow" style="padding-top:1rem;">▼</div>
+          <div>
+            <div class="uml-diagram" style="min-width:180px;">
+              <div class="uml-class-name" style="color:var(--accent2);">Circulo</div>
+              <div class="uml-section">
+                <div class="uml-row"><span class="uml-vis-priv">-</span><span>raio</span><span class="uml-type">: double</span></div>
+              </div>
+              <div class="uml-section">
+                <div class="uml-row"><span class="uml-vis-pub">+</span><span class="uml-method">calcularArea()</span><span class="uml-type">: double</span></div>
+              </div>
+            </div>
+            <div class="uml-label">subclasse concreta</div>
+          </div>
+          <div style="padding-top:1rem;color:var(--text-dim);font-size:1.2rem;">·</div>
+          <div>
+            <div class="uml-diagram" style="min-width:180px;">
+              <div class="uml-class-name" style="color:var(--accent2);">Retangulo</div>
+              <div class="uml-section">
+                <div class="uml-row"><span class="uml-vis-priv">-</span><span>largura</span><span class="uml-type">: double</span></div>
+                <div class="uml-row"><span class="uml-vis-priv">-</span><span>altura</span><span class="uml-type">: double</span></div>
+              </div>
+              <div class="uml-section">
+                <div class="uml-row"><span class="uml-vis-pub">+</span><span class="uml-method">calcularArea()</span><span class="uml-type">: double</span></div>
+              </div>
+            </div>
+            <div class="uml-label">subclasse concreta</div>
+          </div>
+        </div>
+
+
+        <!-- ══════════════════════════════════════
+             SEÇÃO 5 — INTERFACES
+        ═══════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec5">
+          <span class="icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);"><i class="fas fa-plug"></i></span>
+          5. Interfaces
+        </h2>
+
+        <p>
+          Uma <strong>interface</strong> é um <strong>contrato</strong> que define um conjunto de métodos que uma classe <em>deve</em> implementar. Diferente de classes abstratas, uma interface não pode ter estado (atributos de instância), mas define quais comportamentos são garantidos. Em Java, uma classe pode implementar <strong>múltiplas interfaces</strong>.
+        </p>
+
+        <div class="callout callout-green">
+          <i class="fas fa-handshake"></i>
+          <div class="callout-body">
+            <p><strong>Analogia:</strong> uma interface é como um contrato de emprego. Ao assinar (<code class="inline">implements</code>), a classe se compromete a fornecer todos os comportamentos exigidos. O contratante (código cliente) sabe o que pode esperar, sem precisar saber como está implementado.</p>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec5-criando">Criando e implementando interfaces</h3>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Definindo interfaces</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="cm">// Interface Desenhavel — define um contrato</span>
+<span class="kw">public interface</span> <span class="nm">Desenhavel</span> <span class="sy">{</span>
+    <span class="kw">void</span> <span class="fn">desenhar</span><span class="sy">();</span>              <span class="cm">// implicitamente public abstract</span>
+<span class="sy">}</span>
+
+<span class="cm">// Interface Redimensionavel</span>
+<span class="kw">public interface</span> <span class="nm">Redimensionavel</span> <span class="sy">{</span>
+    <span class="kw">void</span> <span class="fn">redimensionar</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">fator</span><span class="sy">);</span>
+<span class="sy">}</span>
+
+<span class="cm">// Classe que implementa DUAS interfaces (múltipla herança de comportamento)</span>
+<span class="kw">public class</span> <span class="nm">Quadrado</span> <span class="kw">extends</span> <span class="nm">Forma</span>
+        <span class="kw">implements</span> <span class="nm">Desenhavel</span><span class="sy">,</span> <span class="nm">Redimensionavel</span> <span class="sy">{</span>
+
+    <span class="kw">private</span> <span class="tp">double</span> <span class="vr">lado</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">Quadrado</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">cor</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">lado</span><span class="sy">) {</span>
+        <span class="kw">super</span><span class="sy">(</span><span class="vr">cor</span><span class="sy">);</span> <span class="kw">this</span><span class="sy">.</span><span class="vr">lado</span> <span class="sy">=</span> <span class="vr">lado</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="an">@Override</span> <span class="kw">public double</span> <span class="fn">calcularArea</span><span class="sy">() { </span><span class="kw">return</span> <span class="vr">lado</span> <span class="sy">*</span> <span class="vr">lado</span><span class="sy">; }</span>
+
+    <span class="an">@Override</span> <span class="kw">public void</span> <span class="fn">desenhar</span><span class="sy">() {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Desenhando quadrado de lado "</span> <span class="sy">+</span> <span class="vr">lado</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+    <span class="an">@Override</span> <span class="kw">public void</span> <span class="fn">redimensionar</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">fator</span><span class="sy">) {</span>
+        <span class="vr">lado</span> <span class="sy">*=</span> <span class="vr">fator</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec5-default">Métodos default e static em interfaces</h3>
+
+        <p>Desde o Java 8, interfaces podem ter <strong>métodos default</strong> (com implementação padrão) e <strong>métodos static</strong>:</p>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> default e static em interfaces (Java 8+)</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="kw">public interface</span> <span class="nm">Veiculo</span> <span class="sy">{</span>
+
+    <span class="kw">void</span> <span class="fn">acelerar</span><span class="sy">();</span>       <span class="cm">// obrigatório</span>
+    <span class="kw">void</span> <span class="fn">frear</span><span class="sy">();</span>          <span class="cm">// obrigatório</span>
+
+    <span class="cm">// método default — implementação padrão (pode ser sobrescrita)</span>
+    <span class="kw">default void</span> <span class="fn">ligar</span><span class="sy">() {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Veículo ligado."</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+    <span class="cm">// método static — chamado diretamente pela interface</span>
+    <span class="kw">static void</span> <span class="fn">regulamentos</span><span class="sy">() {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Seguir o Código de Trânsito."</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span>
+
+<span class="cm">// Chamando o método static pela interface:</span>
+<span class="nm">Veiculo</span><span class="sy">.</span><span class="fn">regulamentos</span><span class="sy">();</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec5-abstvsint">Classe Abstrata vs Interface</h3>
+
+        <table class="comp-table">
+          <thead><tr><th>Característica</th><th>Classe Abstrata</th><th>Interface</th></tr></thead>
+          <tbody>
+            <tr><td>Instanciar diretamente</td><td class="tag-no">✘ Não</td><td class="tag-no">✘ Não</td></tr>
+            <tr><td>Métodos com implementação</td><td class="tag-yes">✔ Sim</td><td class="tag-par">⚡ Só default/static</td></tr>
+            <tr><td>Atributos de instância</td><td class="tag-yes">✔ Sim</td><td class="tag-no">✘ Não</td></tr>
+            <tr><td>Construtores</td><td class="tag-yes">✔ Sim</td><td class="tag-no">✘ Não</td></tr>
+            <tr><td>Herança/implementação múltipla</td><td class="tag-no">✘ Uma só</td><td class="tag-yes">✔ Várias</td></tr>
+            <tr><td>Modificadores de acesso</td><td class="tag-yes">✔ Todos</td><td class="tag-par">⚡ public por padrão</td></tr>
+            <tr><td>Uso ideal</td><td colspan="2" style="color:var(--text-muted);font-size:0.82rem;">Abstrata = "é um" + estado em comum &nbsp;·&nbsp; Interface = "sabe fazer" (capacidade)</td></tr>
+          </tbody>
+        </table>
+
+
+        <!-- ══════════════════════════════════════
+             SEÇÃO 6 — ACOPLAMENTO DINÂMICO
+        ═══════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec6">
+          <span class="icon" style="background:rgba(121,192,255,0.12);color:var(--accent2);"><i class="fas fa-bolt"></i></span>
+          6. Acoplamento Dinâmico
+        </h2>
+
+        <p>
+          O <strong>acoplamento dinâmico</strong> (ou <em>late binding</em>) é o mecanismo pelo qual o Java decide <strong>em tempo de execução</strong> qual versão de um método chamar, com base no <em>tipo real do objeto</em> e não no tipo da variável.
+        </p>
+
+        <div class="callout callout-blue">
+          <i class="fas fa-info-circle"></i>
+          <div class="callout-body">
+            <p><strong>Tempo de compilação vs tempo de execução:</strong></p>
+            <ul>
+              <li>O compilador verifica se o método existe no tipo <em>declarado</em> da variável.</li>
+              <li>Em tempo de execução, a JVM chama o método do tipo <em>real</em> do objeto — mesmo que a variável seja do tipo da superclasse.</li>
+            </ul>
+          </div>
+        </div>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Late binding — a JVM decide em tempo de execução</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="nm">Forma</span> <span class="vr">f</span><span class="sy">;</span>
+
+<span class="cm">// 1. A variável é do tipo Forma (superclasse)</span>
+<span class="vr">f</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Circulo</span><span class="sy">(</span><span class="st">"Azul"</span><span class="sy">,</span> <span class="nu">5</span><span class="sy">);</span>
+<span class="vr">f</span><span class="sy">.</span><span class="fn">calcularArea</span><span class="sy">();</span>  <span class="cm">// JVM chama Circulo.calcularArea()  → 78.53</span>
+
+<span class="vr">f</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">Retangulo</span><span class="sy">(</span><span class="st">"Vermelho"</span><span class="sy">,</span> <span class="nu">4</span><span class="sy">,</span> <span class="nu">6</span><span class="sy">);</span>
+<span class="vr">f</span><span class="sy">.</span><span class="fn">calcularArea</span><span class="sy">();</span>  <span class="cm">// JVM chama Retangulo.calcularArea() → 24.0</span>
+
+<span class="cm">// O compilador só verifica se Forma tem calcularArea()</span>
+<span class="cm">// A JVM resolve QUAL calcularArea() chamar em tempo de execução</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec6-factory">Padrão Factory — acoplamento dinâmico na prática</h3>
+
+        <p>O acoplamento dinâmico permite criar sistemas onde o código principal <strong>não precisa conhecer</strong> as subclasses concretas — apenas o tipo base:</p>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Criando objetos por tipo — Factory simples</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="kw">static</span> <span class="nm">Forma</span> <span class="fn">criarForma</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">tipo</span><span class="sy">) {</span>
+    <span class="kw">return switch</span> <span class="sy">(</span><span class="vr">tipo</span><span class="sy">)</span> <span class="sy">{</span>
+        <span class="kw">case</span> <span class="st">"circulo"</span>    <span class="sy">-></span> <span class="kw">new</span> <span class="nm">Circulo</span><span class="sy">(</span><span class="st">"Azul"</span><span class="sy">,</span>     <span class="nu">5</span><span class="sy">);</span>
+        <span class="kw">case</span> <span class="st">"retangulo"</span>  <span class="sy">-></span> <span class="kw">new</span> <span class="nm">Retangulo</span><span class="sy">(</span><span class="st">"Vermelho"</span><span class="sy">,</span> <span class="nu">4</span><span class="sy">,</span> <span class="nu">6</span><span class="sy">);</span>
+        <span class="kw">default</span>           <span class="sy">-></span> <span class="kw">throw new</span> <span class="nm">IllegalArgumentException</span><span class="sy">(</span><span class="st">"Tipo desconhecido"</span><span class="sy">);</span>
+    <span class="sy">};</span>
+<span class="sy">}</span>
+
+<span class="cm">// O chamador só conhece Forma — não precisa saber qual subclasse</span>
+<span class="nm">Forma</span> <span class="vr">f1</span> <span class="sy">=</span> <span class="fn">criarForma</span><span class="sy">(</span><span class="st">"circulo"</span><span class="sy">);</span>
+<span class="nm">Forma</span> <span class="vr">f2</span> <span class="sy">=</span> <span class="fn">criarForma</span><span class="sy">(</span><span class="st">"retangulo"</span><span class="sy">);</span>
+
+<span class="vr">f1</span><span class="sy">.</span><span class="fn">exibir</span><span class="sy">();</span>  <span class="cm">// Cor: Azul | Área: 78.53...</span>
+<span class="vr">f2</span><span class="sy">.</span><span class="fn">exibir</span><span class="sy">();</span>  <span class="cm">// Cor: Vermelho | Área: 24.0</span></code>
+        </pre>
+
+
+        <!-- ══════════════════════════════════════
+             SEÇÃO 7 — BOAS PRÁTICAS
+        ═══════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec7">
+          <span class="icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);"><i class="fas fa-star"></i></span>
+          7. Boas Práticas
+        </h2>
+
+        <div class="bp-list">
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(188,140,255,0.12);color:var(--accent5);"><i class="fas fa-tag"></i></div>
+            <div class="bp-text">
+              <strong>Sempre use @Override ao sobrescrever</strong>
+              <span>A anotação protege contra erros de digitação e documenta a intenção — se o método não existir na superclasse, o compilador avisa.</span>
+            </div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(86,211,100,0.12);color:var(--accent3);"><i class="fas fa-plug"></i></div>
+            <div class="bp-text">
+              <strong>Prefira programar para interfaces, não implementações</strong>
+              <span>Declare variáveis com o tipo da interface: <code class="inline">List&lt;String&gt; lista = new ArrayList&lt;&gt;()</code> — não <code class="inline">ArrayList&lt;String&gt;</code>. Isso facilita trocar a implementação sem alterar o código.</span>
+            </div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(227,179,65,0.12);color:var(--accent4);"><i class="fas fa-ghost"></i></div>
+            <div class="bp-text">
+              <strong>Use abstract quando a superclasse não faz sentido sozinha</strong>
+              <span>Se não faz sentido criar um <code class="inline">new Animal()</code> ou um <code class="inline">new Forma()</code>, torne a classe abstrata. Isso impede instanciação acidental e documenta a intenção.</span>
+            </div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(247,129,102,0.12);color:var(--accent);"><i class="fas fa-layer-group"></i></div>
+            <div class="bp-text">
+              <strong>Evite hierarquias muito profundas</strong>
+              <span>Heranças com mais de 3 ou 4 níveis tornam o código difícil de entender e manter. Prefira composição quando a hierarquia ficar muito longa.</span>
+            </div>
+          </div>
+          <div class="bp-item">
+            <div class="bp-icon" style="background:rgba(121,192,255,0.12);color:var(--accent2);"><i class="fas fa-puzzle-piece"></i></div>
+            <div class="bp-text">
+              <strong>Interfaces pequenas e focadas (Segregação)</strong>
+              <span>Prefira várias interfaces pequenas a uma grande. Uma classe não deve ser obrigada a implementar métodos que não usa — princípio ISP do SOLID.</span>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- ══════════════════════════════════════
+             SEÇÃO 8 — EXERCÍCIOS
+        ═══════════════════════════════════════ -->
+        <h2 class="section-heading" id="sec8">
+          <span class="icon" style="background:rgba(247,129,102,0.12);color:var(--accent);"><i class="fas fa-dumbbell"></i></span>
+          8. Exercícios Práticos
+        </h2>
+
+        <div class="exercise-list">
+
+          <!-- EX 1 -->
+          <div class="exercise-card" id="ex1">
+            <div class="ex-header">
+              <div class="ex-num" style="background:rgba(86,211,100,0.12);color:var(--accent3);border:1px solid rgba(86,211,100,0.25);">01</div>
+              <div><div class="ex-title">Hierarquia de Veículos</div></div>
+              <span class="ex-level level-1">Nível 1</span>
+            </div>
+            <div class="ex-body">
+              <p>Crie a superclasse <code class="inline">Veiculo</code> com atributos <code class="inline">marca</code> e <code class="inline">velocidadeMaxima</code> e um método <code class="inline">exibirInfo()</code>. Crie as subclasses <code class="inline">Carro</code> (adiciona <code class="inline">numPortas</code>) e <code class="inline">Moto</code> (adiciona <code class="inline">cilindradas</code>). Sobrescreva <code class="inline">exibirInfo()</code> em cada subclasse para incluir seus atributos extras usando <code class="inline">super</code>.</p>
+              <pre>
+                <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Solução</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+                <code><span class="kw">public class</span> <span class="nm">Veiculo</span> <span class="sy">{</span>
+    <span class="kw">protected</span> <span class="tp">String</span> <span class="vr">marca</span><span class="sy">;</span>
+    <span class="kw">protected</span> <span class="tp">int</span>    <span class="vr">velocidadeMaxima</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">Veiculo</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">marca</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">vel</span><span class="sy">) {</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">marca</span>            <span class="sy">=</span> <span class="vr">marca</span><span class="sy">;</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">velocidadeMaxima</span> <span class="sy">=</span> <span class="vr">vel</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="kw">public void</span> <span class="fn">exibirInfo</span><span class="sy">() {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Marca: "</span> <span class="sy">+</span> <span class="vr">marca</span>
+            <span class="sy">+</span> <span class="st">" | Vel. máx: "</span> <span class="sy">+</span> <span class="vr">velocidadeMaxima</span> <span class="sy">+</span> <span class="st">" km/h"</span><span class="sy">);</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="kw">public class</span> <span class="nm">Carro</span> <span class="kw">extends</span> <span class="nm">Veiculo</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">int</span> <span class="vr">numPortas</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">Carro</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">marca</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">vel</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">portas</span><span class="sy">) {</span>
+        <span class="kw">super</span><span class="sy">(</span><span class="vr">marca</span><span class="sy">,</span> <span class="vr">vel</span><span class="sy">);</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">numPortas</span> <span class="sy">=</span> <span class="vr">portas</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="an">@Override</span> <span class="kw">public void</span> <span class="fn">exibirInfo</span><span class="sy">() {</span>
+        <span class="kw">super</span><span class="sy">.</span><span class="fn">exibirInfo</span><span class="sy">();</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Portas: "</span> <span class="sy">+</span> <span class="vr">numPortas</span><span class="sy">);</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="kw">public class</span> <span class="nm">Moto</span> <span class="kw">extends</span> <span class="nm">Veiculo</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">int</span> <span class="vr">cilindradas</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">Moto</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">marca</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">vel</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">cc</span><span class="sy">) {</span>
+        <span class="kw">super</span><span class="sy">(</span><span class="vr">marca</span><span class="sy">,</span> <span class="vr">vel</span><span class="sy">);</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">cilindradas</span> <span class="sy">=</span> <span class="vr">cc</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="an">@Override</span> <span class="kw">public void</span> <span class="fn">exibirInfo</span><span class="sy">() {</span>
+        <span class="kw">super</span><span class="sy">.</span><span class="fn">exibirInfo</span><span class="sy">();</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Cilindradas: "</span> <span class="sy">+</span> <span class="vr">cilindradas</span> <span class="sy">+</span> <span class="st">"cc"</span><span class="sy">);</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="cm">// Teste polimórfico</span>
+<span class="nm">Veiculo</span><span class="sy">[]</span> <span class="vr">frota</span> <span class="sy">= {</span>
+    <span class="kw">new</span> <span class="nm">Carro</span><span class="sy">(</span><span class="st">"Toyota"</span><span class="sy">,</span> <span class="nu">180</span><span class="sy">,</span> <span class="nu">4</span><span class="sy">),</span>
+    <span class="kw">new</span> <span class="nm">Moto</span><span class="sy">(</span><span class="st">"Honda"</span><span class="sy">,</span>  <span class="nu">210</span><span class="sy">,</span> <span class="nu">600</span><span class="sy">)</span>
+<span class="sy">};</span>
+<span class="kw">for</span> <span class="sy">(</span><span class="nm">Veiculo</span> <span class="vr">v</span> <span class="sy">:</span> <span class="vr">frota</span><span class="sy">)</span> <span class="sy">{</span> <span class="vr">v</span><span class="sy">.</span><span class="fn">exibirInfo</span><span class="sy">();</span> <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"---"</span><span class="sy">); }</span></code>
+              </pre>
+            </div>
+          </div>
+
+          <!-- EX 2 -->
+          <div class="exercise-card" id="ex2">
+            <div class="ex-header">
+              <div class="ex-num" style="background:rgba(86,211,100,0.12);color:var(--accent3);border:1px solid rgba(86,211,100,0.25);">02</div>
+              <div><div class="ex-title">Classe Abstrata — Sistema de Pagamento</div></div>
+              <span class="ex-level level-1">Nível 1</span>
+            </div>
+            <div class="ex-body">
+              <p>Crie a classe abstrata <code class="inline">Pagamento</code> com o atributo <code class="inline">valor</code> e o método abstrato <code class="inline">processar()</code>. Implemente três subclasses: <code class="inline">PagamentoPix</code>, <code class="inline">PagamentoCartao</code> (adiciona <code class="inline">parcelas</code>) e <code class="inline">PagamentoBoleto</code> (adiciona <code class="inline">diasVencimento</code>). Cada uma deve sobrescrever <code class="inline">processar()</code> com uma mensagem específica.</p>
+              <pre>
+                <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Solução</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+                <code><span class="kw">public abstract class</span> <span class="nm">Pagamento</span> <span class="sy">{</span>
+    <span class="kw">protected</span> <span class="tp">double</span> <span class="vr">valor</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">Pagamento</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">valor</span><span class="sy">) {</span> <span class="kw">this</span><span class="sy">.</span><span class="vr">valor</span> <span class="sy">=</span> <span class="vr">valor</span><span class="sy">; }</span>
+    <span class="kw">public abstract void</span> <span class="fn">processar</span><span class="sy">();</span>
+<span class="sy">}</span>
+
+<span class="kw">class</span> <span class="nm">PagamentoPix</span> <span class="kw">extends</span> <span class="nm">Pagamento</span> <span class="sy">{</span>
+    <span class="kw">public</span> <span class="nm">PagamentoPix</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">valor</span><span class="sy">) {</span> <span class="kw">super</span><span class="sy">(</span><span class="vr">valor</span><span class="sy">); }</span>
+    <span class="an">@Override</span> <span class="kw">public void</span> <span class="fn">processar</span><span class="sy">() {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Pix de R$ "</span> <span class="sy">+</span> <span class="vr">valor</span> <span class="sy">+</span> <span class="st">" processado instantaneamente."</span><span class="sy">);</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="kw">class</span> <span class="nm">PagamentoCartao</span> <span class="kw">extends</span> <span class="nm">Pagamento</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">int</span> <span class="vr">parcelas</span><span class="sy">;</span>
+    <span class="kw">public</span> <span class="nm">PagamentoCartao</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">valor</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">parcelas</span><span class="sy">) {</span>
+        <span class="kw">super</span><span class="sy">(</span><span class="vr">valor</span><span class="sy">);</span> <span class="kw">this</span><span class="sy">.</span><span class="vr">parcelas</span> <span class="sy">=</span> <span class="vr">parcelas</span><span class="sy">;</span>
+    <span class="sy">}</span>
+    <span class="an">@Override</span> <span class="kw">public void</span> <span class="fn">processar</span><span class="sy">() {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Cartão: R$ "</span> <span class="sy">+</span> <span class="vr">valor</span>
+            <span class="sy">+</span> <span class="st">" em "</span> <span class="sy">+</span> <span class="vr">parcelas</span> <span class="sy">+</span> <span class="st">"x de R$ "</span>
+            <span class="sy">+</span> <span class="nm">String</span><span class="sy">.</span><span class="fn">format</span><span class="sy">(</span><span class="st">"%.2f"</span><span class="sy">,</span> <span class="vr">valor</span> <span class="sy">/</span> <span class="vr">parcelas</span><span class="sy">));</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="kw">class</span> <span class="nm">PagamentoBoleto</span> <span class="kw">extends</span> <span class="nm">Pagamento</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">int</span> <span class="vr">diasVencimento</span><span class="sy">;</span>
+    <span class="kw">public</span> <span class="nm">PagamentoBoleto</span><span class="sy">(</span><span class="tp">double</span> <span class="vr">valor</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">dias</span><span class="sy">) {</span>
+        <span class="kw">super</span><span class="sy">(</span><span class="vr">valor</span><span class="sy">);</span> <span class="kw">this</span><span class="sy">.</span><span class="vr">diasVencimento</span> <span class="sy">=</span> <span class="vr">dias</span><span class="sy">;</span>
+    <span class="sy">}</span>
+    <span class="an">@Override</span> <span class="kw">public void</span> <span class="fn">processar</span><span class="sy">() {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Boleto de R$ "</span> <span class="sy">+</span> <span class="vr">valor</span>
+            <span class="sy">+</span> <span class="st">" com vencimento em "</span> <span class="sy">+</span> <span class="vr">diasVencimento</span> <span class="sy">+</span> <span class="st">" dias."</span><span class="sy">);</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="cm">// Teste polimórfico</span>
+<span class="nm">Pagamento</span><span class="sy">[]</span> <span class="vr">pagamentos</span> <span class="sy">= {</span>
+    <span class="kw">new</span> <span class="nm">PagamentoPix</span><span class="sy">(</span><span class="nu">150.00</span><span class="sy">),</span>
+    <span class="kw">new</span> <span class="nm">PagamentoCartao</span><span class="sy">(</span><span class="nu">600.00</span><span class="sy">,</span> <span class="nu">3</span><span class="sy">),</span>
+    <span class="kw">new</span> <span class="nm">PagamentoBoleto</span><span class="sy">(</span><span class="nu">200.00</span><span class="sy">,</span> <span class="nu">5</span><span class="sy">)</span>
+<span class="sy">};</span>
+<span class="kw">for</span> <span class="sy">(</span><span class="nm">Pagamento</span> <span class="vr">p</span> <span class="sy">:</span> <span class="vr">pagamentos</span><span class="sy">)</span> <span class="vr">p</span><span class="sy">.</span><span class="fn">processar</span><span class="sy">();</span></code>
+              </pre>
+              <div class="callout callout-green" style="margin-top:0.8rem;margin-bottom:0;">
+                <i class="fas fa-terminal"></i>
+                <div class="callout-body">
+                  <pre style="background:none;border:none;margin:0;"><code style="padding:0;font-size:0.8rem;color:var(--accent3);">Pix de R$ 150.0 processado instantaneamente.
+Cartão: R$ 600.0 em 3x de R$ 200.00
+Boleto de R$ 200.0 com vencimento em 5 dias.</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- EX 3 -->
+          <div class="exercise-card" id="ex3">
+            <div class="ex-header">
+              <div class="ex-num" style="background:rgba(227,179,65,0.12);color:var(--accent4);border:1px solid rgba(227,179,65,0.25);">03</div>
+              <div><div class="ex-title">Interface Comparavel — Ordenando Objetos</div></div>
+              <span class="ex-level level-2">Nível 2</span>
+            </div>
+            <div class="ex-body">
+              <p>Crie a interface <code class="inline">Comparavel</code> com o método <code class="inline">int comparar(Object outro)</code>. Implemente-a na classe <code class="inline">Produto</code> (com <code class="inline">nome</code> e <code class="inline">preco</code>): retorne negativo se este produto for mais barato, zero se igual, positivo se mais caro. Use essa interface para encontrar o produto mais barato de um array.</p>
+              <pre>
+                <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Solução</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+                <code><span class="kw">public interface</span> <span class="nm">Comparavel</span> <span class="sy">{</span>
+    <span class="tp">int</span> <span class="fn">comparar</span><span class="sy">(</span><span class="nm">Object</span> <span class="vr">outro</span><span class="sy">);</span>
+<span class="sy">}</span>
+
+<span class="kw">public class</span> <span class="nm">Produto</span> <span class="kw">implements</span> <span class="nm">Comparavel</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">String</span> <span class="vr">nome</span><span class="sy">;</span>
+    <span class="kw">private</span> <span class="tp">double</span> <span class="vr">preco</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">Produto</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">nome</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">preco</span><span class="sy">) {</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">nome</span> <span class="sy">=</span> <span class="vr">nome</span><span class="sy">;</span> <span class="kw">this</span><span class="sy">.</span><span class="vr">preco</span> <span class="sy">=</span> <span class="vr">preco</span><span class="sy">;</span>
+    <span class="sy">}</span>
+
+    <span class="an">@Override</span>
+    <span class="kw">public</span> <span class="tp">int</span> <span class="fn">comparar</span><span class="sy">(</span><span class="nm">Object</span> <span class="vr">outro</span><span class="sy">) {</span>
+        <span class="nm">Produto</span> <span class="vr">p</span> <span class="sy">= (</span><span class="nm">Produto</span><span class="sy">)</span> <span class="vr">outro</span><span class="sy">;</span>
+        <span class="kw">return</span> <span class="nm">Double</span><span class="sy">.</span><span class="fn">compare</span><span class="sy">(</span><span class="kw">this</span><span class="sy">.</span><span class="vr">preco</span><span class="sy">,</span> <span class="vr">p</span><span class="sy">.</span><span class="vr">preco</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+    <span class="kw">public</span> <span class="tp">String</span> <span class="fn">toString</span><span class="sy">() {</span>
+        <span class="kw">return</span> <span class="vr">nome</span> <span class="sy">+</span> <span class="st">" — R$ "</span> <span class="sy">+</span> <span class="vr">preco</span><span class="sy">;</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="cm">// Encontrando o mais barato</span>
+<span class="nm">Produto</span><span class="sy">[]</span> <span class="vr">estoque</span> <span class="sy">= {</span>
+    <span class="kw">new</span> <span class="nm">Produto</span><span class="sy">(</span><span class="st">"Teclado"</span><span class="sy">,</span>  <span class="nu">150.0</span><span class="sy">),</span>
+    <span class="kw">new</span> <span class="nm">Produto</span><span class="sy">(</span><span class="st">"Mouse"</span><span class="sy">,</span>    <span class="nu">80.0</span><span class="sy">),</span>
+    <span class="kw">new</span> <span class="nm">Produto</span><span class="sy">(</span><span class="st">"Monitor"</span><span class="sy">,</span>  <span class="nu">900.0</span><span class="sy">)</span>
+<span class="sy">};</span>
+
+<span class="nm">Produto</span> <span class="vr">maisBarato</span> <span class="sy">=</span> <span class="vr">estoque</span><span class="sy">[</span><span class="nu">0</span><span class="sy">];</span>
+<span class="kw">for</span> <span class="sy">(</span><span class="nm">Produto</span> <span class="vr">p</span> <span class="sy">:</span> <span class="vr">estoque</span><span class="sy">) {</span>
+    <span class="kw">if</span> <span class="sy">(</span><span class="vr">p</span><span class="sy">.</span><span class="fn">comparar</span><span class="sy">(</span><span class="vr">maisBarato</span><span class="sy">) < 0)</span> <span class="vr">maisBarato</span> <span class="sy">=</span> <span class="vr">p</span><span class="sy">;</span>
+<span class="sy">}</span>
+<span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Mais barato: "</span> <span class="sy">+</span> <span class="vr">maisBarato</span><span class="sy">);</span>
+<span class="cm">// Mais barato: Mouse — R$ 80.0</span></code>
+              </pre>
+            </div>
+          </div>
+
+          <!-- EX 4 -->
+          <div class="exercise-card" id="ex4">
+            <div class="ex-header">
+              <div class="ex-num" style="background:rgba(188,140,255,0.12);color:var(--accent5);border:1px solid rgba(188,140,255,0.25);">04</div>
+              <div><div class="ex-title">Sistema de Funcionários — Herança + Interface + Polimorfismo</div></div>
+              <span class="ex-level level-3">Nível 3</span>
+            </div>
+            <div class="ex-body">
+              <p>Crie a interface <code class="inline">Tributavel</code> com <code class="inline">double calcularImposto()</code>. Crie a superclasse abstrata <code class="inline">Funcionario</code> com <code class="inline">nome</code> e <code class="inline">salarioBase</code> e o método abstrato <code class="inline">calcularSalario()</code>. Implemente:</p>
+              <ul>
+                <li><code class="inline">Horista</code> — salário = horasTrabalhadas × valorHora</li>
+                <li><code class="inline">Assalariado</code> — salário = salarioBase + bonus. Implementa <code class="inline">Tributavel</code>: imposto = 15% se salário &gt; 3000</li>
+              </ul>
+              <pre>
+                <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Solução</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+                <code><span class="kw">public interface</span> <span class="nm">Tributavel</span> <span class="sy">{</span>
+    <span class="tp">double</span> <span class="fn">calcularImposto</span><span class="sy">();</span>
+<span class="sy">}</span>
+
+<span class="kw">public abstract class</span> <span class="nm">Funcionario</span> <span class="sy">{</span>
+    <span class="kw">protected</span> <span class="tp">String</span> <span class="vr">nome</span><span class="sy">;</span>
+    <span class="kw">protected</span> <span class="tp">double</span> <span class="vr">salarioBase</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">Funcionario</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">nome</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">sal</span><span class="sy">) {</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">nome</span> <span class="sy">=</span> <span class="vr">nome</span><span class="sy">;</span> <span class="kw">this</span><span class="sy">.</span><span class="vr">salarioBase</span> <span class="sy">=</span> <span class="vr">sal</span><span class="sy">;</span>
+    <span class="sy">}</span>
+    <span class="kw">public abstract double</span> <span class="fn">calcularSalario</span><span class="sy">();</span>
+
+    <span class="kw">public void</span> <span class="fn">exibirFicha</span><span class="sy">() {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Funcionário: "</span> <span class="sy">+</span> <span class="vr">nome</span>
+            <span class="sy">+</span> <span class="st">" | Salário: R$ "</span> <span class="sy">+</span> <span class="nm">String</span><span class="sy">.</span><span class="fn">format</span><span class="sy">(</span><span class="st">"%.2f"</span><span class="sy">,</span> <span class="fn">calcularSalario</span><span class="sy">()));</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="kw">class</span> <span class="nm">Horista</span> <span class="kw">extends</span> <span class="nm">Funcionario</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">int</span>    <span class="vr">horas</span><span class="sy">;</span>
+    <span class="kw">private</span> <span class="tp">double</span> <span class="vr">valorHora</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">Horista</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">nome</span><span class="sy">,</span> <span class="tp">int</span> <span class="vr">horas</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">valorHora</span><span class="sy">) {</span>
+        <span class="kw">super</span><span class="sy">(</span><span class="vr">nome</span><span class="sy">,</span> <span class="nu">0</span><span class="sy">);</span>
+        <span class="kw">this</span><span class="sy">.</span><span class="vr">horas</span> <span class="sy">=</span> <span class="vr">horas</span><span class="sy">;</span> <span class="kw">this</span><span class="sy">.</span><span class="vr">valorHora</span> <span class="sy">=</span> <span class="vr">valorHora</span><span class="sy">;</span>
+    <span class="sy">}</span>
+    <span class="an">@Override</span> <span class="kw">public double</span> <span class="fn">calcularSalario</span><span class="sy">() {</span> <span class="kw">return</span> <span class="vr">horas</span> <span class="sy">*</span> <span class="vr">valorHora</span><span class="sy">; }</span>
+<span class="sy">}</span>
+
+<span class="kw">class</span> <span class="nm">Assalariado</span> <span class="kw">extends</span> <span class="nm">Funcionario</span> <span class="kw">implements</span> <span class="nm">Tributavel</span> <span class="sy">{</span>
+    <span class="kw">private</span> <span class="tp">double</span> <span class="vr">bonus</span><span class="sy">;</span>
+
+    <span class="kw">public</span> <span class="nm">Assalariado</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">nome</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">sal</span><span class="sy">,</span> <span class="tp">double</span> <span class="vr">bonus</span><span class="sy">) {</span>
+        <span class="kw">super</span><span class="sy">(</span><span class="vr">nome</span><span class="sy">,</span> <span class="vr">sal</span><span class="sy">);</span> <span class="kw">this</span><span class="sy">.</span><span class="vr">bonus</span> <span class="sy">=</span> <span class="vr">bonus</span><span class="sy">;</span>
+    <span class="sy">}</span>
+    <span class="an">@Override</span> <span class="kw">public double</span> <span class="fn">calcularSalario</span><span class="sy">() {</span> <span class="kw">return</span> <span class="vr">salarioBase</span> <span class="sy">+</span> <span class="vr">bonus</span><span class="sy">; }</span>
+    <span class="an">@Override</span> <span class="kw">public double</span> <span class="fn">calcularImposto</span><span class="sy">() {</span>
+        <span class="tp">double</span> <span class="vr">sal</span> <span class="sy">=</span> <span class="fn">calcularSalario</span><span class="sy">();</span>
+        <span class="kw">return</span> <span class="vr">sal</span> <span class="sy">></span> <span class="nu">3000</span> <span class="sy">?</span> <span class="vr">sal</span> <span class="sy">*</span> <span class="nu">0.15</span> <span class="sy">:</span> <span class="nu">0</span><span class="sy">;</span>
+    <span class="sy">}</span>
+<span class="sy">}</span>
+
+<span class="cm">// Teste</span>
+<span class="nm">Funcionario</span><span class="sy">[]</span> <span class="vr">equipe</span> <span class="sy">= {</span>
+    <span class="kw">new</span> <span class="nm">Horista</span><span class="sy">(</span><span class="st">"Ana"</span><span class="sy">,</span> <span class="nu">160</span><span class="sy">,</span> <span class="nu">25.0</span><span class="sy">),</span>
+    <span class="kw">new</span> <span class="nm">Assalariado</span><span class="sy">(</span><span class="st">"Bruno"</span><span class="sy">,</span> <span class="nu">3500.0</span><span class="sy">,</span> <span class="nu">500.0</span><span class="sy">)</span>
+<span class="sy">};</span>
+
+<span class="kw">for</span> <span class="sy">(</span><span class="nm">Funcionario</span> <span class="vr">f</span> <span class="sy">:</span> <span class="vr">equipe</span><span class="sy">) {</span>
+    <span class="vr">f</span><span class="sy">.</span><span class="fn">exibirFicha</span><span class="sy">();</span>
+    <span class="kw">if</span> <span class="sy">(</span><span class="vr">f</span> <span class="kw">instanceof</span> <span class="nm">Tributavel</span> <span class="vr">t</span><span class="sy">) {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"  Imposto: R$ "</span>
+            <span class="sy">+</span> <span class="nm">String</span><span class="sy">.</span><span class="fn">format</span><span class="sy">(</span><span class="st">"%.2f"</span><span class="sy">,</span> <span class="vr">t</span><span class="sy">.</span><span class="fn">calcularImposto</span><span class="sy">()));</span>
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+              </pre>
+              <div class="callout callout-green" style="margin-top:0.8rem;margin-bottom:0;">
+                <i class="fas fa-terminal"></i>
+                <div class="callout-body">
+                  <pre style="background:none;border:none;margin:0;"><code style="padding:0;font-size:0.8rem;color:var(--accent3);">Funcionário: Ana | Salário: R$ 4000.00
+Funcionário: Bruno | Salário: R$ 4000.00
+  Imposto: R$ 600.00</code></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /exercise-list -->
+
+        <!-- ══ RESUMO ══ -->
+        <h2 class="section-heading" id="sec-resumo">
+          <span class="icon" style="background:rgba(188,140,255,0.12);color:var(--accent5);"><i class="fas fa-check-double"></i></span>
+          Resumo da Unidade
+        </h2>
+
+        <div class="callout callout-purple">
+          <i class="fas fa-graduation-cap"></i>
+          <div class="callout-body">
+            <p><strong>O que você aprendeu nesta unidade:</strong></p>
+            <ul>
+              <li><strong>Herança</strong> (<code class="inline">extends</code>) permite que uma subclasse herde atributos e métodos da superclasse, evitando repetição. <code class="inline">super()</code> chama o construtor da superclasse.</li>
+              <li><code class="inline">protected</code> torna membros visíveis para subclasses sem abrir ao mundo externo.</li>
+              <li><strong>Sobrescrita</strong> (<code class="inline">@Override</code>) redefine um método herdado na subclasse com o mesmo nome e parâmetros — comportamento específico para cada tipo.</li>
+              <li><strong>Polimorfismo</strong> permite tratar objetos de tipos diferentes de forma uniforme usando uma variável do tipo da superclasse — a JVM resolve qual método chamar em tempo de execução.</li>
+              <li><strong>Classes abstratas</strong> não podem ser instanciadas diretamente e podem ter métodos abstratos (sem implementação) que as subclasses <em>devem</em> implementar.</li>
+              <li><strong>Interfaces</strong> são contratos que definem comportamentos sem estado. Uma classe pode implementar <em>múltiplas</em> interfaces com <code class="inline">implements</code>.</li>
+              <li><strong>Acoplamento dinâmico</strong> (<em>late binding</em>) é o mecanismo da JVM de decidir em tempo de execução qual versão de método sobrescrito invocar, com base no tipo real do objeto.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="lesson-nav">
+          <a href="unidade04_Encapsulamento.html" class="nav-btn"><i class="fas fa-arrow-left"></i> Unidade 04</a>
+          <a href="unidade06_Excecoes.html" class="nav-btn">Unidade 06 <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+      </div><!-- /content -->
+
+      <!-- ══ TOC ══ -->
+      <aside class="toc">
+        <div class="toc-title"><i class="fas fa-list-ul"></i> Conteúdo</div>
+        <ol>
+          <li><a href="#sec1">1. Herança</a></li>
+          <li><a href="#sec1-extends">↳ extends</a></li>
+          <li><a href="#sec1-protected">↳ protected</a></li>
+          <li><a href="#sec1-hierarquia">↳ Hierarquia</a></li>
+          <li><a href="#sec2">2. Sobrescrita</a></li>
+          <li><a href="#sec2-super">↳ super no método</a></li>
+          <li><a href="#sec3">3. Polimorfismo</a></li>
+          <li><a href="#sec3-lista">↳ Listas polimórficas</a></li>
+          <li><a href="#sec3-casting">↳ instanceof e cast</a></li>
+          <li><a href="#sec4">4. Classes Abstratas</a></li>
+          <li><a href="#sec5">5. Interfaces</a></li>
+          <li><a href="#sec5-criando">↳ implements</a></li>
+          <li><a href="#sec5-default">↳ default e static</a></li>
+          <li><a href="#sec5-abstvsint">↳ Abstrata vs Interface</a></li>
+          <li><a href="#sec6">6. Acoplamento Dinâmico</a></li>
+          <li><a href="#sec6-factory">↳ Factory simples</a></li>
+          <li><a href="#sec7">7. Boas Práticas</a></li>
+          <li><a href="#sec8">8. Exercícios</a></li>
+          <li><a href="#ex1">↳ Ex 1 — Veículos</a></li>
+          <li><a href="#ex2">↳ Ex 2 — Pagamentos</a></li>
+          <li><a href="#ex3">↳ Ex 3 — Interface</a></li>
+          <li><a href="#ex4">↳ Ex 4 — Funcionários</a></li>
+          <li><a href="#sec-resumo">Resumo</a></li>
+        </ol>
+      </aside>
+
+    </div><!-- /page-wrapper -->
+
+    <button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+      const bar = document.getElementById('progressBar');
+      window.addEventListener('scroll', () => {
+        const d = document.documentElement;
+        bar.style.width = (d.scrollTop / (d.scrollHeight - d.clientHeight) * 100) + '%';
+      });
+      const btn = document.getElementById('backToTop');
+      window.addEventListener('scroll', () => btn.classList.toggle('visible', window.scrollY > 400));
+      const sections = document.querySelectorAll('[id]');
+      const tocLinks = document.querySelectorAll('.toc a');
+      new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            tocLinks.forEach(l => l.classList.remove('active'));
+            const a = document.querySelector(`.toc a[href="#${e.target.id}"]`);
+            if (a) a.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-60px 0px -70% 0px' }).observe !== undefined &&
+      sections.forEach(s => new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            tocLinks.forEach(l => l.classList.remove('active'));
+            const a = document.querySelector(`.toc a[href="#${e.target.id}"]`);
+            if (a) a.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-60px 0px -70% 0px' }).observe(s));
+    </script>
+  </body>
+</html>

@@ -1,0 +1,2174 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unidade 07 — Interface Gráfica e Exceções em Java</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&family=Sora:wght@300;400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0d1117;
+        --surface: #161b22;
+        --surface2: #1c2330;
+        --surface3: #21262d;
+        --border: #30363d;
+        --accent: #f78166;
+        --accent2: #79c0ff;
+        --accent3: #56d364;
+        --accent4: #e3b341;
+        --accent5: #bc8cff;
+        --pink: #f78166;
+        --text: #e6edf3;
+        --text-muted: #8b949e;
+        --text-dim: #6e7681;
+        --teal: #39d3c3;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Sora", sans-serif;
+        font-size: 0.95rem;
+        line-height: 1.8;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--border) 1px, transparent 1px),
+          linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: 40px 40px;
+        opacity: 0.18;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ── PROGRESS ── */
+      .progress-bar-wrap {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        z-index: 200;
+      }
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--teal), var(--accent2));
+        width: 0%;
+        transition: width 0.1s linear;
+      }
+
+      /* ── HEADER ── */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(13, 17, 23, 0.96);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+        padding: 0.75rem 2rem;
+      }
+      .header-nav {
+        max-width: 960px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .back-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-family: "JetBrains Mono", monospace;
+        transition: color 0.15s;
+      }
+      .back-link:hover {
+        color: var(--accent2);
+      }
+      .lesson-badge {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        padding: 0.28rem 0.75rem;
+        border-radius: 20px;
+        background: rgba(57, 211, 195, 0.1);
+        color: var(--teal);
+        border: 1px solid rgba(57, 211, 195, 0.22);
+      }
+
+      /* ── LAYOUT ── */
+      .page-wrapper {
+        position: relative;
+        z-index: 1;
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 3rem 2rem 6rem;
+        display: grid;
+        grid-template-columns: 1fr 220px;
+        gap: 3rem;
+        align-items: start;
+      }
+      .content {
+        min-width: 0;
+      }
+
+      /* ── TOC ── */
+      .toc {
+        position: sticky;
+        top: 70px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.2rem;
+        font-size: 0.78rem;
+      }
+      .toc-title {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        font-weight: 700;
+        margin-bottom: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .toc ol {
+        padding-left: 0;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+      }
+      .toc li a {
+        display: block;
+        padding: 0.3rem 0.5rem;
+        border-radius: 5px;
+        color: var(--text-muted);
+        text-decoration: none;
+        line-height: 1.4;
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+      .toc li a:hover {
+        background: var(--surface2);
+        color: var(--teal);
+      }
+      .toc li a.active {
+        background: rgba(57, 211, 195, 0.08);
+        color: var(--teal);
+        border-left: 2px solid var(--teal);
+        padding-left: calc(0.5rem - 2px);
+      }
+
+      /* ── HERO ── */
+      .lesson-hero {
+        margin-bottom: 3rem;
+        padding-bottom: 2.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .lesson-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.15em;
+        color: var(--teal);
+        text-transform: uppercase;
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      h1.lesson-title {
+        font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.15;
+        margin-bottom: 1rem;
+      }
+      h1.lesson-title span {
+        background: linear-gradient(90deg, var(--teal), var(--accent2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .lesson-summary {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        max-width: 580px;
+        margin-bottom: 1.5rem;
+      }
+      .lesson-meta {
+        display: flex;
+        gap: 1.4rem;
+        flex-wrap: wrap;
+      }
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.77rem;
+        font-family: "JetBrains Mono", monospace;
+        color: var(--text-muted);
+      }
+      .meta-item i {
+        color: var(--accent3);
+      }
+
+      /* ── HEADINGS ── */
+      h2.section-heading {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 3rem 0 1.2rem;
+        padding-bottom: 0.7rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        letter-spacing: -0.02em;
+        scroll-margin-top: 80px;
+      }
+      h2.section-heading .icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.82rem;
+        flex-shrink: 0;
+      }
+      h3.subsection {
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin: 2rem 0 0.8rem;
+        letter-spacing: -0.01em;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        scroll-margin-top: 80px;
+      }
+      h3.subsection::before {
+        content: "";
+        display: inline-block;
+        width: 3px;
+        height: 1em;
+        background: var(--teal);
+        border-radius: 2px;
+        flex-shrink: 0;
+      }
+      h4.sub-sub {
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin: 1.6rem 0 0.6rem;
+        color: var(--accent4);
+        font-family: "JetBrains Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+      }
+
+      /* ── TEXT ── */
+      p {
+        margin-bottom: 0.9rem;
+      }
+      ul,
+      ol {
+        padding-left: 1.6rem;
+        margin-bottom: 1rem;
+      }
+      li {
+        margin-bottom: 0.35rem;
+      }
+      li strong {
+        color: var(--teal);
+      }
+
+      /* ── CODE ── */
+      pre {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow-x: auto;
+        margin: 1.4rem 0;
+      }
+      .code-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.55rem 1rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface2);
+        border-radius: 10px 10px 0 0;
+      }
+      .code-lang {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .code-lang i {
+        color: var(--accent4);
+      }
+      .code-dots {
+        display: flex;
+        gap: 0.32rem;
+      }
+      .code-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      pre code {
+        display: block;
+        padding: 1.2rem 1.4rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82rem;
+        line-height: 1.85;
+        color: #e6edf3;
+        white-space: pre;
+      }
+      .kw {
+        color: #ff7b72;
+      }
+      .tp {
+        color: #ffa657;
+      }
+      .st {
+        color: #a5d6ff;
+      }
+      .cm {
+        color: #8b949e;
+        font-style: italic;
+      }
+      .fn {
+        color: #d2a8ff;
+      }
+      .nm {
+        color: #79c0ff;
+      }
+      .nu {
+        color: #56d364;
+      }
+      .sy {
+        color: #e6edf3;
+      }
+      .an {
+        color: #bc8cff;
+      }
+
+      code.inline {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82em;
+        background: var(--surface3);
+        border: 1px solid var(--border);
+        padding: 0.12em 0.45em;
+        border-radius: 4px;
+        color: var(--teal);
+      }
+
+      /* ── CALLOUTS ── */
+      .callout {
+        border-radius: 8px;
+        padding: 1rem 1.3rem;
+        margin: 1.4rem 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.85rem;
+        font-size: 0.88rem;
+      }
+      .callout i {
+        margin-top: 0.18rem;
+        flex-shrink: 0;
+      }
+      .callout-body {
+        flex: 1;
+      }
+      .callout-body p {
+        margin-bottom: 0.3rem;
+      }
+      .callout-body strong {
+        font-weight: 700;
+      }
+      .callout-body ul {
+        margin: 0.4rem 0 0 1rem;
+      }
+      .callout-body li {
+        margin-bottom: 0.2rem;
+      }
+      .callout-blue {
+        background: rgba(121, 192, 255, 0.07);
+        border: 1px solid rgba(121, 192, 255, 0.2);
+        border-left: 3px solid var(--accent2);
+      }
+      .callout-blue i {
+        color: var(--accent2);
+      }
+      .callout-green {
+        background: rgba(86, 211, 100, 0.07);
+        border: 1px solid rgba(86, 211, 100, 0.2);
+        border-left: 3px solid var(--accent3);
+      }
+      .callout-green i {
+        color: var(--accent3);
+      }
+      .callout-orange {
+        background: rgba(57, 211, 195, 0.07);
+        border: 1px solid rgba(57, 211, 195, 0.2);
+        border-left: 3px solid var(--teal);
+      }
+      .callout-orange i {
+        color: var(--teal);
+      }
+      .callout-yellow {
+        background: rgba(227, 179, 65, 0.07);
+        border: 1px solid rgba(227, 179, 65, 0.2);
+        border-left: 3px solid var(--accent4);
+      }
+      .callout-yellow i {
+        color: var(--accent4);
+      }
+      .callout-purple {
+        background: rgba(188, 140, 255, 0.07);
+        border: 1px solid rgba(188, 140, 255, 0.2);
+        border-left: 3px solid var(--accent5);
+      }
+      .callout-purple i {
+        color: var(--accent5);
+      }
+      .callout-pink {
+        background: rgba(57, 211, 195, 0.07);
+        border: 1px solid rgba(57, 211, 195, 0.2);
+        border-left: 3px solid var(--teal);
+      }
+      .callout-pink i {
+        color: var(--teal);
+      }
+      .callout-teal {
+        background: rgba(57, 211, 195, 0.07);
+        border: 1px solid rgba(57, 211, 195, 0.2);
+        border-left: 3px solid var(--teal);
+      }
+      .callout-teal i {
+        color: var(--teal);
+      }
+      .callout-red {
+        background: rgba(248, 81, 73, 0.07);
+        border: 1px solid rgba(248, 81, 73, 0.25);
+        border-left: 3px solid #f85149;
+      }
+      .callout-red i {
+        color: #f85149;
+      }
+
+      /* ── STEP LIST ── */
+      .step-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        margin: 1.2rem 0;
+      }
+      .step-item {
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+      }
+      .step-num {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(57, 211, 195, 0.12);
+        border: 1px solid rgba(57, 211, 195, 0.25);
+        color: var(--teal);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.75rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        margin-top: 0.1rem;
+      }
+      .step-content {
+        flex: 1;
+        font-size: 0.9rem;
+      }
+      .step-content strong {
+        color: var(--text);
+      }
+      .step-content p {
+        margin: 0.2rem 0 0;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+      }
+
+      /* ── COMPARE ── */
+      .compare-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 1.4rem 0;
+      }
+      .compare-grid pre {
+        margin: 0;
+      }
+      .compare-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+      }
+
+      /* ── COMPONENT CARDS ── */
+      .comp-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 0.8rem;
+        margin: 1.2rem 0;
+      }
+      .comp-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem 1.1rem;
+        transition: border-color 0.2s;
+      }
+      .comp-card:hover {
+        border-color: var(--teal);
+      }
+      .comp-card .cc-class {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--teal);
+        margin-bottom: 0.25rem;
+      }
+      .comp-card .cc-name {
+        font-size: 0.88rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+      }
+      .comp-card .cc-desc {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      /* ── LAYOUT CARDS ── */
+      .layout-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 0.8rem;
+        margin: 1.2rem 0;
+      }
+      .layout-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem 1.1rem;
+      }
+      .layout-card .lc-name {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--accent4);
+        margin-bottom: 0.25rem;
+      }
+      .layout-card .lc-title {
+        font-size: 0.88rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+      }
+      .layout-card .lc-desc {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      /* ── MOCK WINDOW ── */
+      .mock-window {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 1.4rem 0;
+      }
+      .mock-titlebar {
+        background: var(--surface3);
+        padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .mock-dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+      }
+      .mock-title {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        margin-left: 0.5rem;
+      }
+      .mock-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+      .mock-label {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        margin-bottom: 0.1rem;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .mock-field {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 0.4rem 0.7rem;
+        font-size: 0.82rem;
+        font-family: "JetBrains Mono", monospace;
+        color: var(--text-muted);
+      }
+      .mock-btn {
+        background: rgba(57, 211, 195, 0.15);
+        border: 1px solid rgba(57, 211, 195, 0.35);
+        border-radius: 5px;
+        padding: 0.4rem 1.2rem;
+        font-size: 0.82rem;
+        font-family: "JetBrains Mono", monospace;
+        color: var(--teal);
+        cursor: default;
+        display: inline-block;
+      }
+      .mock-btn-row {
+        display: flex;
+        gap: 0.6rem;
+      }
+      .mock-btn-sec {
+        background: var(--surface3);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 0.4rem 1.2rem;
+        font-size: 0.82rem;
+        font-family: "JetBrains Mono", monospace;
+        color: var(--text-muted);
+        cursor: default;
+      }
+      .mock-output {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 0.6rem 0.8rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.8rem;
+        color: var(--accent3);
+        min-height: 48px;
+      }
+      .mock-row {
+        display: flex;
+        gap: 0.7rem;
+        align-items: flex-end;
+      }
+      .mock-row .mock-field {
+        flex: 1;
+      }
+
+      /* ── EVENTS TABLE ── */
+      .ev-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.84rem;
+      }
+      .ev-table th {
+        text-align: left;
+        padding: 0.6rem 1rem;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+      }
+      .ev-table td {
+        padding: 0.6rem 1rem;
+        border: 1px solid var(--border);
+        vertical-align: middle;
+      }
+      .ev-table tr:hover td {
+        background: var(--surface2);
+      }
+
+      /* ── BP LIST ── */
+      .bp-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+        margin: 1.2rem 0;
+      }
+      .bp-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.9rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.9rem 1.1rem;
+        font-size: 0.88rem;
+        transition: border-color 0.2s;
+      }
+      .bp-item:hover {
+        border-color: var(--teal);
+      }
+      .bp-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+      }
+      .bp-text strong {
+        color: var(--text);
+        display: block;
+        margin-bottom: 0.15rem;
+      }
+      .bp-text span {
+        color: var(--text-muted);
+        font-size: 0.82rem;
+      }
+
+      /* ── NAV ── */
+      .lesson-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 4rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border);
+      }
+      .nav-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.65rem 1.1rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--surface);
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-family: "JetBrains Mono", monospace;
+        transition:
+          border-color 0.2s,
+          color 0.2s;
+        cursor: pointer;
+      }
+      .nav-btn:hover {
+        border-color: var(--accent2);
+        color: var(--accent2);
+      }
+      .nav-btn.disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      /* ── BACK TO TOP ── */
+      #backToTop {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition:
+          border-color 0.2s,
+          color 0.2s;
+        z-index: 50;
+      }
+      #backToTop:hover {
+        border-color: var(--teal);
+        color: var(--teal);
+      }
+      #backToTop.visible {
+        display: flex;
+      }
+
+      @media (max-width: 800px) {
+        .page-wrapper {
+          grid-template-columns: 1fr;
+          padding: 2rem 1.2rem 4rem;
+        }
+        .toc {
+          display: none;
+        }
+        .compare-grid {
+          grid-template-columns: 1fr;
+        }
+        header {
+          padding: 0.65rem 1.2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <header>
+      <div class="header-nav">
+        <a href="index.html" class="back-link"
+          ><i class="fas fa-arrow-left"></i> POO em Java</a
+        >
+        <span class="lesson-badge">UNIDADE 07 · INTERFACE GRÁFICA</span>
+      </div>
+    </header>
+
+    <div class="page-wrapper">
+      <div class="content">
+        <!-- ══ HERO ══ -->
+        <div class="lesson-hero">
+          <div class="lesson-num">
+            <i
+              class="fas fa-circle"
+              style="color: var(--teal); font-size: 0.45rem"
+            ></i>
+            Unidade 07 · Interface Gráfica e Exceções
+          </div>
+          <h1 class="lesson-title">
+            Interface Gráfica<br /><span>e Exceções em Java</span>
+          </h1>
+          <p class="lesson-summary">
+            Crie janelas, botões, campos e menus com <strong>Swing</strong>,
+            responda a eventos do usuário e integre o tratamento de exceções
+            para construir uma aplicação desktop completa.
+          </p>
+          <div class="lesson-meta">
+            <div class="meta-item"><i class="fab fa-java"></i> Java Swing</div>
+            <div class="meta-item"><i class="fas fa-clock"></i> ~120 min</div>
+            <div class="meta-item">
+              <i class="fas fa-layer-group"></i> Intermediário
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-desktop"></i> Desktop GUI
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════
+             SEÇÃO 1 — SWING vs JAVAFX
+        ════════════════════════════════ -->
+        <h2 class="section-heading" id="sec1">
+          <span
+            class="icon"
+            style="background: rgba(57, 211, 195, 0.12); color: var(--teal)"
+            ><i class="fas fa-desktop"></i
+          ></span>
+          1. Swing vs JavaFX — Qual usar?
+        </h2>
+
+        <p>
+          Java oferece duas bibliotecas principais para construção de interfaces
+          gráficas. Nesta unidade usaremos <strong>Swing</strong>, que já vem
+          incluído no JDK sem nenhuma configuração extra.
+        </p>
+
+        <div class="compare-grid">
+          <div>
+            <div class="compare-label" style="color: var(--accent2)">
+              ☕ Swing
+            </div>
+            <div
+              style="
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 1rem 1.2rem;
+                font-size: 0.85rem;
+              "
+            >
+              <ul style="padding-left: 1.2rem; margin: 0">
+                <li style="margin-bottom: 0.3rem">
+                  <strong style="color: var(--text)">Incluso no JDK</strong> —
+                  zero dependências extras
+                </li>
+                <li style="margin-bottom: 0.3rem">
+                  <strong style="color: var(--text)">Maduro e estável</strong> —
+                  usado há décadas em produção
+                </li>
+                <li style="margin-bottom: 0.3rem">
+                  <strong style="color: var(--text)">Visual nativo</strong> do
+                  sistema operacional
+                </li>
+                <li style="margin-bottom: 0.3rem">
+                  <strong style="color: var(--text)"
+                    >Aprende mais rápido</strong
+                  >
+                  — ideal para início
+                </li>
+                <li style="color: var(--text-muted)">
+                  Estilo visual mais simples e datado
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div>
+            <div class="compare-label" style="color: var(--accent5)">
+              🎨 JavaFX
+            </div>
+            <div
+              style="
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                padding: 1rem 1.2rem;
+                font-size: 0.85rem;
+              "
+            >
+              <ul style="padding-left: 1.2rem; margin: 0">
+                <li style="margin-bottom: 0.3rem">
+                  <strong style="color: var(--text)">Visual moderno</strong> com
+                  CSS e animações
+                </li>
+                <li style="margin-bottom: 0.3rem">
+                  <strong style="color: var(--text)">FXML</strong> — separa
+                  interface de lógica
+                </li>
+                <li style="margin-bottom: 0.3rem">
+                  <strong style="color: var(--text)"
+                    >Suporte a multimídia</strong
+                  >
+                  — vídeo, áudio, web
+                </li>
+                <li style="margin-bottom: 0.3rem">
+                  <strong style="color: var(--text)">Futuro do Java GUI</strong>
+                </li>
+                <li style="color: var(--text-muted)">
+                  Requer dependência separada desde Java 11
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout callout-teal">
+          <i class="fas fa-graduation-cap"></i>
+          <div class="callout-body">
+            <p>
+              Nesta unidade usamos <strong>Swing</strong>. Os conceitos
+              fundamentais — componentes, eventos, layout — são os mesmos em
+              JavaFX. Aprender Swing bem facilita muito a transição.
+            </p>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════
+             SEÇÃO 2 — PRIMEIRA JANELA
+        ════════════════════════════════ -->
+        <h2 class="section-heading" id="sec2">
+          <span
+            class="icon"
+            style="background: rgba(86, 211, 100, 0.12); color: var(--accent3)"
+            ><i class="fas fa-window-maximize"></i
+          ></span>
+          2. Criando a Primeira Janela
+        </h2>
+
+        <p>
+          No Swing, a janela principal é um <code class="inline">JFrame</code>.
+          Ele é o <strong>contêiner raiz</strong> da aplicação — todos os outros
+          componentes são adicionados dentro dele.
+        </p>
+
+        <div class="mock-window">
+          <div class="mock-titlebar">
+            <div class="mock-dot" style="background: #ff5f57"></div>
+            <div class="mock-dot" style="background: #febc2e"></div>
+            <div class="mock-dot" style="background: #28c840"></div>
+            <span class="mock-title">Minha Primeira Janela</span>
+          </div>
+          <div
+            class="mock-body"
+            style="height: 80px; justify-content: center; align-items: center"
+          >
+            <span
+              style="
+                color: var(--text-muted);
+                font-size: 0.82rem;
+                font-style: italic;
+              "
+              >janela vazia — 400 × 300 px</span
+            >
+          </div>
+        </div>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> PrimeiraJanela.java — JFrame básico</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="kw">import</span> <span class="nm">javax.swing.JFrame</span><span class="sy">;</span>
+<span class="kw">import</span> <span class="nm">javax.swing.SwingUtilities</span><span class="sy">;</span>
+
+<span class="kw">public class</span> <span class="nm">PrimeiraJanela</span> <span class="sy">{</span>
+
+    <span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+
+        <span class="cm">// Boa prática: criar a GUI na Event Dispatch Thread</span>
+        <span class="nm">SwingUtilities</span><span class="sy">.</span><span class="fn">invokeLater</span><span class="sy">(() -> {</span>
+
+            <span class="nm">JFrame</span> <span class="vr">janela</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JFrame</span><span class="sy">(</span><span class="st">"Minha Primeira Janela"</span><span class="sy">);</span>
+
+            <span class="vr">janela</span><span class="sy">.</span><span class="fn">setSize</span><span class="sy">(</span><span class="nu">400</span><span class="sy">,</span> <span class="nu">300</span><span class="sy">);</span>              <span class="cm">// largura x altura</span>
+            <span class="vr">janela</span><span class="sy">.</span><span class="fn">setLocationRelativeTo</span><span class="sy">(</span><span class="kw">null</span><span class="sy">);</span>    <span class="cm">// centraliza na tela</span>
+            <span class="vr">janela</span><span class="sy">.</span><span class="fn">setDefaultCloseOperation</span><span class="sy">(</span>
+                <span class="nm">JFrame</span><span class="sy">.</span><span class="vr">EXIT_ON_CLOSE</span><span class="sy">);</span>              <span class="cm">// fecha ao clicar no X</span>
+            <span class="vr">janela</span><span class="sy">.</span><span class="fn">setVisible</span><span class="sy">(</span><span class="kw">true</span><span class="sy">);</span>              <span class="cm">// exibe a janela</span>
+
+        <span class="sy">});</span>
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="callout callout-blue">
+          <i class="fas fa-info-circle"></i>
+          <div class="callout-body">
+            <p>
+              <strong>SwingUtilities.invokeLater()</strong> — o Swing não é
+              <em>thread-safe</em>. Toda criação e modificação de componentes
+              deve ocorrer na <strong>Event Dispatch Thread (EDT)</strong>. Usar
+              <code class="inline">invokeLater</code> garante isso. Sempre faça
+              isso em aplicações reais.
+            </p>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec2-jframe">
+          Configurações essenciais do JFrame
+        </h3>
+
+        <div class="ev-table" style="margin-top: 0.8rem">
+          <table class="ev-table">
+            <thead>
+              <tr>
+                <th>Método</th>
+                <th>O que faz</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code class="inline">setTitle("Texto")</code></td>
+                <td>Define o título da barra superior</td>
+              </tr>
+              <tr>
+                <td><code class="inline">setSize(w, h)</code></td>
+                <td>Define largura e altura em pixels</td>
+              </tr>
+              <tr>
+                <td><code class="inline">setResizable(false)</code></td>
+                <td>Impede o redimensionamento pelo usuário</td>
+              </tr>
+              <tr>
+                <td><code class="inline">setLocationRelativeTo(null)</code></td>
+                <td>Centraliza a janela na tela</td>
+              </tr>
+              <tr>
+                <td>
+                  <code class="inline">setDefaultCloseOperation(...)</code>
+                </td>
+                <td>
+                  Define o que acontece ao fechar:
+                  <code class="inline">EXIT_ON_CLOSE</code>,
+                  <code class="inline">DISPOSE_ON_CLOSE</code>,
+                  <code class="inline">DO_NOTHING_ON_CLOSE</code>
+                </td>
+              </tr>
+              <tr>
+                <td><code class="inline">pack()</code></td>
+                <td>Ajusta o tamanho ao conteúdo automaticamente</td>
+              </tr>
+              <tr>
+                <td><code class="inline">setVisible(true)</code></td>
+                <td>
+                  Torna a janela visível — deve ser o
+                  <strong>último</strong> método chamado
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ════════════════════════════════
+             SEÇÃO 3 — COMPONENTES
+        ════════════════════════════════ -->
+        <h2 class="section-heading" id="sec3">
+          <span
+            class="icon"
+            style="background: rgba(121, 192, 255, 0.12); color: var(--accent2)"
+            ><i class="fas fa-th-large"></i
+          ></span>
+          3. Componentes Básicos
+        </h2>
+
+        <p>
+          Os componentes são os <strong>elementos visuais</strong> que compõem a
+          interface: botões, campos de texto, rótulos, listas etc. No Swing
+          todos começam com a letra <strong>J</strong>.
+        </p>
+
+        <div class="comp-grid">
+          <div class="comp-card">
+            <div class="cc-class">JLabel</div>
+            <div class="cc-name">Rótulo</div>
+            <div class="cc-desc">
+              Exibe texto ou imagem estático — não editável pelo usuário.
+            </div>
+          </div>
+          <div class="comp-card">
+            <div class="cc-class">JTextField</div>
+            <div class="cc-name">Campo de texto</div>
+            <div class="cc-desc">Entrada de texto em uma única linha.</div>
+          </div>
+          <div class="comp-card">
+            <div class="cc-class">JPasswordField</div>
+            <div class="cc-name">Campo de senha</div>
+            <div class="cc-desc">
+              Campo de texto que oculta os caracteres digitados.
+            </div>
+          </div>
+          <div class="comp-card">
+            <div class="cc-class">JTextArea</div>
+            <div class="cc-name">Área de texto</div>
+            <div class="cc-desc">Campo de texto com múltiplas linhas.</div>
+          </div>
+          <div class="comp-card">
+            <div class="cc-class">JButton</div>
+            <div class="cc-name">Botão</div>
+            <div class="cc-desc">
+              Clicável, dispara uma ação quando pressionado.
+            </div>
+          </div>
+          <div class="comp-card">
+            <div class="cc-class">JCheckBox</div>
+            <div class="cc-name">Caixa de seleção</div>
+            <div class="cc-desc">Opção que pode ser marcada ou desmarcada.</div>
+          </div>
+          <div class="comp-card">
+            <div class="cc-class">JRadioButton</div>
+            <div class="cc-name">Botão de rádio</div>
+            <div class="cc-desc">Seleção exclusiva dentro de um grupo.</div>
+          </div>
+          <div class="comp-card">
+            <div class="cc-class">JComboBox</div>
+            <div class="cc-name">Lista suspensa</div>
+            <div class="cc-desc">Menu dropdown com opções predefinidas.</div>
+          </div>
+          <div class="comp-card">
+            <div class="cc-class">JPanel</div>
+            <div class="cc-name">Painel</div>
+            <div class="cc-desc">
+              Contêiner genérico para agrupar e organizar outros componentes.
+            </div>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec3-criando">
+          Criando e adicionando componentes
+        </h3>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Adicionando componentes ao JFrame</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="kw">import</span> <span class="nm">javax.swing</span><span class="sy">.*;</span>
+<span class="kw">import</span> <span class="nm">java.awt</span><span class="sy">.*;</span>
+
+<span class="kw">public class</span> <span class="nm">JanelaComComponentes</span> <span class="sy">{</span>
+
+    <span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+        <span class="nm">SwingUtilities</span><span class="sy">.</span><span class="fn">invokeLater</span><span class="sy">(() -> {</span>
+
+            <span class="nm">JFrame</span>     <span class="vr">janela</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JFrame</span><span class="sy">(</span><span class="st">"Exemplo"</span><span class="sy">);</span>
+            <span class="nm">JLabel</span>     <span class="vr">label</span>  <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JLabel</span><span class="sy">(</span><span class="st">"Nome:"</span><span class="sy">);</span>
+            <span class="nm">JTextField</span> <span class="vr">campo</span>  <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JTextField</span><span class="sy">(</span><span class="nu">20</span><span class="sy">);</span>  <span class="cm">// 20 colunas</span>
+            <span class="nm">JButton</span>    <span class="vr">botao</span>  <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JButton</span><span class="sy">(</span><span class="st">"Enviar"</span><span class="sy">);</span>
+
+            <span class="cm">// Painel com FlowLayout (componentes em linha)</span>
+            <span class="nm">JPanel</span> <span class="vr">painel</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JPanel</span><span class="sy">();</span>
+            <span class="vr">painel</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">label</span><span class="sy">);</span>
+            <span class="vr">painel</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">campo</span><span class="sy">);</span>
+            <span class="vr">painel</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">botao</span><span class="sy">);</span>
+
+            <span class="vr">janela</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">painel</span><span class="sy">);</span>
+            <span class="vr">janela</span><span class="sy">.</span><span class="fn">pack</span><span class="sy">();</span>
+            <span class="vr">janela</span><span class="sy">.</span><span class="fn">setLocationRelativeTo</span><span class="sy">(</span><span class="kw">null</span><span class="sy">);</span>
+            <span class="vr">janela</span><span class="sy">.</span><span class="fn">setDefaultCloseOperation</span><span class="sy">(</span><span class="nm">JFrame</span><span class="sy">.</span><span class="vr">EXIT_ON_CLOSE</span><span class="sy">);</span>
+            <span class="vr">janela</span><span class="sy">.</span><span class="fn">setVisible</span><span class="sy">(</span><span class="kw">true</span><span class="sy">);</span>
+
+        <span class="sy">});</span>
+    <span class="sy">}</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <!-- ════════════════════════════════
+             SEÇÃO 4 — LAYOUT MANAGERS
+        ════════════════════════════════ -->
+        <h2 class="section-heading" id="sec4">
+          <span
+            class="icon"
+            style="background: rgba(227, 179, 65, 0.12); color: var(--accent4)"
+            ><i class="fas fa-ruler-combined"></i
+          ></span>
+          4. Layout Managers
+        </h2>
+
+        <p>
+          Os <strong>Layout Managers</strong> controlam automaticamente como os
+          componentes são posicionados e redimensionados dentro de um contêiner.
+          Em vez de definir coordenadas fixas, o layout adapta a interface a
+          diferentes resoluções.
+        </p>
+
+        <div class="layout-grid">
+          <div class="layout-card">
+            <div class="lc-name">FlowLayout</div>
+            <div class="lc-title">Fluxo horizontal</div>
+            <div class="lc-desc">
+              Componentes em linha, quebra quando necessário. Padrão do JPanel.
+            </div>
+          </div>
+          <div class="layout-card">
+            <div class="lc-name">BorderLayout</div>
+            <div class="lc-title">Cinco regiões</div>
+            <div class="lc-desc">
+              Divide em NORTH, SOUTH, EAST, WEST, CENTER. Padrão do JFrame.
+            </div>
+          </div>
+          <div class="layout-card">
+            <div class="lc-name">GridLayout</div>
+            <div class="lc-title">Grade regular</div>
+            <div class="lc-desc">
+              Divide em N linhas × M colunas de tamanho igual.
+            </div>
+          </div>
+          <div class="layout-card">
+            <div class="lc-name">BoxLayout</div>
+            <div class="lc-title">Coluna ou linha</div>
+            <div class="lc-desc">
+              Empilha componentes vertical ou horizontalmente com controle de
+              alinhamento.
+            </div>
+          </div>
+          <div class="layout-card">
+            <div class="lc-name">GridBagLayout</div>
+            <div class="lc-title">Grade flexível</div>
+            <div class="lc-desc">
+              O mais poderoso — permite células de tamanhos diferentes e
+              spanning.
+            </div>
+          </div>
+          <div class="layout-card">
+            <div class="lc-name">null Layout</div>
+            <div class="lc-title">Posição absoluta</div>
+            <div class="lc-desc">
+              Posicionamento manual com setBounds(). Evite — quebra com DPI
+              diferente.
+            </div>
+          </div>
+        </div>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> BorderLayout — o mais usado no JFrame</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="nm">JFrame</span> <span class="vr">f</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JFrame</span><span class="sy">(</span><span class="st">"BorderLayout"</span><span class="sy">);</span>
+<span class="vr">f</span><span class="sy">.</span><span class="fn">setLayout</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">BorderLayout</span><span class="sy">());</span>  <span class="cm">// já é o padrão do JFrame</span>
+
+<span class="vr">f</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JButton</span><span class="sy">(</span><span class="st">"Norte"</span><span class="sy">),</span>  <span class="nm">BorderLayout</span><span class="sy">.</span><span class="vr">NORTH</span><span class="sy">);</span>
+<span class="vr">f</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JButton</span><span class="sy">(</span><span class="st">"Sul"</span><span class="sy">),</span>    <span class="nm">BorderLayout</span><span class="sy">.</span><span class="vr">SOUTH</span><span class="sy">);</span>
+<span class="vr">f</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JButton</span><span class="sy">(</span><span class="st">"Leste"</span><span class="sy">),</span>   <span class="nm">BorderLayout</span><span class="sy">.</span><span class="vr">EAST</span><span class="sy">);</span>
+<span class="vr">f</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JButton</span><span class="sy">(</span><span class="st">"Oeste"</span><span class="sy">),</span>   <span class="nm">BorderLayout</span><span class="sy">.</span><span class="vr">WEST</span><span class="sy">);</span>
+<span class="vr">f</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JTextArea</span><span class="sy">(),</span>        <span class="nm">BorderLayout</span><span class="sy">.</span><span class="vr">CENTER</span><span class="sy">);</span></code>
+        </pre>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> GridLayout — formulário em grade 4×2</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="nm">JPanel</span> <span class="vr">form</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JPanel</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">GridLayout</span><span class="sy">(</span><span class="nu">4</span><span class="sy">,</span> <span class="nu">2</span><span class="sy">,</span> <span class="nu">8</span><span class="sy">,</span> <span class="nu">6</span><span class="sy">));</span>
+<span class="cm">//                                           linhas  colunas  hgap  vgap</span>
+
+<span class="vr">form</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JLabel</span><span class="sy">(</span><span class="st">"Nome:"</span><span class="sy">));</span>    <span class="vr">form</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JTextField</span><span class="sy">());</span>
+<span class="vr">form</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JLabel</span><span class="sy">(</span><span class="st">"Idade:"</span><span class="sy">));</span>   <span class="vr">form</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JTextField</span><span class="sy">());</span>
+<span class="vr">form</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JLabel</span><span class="sy">(</span><span class="st">"Email:"</span><span class="sy">));</span>   <span class="vr">form</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JTextField</span><span class="sy">());</span>
+<span class="vr">form</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JLabel</span><span class="sy">());</span>          <span class="vr">form</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JButton</span><span class="sy">(</span><span class="st">"Cadastrar"</span><span class="sy">));</span></code>
+        </pre>
+
+        <!-- ════════════════════════════════
+             SEÇÃO 5 — EVENTOS
+        ════════════════════════════════ -->
+        <h2 class="section-heading" id="sec5">
+          <span
+            class="icon"
+            style="background: rgba(86, 211, 100, 0.12); color: var(--accent3)"
+            ><i class="fas fa-mouse-pointer"></i
+          ></span>
+          5. Eventos e Listeners
+        </h2>
+
+        <p>
+          <strong>Eventos</strong> são ações do usuário: clicar em um botão,
+          digitar texto, mover o mouse, fechar a janela. Para responder a esses
+          eventos, usamos <strong>Listeners</strong> — objetos que "escutam" e
+          executam código quando o evento ocorre.
+        </p>
+
+        <div class="callout callout-blue">
+          <i class="fas fa-info-circle"></i>
+          <div class="callout-body">
+            <p><strong>Modelo de eventos do Swing:</strong></p>
+            <ul>
+              <li>
+                <strong>Fonte do evento</strong> — o componente que dispara (ex:
+                <code class="inline">JButton</code>)
+              </li>
+              <li><strong>Listener</strong> — quem escuta e reage ao evento</li>
+              <li>
+                <strong>Registro</strong> — conectar o listener à fonte com
+                <code class="inline">addActionListener(...)</code>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <h3 class="subsection" id="sec5-action">
+          ActionListener — o evento mais usado
+        </h3>
+
+        <p>
+          O <code class="inline">ActionListener</code> captura cliques em
+          botões, itens de menu e tecla Enter em campos de texto:
+        </p>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> ActionListener com Lambda (Java 8+)</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="nm">JButton</span> <span class="vr">btn</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JButton</span><span class="sy">(</span><span class="st">"Clique aqui"</span><span class="sy">);</span>
+
+<span class="cm">// Registrando o listener com lambda — forma moderna e concisa</span>
+<span class="vr">btn</span><span class="sy">.</span><span class="fn">addActionListener</span><span class="sy">(</span><span class="vr">e</span> <span class="sy">-> {</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Botão clicado!"</span><span class="sy">);</span>
+<span class="sy">});</span>
+
+<span class="cm">// Forma equivalente sem lambda (antes do Java 8):</span>
+<span class="vr">btn</span><span class="sy">.</span><span class="fn">addActionListener</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">ActionListener</span><span class="sy">() {</span>
+    <span class="an">@Override</span>
+    <span class="kw">public void</span> <span class="fn">actionPerformed</span><span class="sy">(</span><span class="nm">ActionEvent</span> <span class="vr">e</span><span class="sy">) {</span>
+        <span class="nm">System</span><span class="sy">.</span><span class="vr">out</span><span class="sy">.</span><span class="fn">println</span><span class="sy">(</span><span class="st">"Botão clicado!"</span><span class="sy">);</span>
+    <span class="sy">}</span>
+<span class="sy">});</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec5-tipos">Principais tipos de evento</h3>
+
+        <table class="ev-table">
+          <thead>
+            <tr>
+              <th>Listener</th>
+              <th>Quando usar</th>
+              <th>Método principal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code class="inline">ActionListener</code></td>
+              <td>Clique em botão, Enter em campo, item de menu</td>
+              <td><code class="inline">actionPerformed()</code></td>
+            </tr>
+            <tr>
+              <td><code class="inline">MouseListener</code></td>
+              <td>Clique, pressionamento, soltura, entrada/saída do mouse</td>
+              <td><code class="inline">mouseClicked()</code></td>
+            </tr>
+            <tr>
+              <td><code class="inline">KeyListener</code></td>
+              <td>Tecla pressionada, solta ou digitada</td>
+              <td><code class="inline">keyPressed()</code></td>
+            </tr>
+            <tr>
+              <td><code class="inline">FocusListener</code></td>
+              <td>Componente ganha ou perde o foco</td>
+              <td><code class="inline">focusGained()</code></td>
+            </tr>
+            <tr>
+              <td><code class="inline">WindowListener</code></td>
+              <td>Janela abrindo, fechando, minimizando</td>
+              <td><code class="inline">windowClosing()</code></td>
+            </tr>
+            <tr>
+              <td><code class="inline">DocumentListener</code></td>
+              <td>Texto de um campo muda em tempo real</td>
+              <td><code class="inline">insertUpdate()</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 class="subsection" id="sec5-lendo">
+          Lendo valores dos componentes
+        </h3>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Lendo e escrevendo valores em componentes</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="nm">JTextField</span>  <span class="vr">txtNome</span>  <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JTextField</span><span class="sy">(</span><span class="nu">20</span><span class="sy">);</span>
+<span class="nm">JLabel</span>      <span class="vr">lblSaida</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JLabel</span><span class="sy">(</span><span class="st">"Resultado aparece aqui"</span><span class="sy">);</span>
+<span class="nm">JButton</span>     <span class="vr">btn</span>      <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JButton</span><span class="sy">(</span><span class="st">"Confirmar"</span><span class="sy">);</span>
+
+<span class="vr">btn</span><span class="sy">.</span><span class="fn">addActionListener</span><span class="sy">(</span><span class="vr">e</span> <span class="sy">-> {</span>
+
+    <span class="cm">// lendo o texto do campo</span>
+    <span class="tp">String</span> <span class="vr">nome</span> <span class="sy">=</span> <span class="vr">txtNome</span><span class="sy">.</span><span class="fn">getText</span><span class="sy">().</span><span class="fn">trim</span><span class="sy">();</span>
+
+    <span class="cm">// escrevendo no label</span>
+    <span class="vr">lblSaida</span><span class="sy">.</span><span class="fn">setText</span><span class="sy">(</span><span class="st">"Olá, "</span> <span class="sy">+</span> <span class="vr">nome</span> <span class="sy">+</span> <span class="st">"!"</span><span class="sy">);</span>
+
+    <span class="cm">// limpando o campo após a leitura</span>
+    <span class="vr">txtNome</span><span class="sy">.</span><span class="fn">setText</span><span class="sy">(</span><span class="st">""</span><span class="sy">);</span>
+    <span class="vr">txtNome</span><span class="sy">.</span><span class="fn">requestFocus</span><span class="sy">();</span>  <span class="cm">// devolve o foco ao campo</span>
+
+<span class="sy">});</span></code>
+        </pre>
+
+        <!-- ════════════════════════════════
+             SEÇÃO 6 — EXCEÇÕES NA GUI
+        ════════════════════════════════ -->
+        <h2 class="section-heading" id="sec6">
+          <span
+            class="icon"
+            style="background: rgba(57, 211, 195, 0.12); color: var(--teal)"
+            ><i class="fas fa-shield-alt"></i
+          ></span>
+          6. Tratamento de Exceções na Interface Gráfica
+        </h2>
+
+        <p>
+          Em aplicações gráficas o tratamento de exceções é ainda mais
+          importante: uma exceção não tratada dentro de um listener
+          <strong>não fecha o programa</strong>, mas pode deixar a interface num
+          estado inconsistente. O correto é capturar o erro e
+          <strong>exibir uma mensagem amigável ao usuário</strong>.
+        </p>
+
+        <h3 class="subsection" id="sec6-dialog">
+          JOptionPane — diálogos prontos
+        </h3>
+
+        <p>
+          O <code class="inline">JOptionPane</code> é a forma mais rápida de
+          exibir mensagens, erros e pedir confirmações em janelas gráficas:
+        </p>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> JOptionPane — tipos de diálogo</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="cm">// ── Mensagem de informação ──────────────────────────</span>
+<span class="nm">JOptionPane</span><span class="sy">.</span><span class="fn">showMessageDialog</span><span class="sy">(</span>
+    <span class="vr">janela</span><span class="sy">,</span>
+    <span class="st">"Operação realizada com sucesso!"</span><span class="sy">,</span>
+    <span class="st">"Sucesso"</span><span class="sy">,</span>
+    <span class="nm">JOptionPane</span><span class="sy">.</span><span class="vr">INFORMATION_MESSAGE</span>
+<span class="sy">);</span>
+
+<span class="cm">// ── Mensagem de erro ────────────────────────────────</span>
+<span class="nm">JOptionPane</span><span class="sy">.</span><span class="fn">showMessageDialog</span><span class="sy">(</span>
+    <span class="vr">janela</span><span class="sy">,</span>
+    <span class="st">"Valor inválido. Digite apenas números."</span><span class="sy">,</span>
+    <span class="st">"Erro de entrada"</span><span class="sy">,</span>
+    <span class="nm">JOptionPane</span><span class="sy">.</span><span class="vr">ERROR_MESSAGE</span>
+<span class="sy">);</span>
+
+<span class="cm">// ── Confirmação ─────────────────────────────────────</span>
+<span class="tp">int</span> <span class="vr">resp</span> <span class="sy">=</span> <span class="nm">JOptionPane</span><span class="sy">.</span><span class="fn">showConfirmDialog</span><span class="sy">(</span>
+    <span class="vr">janela</span><span class="sy">,</span>
+    <span class="st">"Tem certeza que deseja sair?"</span><span class="sy">,</span>
+    <span class="st">"Confirmar"</span><span class="sy">,</span>
+    <span class="nm">JOptionPane</span><span class="sy">.</span><span class="vr">YES_NO_OPTION</span>
+<span class="sy">);</span>
+<span class="kw">if</span> <span class="sy">(</span><span class="vr">resp</span> <span class="sy">==</span> <span class="nm">JOptionPane</span><span class="sy">.</span><span class="vr">YES_OPTION</span><span class="sy">) {</span>
+    <span class="nm">System</span><span class="sy">.</span><span class="fn">exit</span><span class="sy">(</span><span class="nu">0</span><span class="sy">);</span>
+<span class="sy">}</span></code>
+        </pre>
+
+        <h3 class="subsection" id="sec6-trycatch">
+          try/catch dentro de listeners
+        </h3>
+
+        <p>
+          Toda operação que pode falhar dentro de um listener deve ser protegida
+          com <code class="inline">try/catch</code>. O erro deve ser comunicado
+          ao usuário via <code class="inline">JOptionPane</code>, nunca
+          silenciado:
+        </p>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Validação com try/catch no listener</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="nm">JTextField</span> <span class="vr">txtIdade</span>  <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JTextField</span><span class="sy">(</span><span class="nu">10</span><span class="sy">);</span>
+<span class="nm">JLabel</span>     <span class="vr">lblResult</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JLabel</span><span class="sy">(</span><span class="st">" "</span><span class="sy">);</span>
+<span class="nm">JButton</span>    <span class="vr">btnCalc</span>   <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JButton</span><span class="sy">(</span><span class="st">"Verificar"</span><span class="sy">);</span>
+
+<span class="vr">btnCalc</span><span class="sy">.</span><span class="fn">addActionListener</span><span class="sy">(</span><span class="vr">e</span> <span class="sy">-> {</span>
+    <span class="kw">try</span> <span class="sy">{</span>
+        <span class="tp">String</span> <span class="vr">texto</span> <span class="sy">=</span> <span class="vr">txtIdade</span><span class="sy">.</span><span class="fn">getText</span><span class="sy">().</span><span class="fn">trim</span><span class="sy">();</span>
+        <span class="tp">int</span> <span class="vr">idade</span>  <span class="sy">=</span> <span class="nm">Integer</span><span class="sy">.</span><span class="fn">parseInt</span><span class="sy">(</span><span class="vr">texto</span><span class="sy">);</span>  <span class="cm">// pode lançar NumberFormatException</span>
+
+        <span class="kw">if</span> <span class="sy">(</span><span class="vr">idade</span> <span class="sy">< 0</span> <span class="sy">||</span> <span class="vr">idade</span> <span class="sy">> 150</span><span class="sy">) {</span>
+            <span class="kw">throw new</span> <span class="nm">IllegalArgumentException</span><span class="sy">(</span><span class="st">"Idade fora do intervalo válido."</span><span class="sy">);</span>
+        <span class="sy">}</span>
+
+        <span class="tp">String</span> <span class="vr">msg</span> <span class="sy">=</span> <span class="vr">idade</span> <span class="sy">>=</span> <span class="nu">18</span>
+            <span class="sy">?</span> <span class="st">"✅ Maior de idade"</span>
+            <span class="sy">:</span> <span class="st">"⚠️ Menor de idade"</span><span class="sy">;</span>
+        <span class="vr">lblResult</span><span class="sy">.</span><span class="fn">setText</span><span class="sy">(</span><span class="vr">msg</span><span class="sy">);</span>
+
+    <span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="nm">NumberFormatException</span> <span class="vr">ex</span><span class="sy">) {</span>
+        <span class="nm">JOptionPane</span><span class="sy">.</span><span class="fn">showMessageDialog</span><span class="sy">(</span>
+            <span class="kw">null</span><span class="sy">,</span>
+            <span class="st">"Digite um número inteiro válido."</span><span class="sy">,</span>
+            <span class="st">"Entrada inválida"</span><span class="sy">,</span>
+            <span class="nm">JOptionPane</span><span class="sy">.</span><span class="vr">WARNING_MESSAGE</span>
+        <span class="sy">);</span>
+        <span class="vr">txtIdade</span><span class="sy">.</span><span class="fn">setText</span><span class="sy">(</span><span class="st">""</span><span class="sy">);</span>
+        <span class="vr">txtIdade</span><span class="sy">.</span><span class="fn">requestFocus</span><span class="sy">();</span>
+
+    <span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="nm">IllegalArgumentException</span> <span class="vr">ex</span><span class="sy">) {</span>
+        <span class="nm">JOptionPane</span><span class="sy">.</span><span class="fn">showMessageDialog</span><span class="sy">(</span>
+            <span class="kw">null</span><span class="sy">,</span>
+            <span class="vr">ex</span><span class="sy">.</span><span class="fn">getMessage</span><span class="sy">(),</span>
+            <span class="st">"Valor inválido"</span><span class="sy">,</span>
+            <span class="nm">JOptionPane</span><span class="sy">.</span><span class="vr">ERROR_MESSAGE</span>
+        <span class="sy">);</span>
+    <span class="sy">}</span>
+<span class="sy">});</span></code>
+        </pre>
+
+        <!-- ════════════════════════════════
+             SEÇÃO 7 — PADRÃO CLASSE JANELA
+        ════════════════════════════════ -->
+        <h2 class="section-heading" id="sec7">
+          <span
+            class="icon"
+            style="background: rgba(188, 140, 255, 0.12); color: var(--accent5)"
+            ><i class="fas fa-object-group"></i
+          ></span>
+          7. Padrão: Classe que Estende JFrame
+        </h2>
+
+        <p>
+          À medida que a interface cresce, organizar tudo no
+          <code class="inline">main</code> fica inviável. A prática padrão é
+          criar uma <strong>classe própria que estende</strong>
+          <code class="inline">JFrame</code>, centralizando a criação dos
+          componentes e os listeners num único lugar.
+        </p>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> Calculadora.java — classe que estende JFrame</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="kw">import</span> <span class="nm">javax.swing</span><span class="sy">.*;</span>
+<span class="kw">import</span> <span class="nm">java.awt</span><span class="sy">.*;</span>
+
+<span class="kw">public class</span> <span class="nm">Calculadora</span> <span class="kw">extends</span> <span class="nm">JFrame</span> <span class="sy">{</span>
+
+    <span class="cm">// ── Atributos — componentes da tela ─────────────────</span>
+    <span class="kw">private</span> <span class="nm">JTextField</span> <span class="vr">txtA</span><span class="sy">;</span>
+    <span class="kw">private</span> <span class="nm">JTextField</span> <span class="vr">txtB</span><span class="sy">;</span>
+    <span class="kw">private</span> <span class="nm">JLabel</span>     <span class="vr">lblResultado</span><span class="sy">;</span>
+    <span class="kw">private</span> <span class="nm">JButton</span>    <span class="vr">btnSomar</span><span class="sy">;</span>
+    <span class="kw">private</span> <span class="nm">JButton</span>    <span class="vr">btnDividir</span><span class="sy">;</span>
+
+    <span class="cm">// ── Construtor — monta a interface ──────────────────</span>
+    <span class="kw">public</span> <span class="nm">Calculadora</span><span class="sy">() {</span>
+        <span class="fn">setTitle</span><span class="sy">(</span><span class="st">"Calculadora"</span><span class="sy">);</span>
+        <span class="fn">setDefaultCloseOperation</span><span class="sy">(</span><span class="nm">JFrame</span><span class="sy">.</span><span class="vr">EXIT_ON_CLOSE</span><span class="sy">);</span>
+
+        <span class="fn">inicializarComponentes</span><span class="sy">();</span>
+        <span class="fn">registrarEventos</span><span class="sy">();</span>
+
+        <span class="fn">pack</span><span class="sy">();</span>
+        <span class="fn">setLocationRelativeTo</span><span class="sy">(</span><span class="kw">null</span><span class="sy">);</span>
+        <span class="fn">setVisible</span><span class="sy">(</span><span class="kw">true</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+    <span class="cm">// ── Criação dos componentes ─────────────────────────</span>
+    <span class="kw">private void</span> <span class="fn">inicializarComponentes</span><span class="sy">() {</span>
+        <span class="vr">txtA</span>        <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JTextField</span><span class="sy">(</span><span class="nu">10</span><span class="sy">);</span>
+        <span class="vr">txtB</span>        <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JTextField</span><span class="sy">(</span><span class="nu">10</span><span class="sy">);</span>
+        <span class="vr">btnSomar</span>   <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JButton</span><span class="sy">(</span><span class="st">"Somar"</span><span class="sy">);</span>
+        <span class="vr">btnDividir</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JButton</span><span class="sy">(</span><span class="st">"Dividir"</span><span class="sy">);</span>
+        <span class="vr">lblResultado</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JLabel</span><span class="sy">(</span><span class="st">"Resultado: ---"</span><span class="sy">);</span>
+        <span class="vr">lblResultado</span><span class="sy">.</span><span class="fn">setFont</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">Font</span><span class="sy">(</span><span class="st">"Monospaced"</span><span class="sy">,</span> <span class="nm">Font</span><span class="sy">.</span><span class="vr">BOLD</span><span class="sy">,</span> <span class="nu">14</span><span class="sy">));</span>
+
+        <span class="nm">JPanel</span> <span class="vr">pEntrada</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JPanel</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">GridLayout</span><span class="sy">(</span><span class="nu">2</span><span class="sy">,</span> <span class="nu">2</span><span class="sy">,</span> <span class="nu">8</span><span class="sy">,</span> <span class="nu">6</span><span class="sy">));</span>
+        <span class="vr">pEntrada</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JLabel</span><span class="sy">(</span><span class="st">"Valor A:"</span><span class="sy">));</span> <span class="vr">pEntrada</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">txtA</span><span class="sy">);</span>
+        <span class="vr">pEntrada</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JLabel</span><span class="sy">(</span><span class="st">"Valor B:"</span><span class="sy">));</span> <span class="vr">pEntrada</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">txtB</span><span class="sy">);</span>
+
+        <span class="nm">JPanel</span> <span class="vr">pBotoes</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JPanel</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">FlowLayout</span><span class="sy">());</span>
+        <span class="vr">pBotoes</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">btnSomar</span><span class="sy">);</span>
+        <span class="vr">pBotoes</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">btnDividir</span><span class="sy">);</span>
+
+        <span class="nm">JPanel</span> <span class="vr">pPrincipal</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JPanel</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">BorderLayout</span><span class="sy">(</span><span class="nu">10</span><span class="sy">,</span> <span class="nu">10</span><span class="sy">));</span>
+        <span class="vr">pPrincipal</span><span class="sy">.</span><span class="fn">setBorder</span><span class="sy">(</span>
+            <span class="nm">BorderFactory</span><span class="sy">.</span><span class="fn">createEmptyBorder</span><span class="sy">(</span><span class="nu">12</span><span class="sy">,</span> <span class="nu">12</span><span class="sy">,</span> <span class="nu">12</span><span class="sy">,</span> <span class="nu">12</span><span class="sy">));</span>
+        <span class="vr">pPrincipal</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">pEntrada</span><span class="sy">,</span>     <span class="nm">BorderLayout</span><span class="sy">.</span><span class="vr">NORTH</span><span class="sy">);</span>
+        <span class="vr">pPrincipal</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">pBotoes</span><span class="sy">,</span>      <span class="nm">BorderLayout</span><span class="sy">.</span><span class="vr">CENTER</span><span class="sy">);</span>
+        <span class="vr">pPrincipal</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">lblResultado</span><span class="sy">,</span> <span class="nm">BorderLayout</span><span class="sy">.</span><span class="vr">SOUTH</span><span class="sy">);</span>
+
+        <span class="fn">add</span><span class="sy">(</span><span class="vr">pPrincipal</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+    <span class="cm">// ── Registro dos listeners ──────────────────────────</span>
+    <span class="kw">private void</span> <span class="fn">registrarEventos</span><span class="sy">() {</span>
+
+        <span class="vr">btnSomar</span><span class="sy">.</span><span class="fn">addActionListener</span><span class="sy">(</span><span class="vr">e</span> <span class="sy">-> {</span>
+            <span class="kw">try</span> <span class="sy">{</span>
+                <span class="tp">double</span> <span class="vr">a</span> <span class="sy">=</span> <span class="nm">Double</span><span class="sy">.</span><span class="fn">parseDouble</span><span class="sy">(</span><span class="vr">txtA</span><span class="sy">.</span><span class="fn">getText</span><span class="sy">());</span>
+                <span class="tp">double</span> <span class="vr">b</span> <span class="sy">=</span> <span class="nm">Double</span><span class="sy">.</span><span class="fn">parseDouble</span><span class="sy">(</span><span class="vr">txtB</span><span class="sy">.</span><span class="fn">getText</span><span class="sy">());</span>
+                <span class="vr">lblResultado</span><span class="sy">.</span><span class="fn">setText</span><span class="sy">(</span><span class="st">"Resultado: "</span> <span class="sy">+</span> <span class="sy">(</span><span class="vr">a</span> <span class="sy">+</span> <span class="vr">b</span><span class="sy">));</span>
+            <span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="nm">NumberFormatException</span> <span class="vr">ex</span><span class="sy">) {</span>
+                <span class="fn">mostrarErro</span><span class="sy">(</span><span class="st">"Digite números válidos nos dois campos."</span><span class="sy">);</span>
+            <span class="sy">}</span>
+        <span class="sy">});</span>
+
+        <span class="vr">btnDividir</span><span class="sy">.</span><span class="fn">addActionListener</span><span class="sy">(</span><span class="vr">e</span> <span class="sy">-> {</span>
+            <span class="kw">try</span> <span class="sy">{</span>
+                <span class="tp">double</span> <span class="vr">a</span> <span class="sy">=</span> <span class="nm">Double</span><span class="sy">.</span><span class="fn">parseDouble</span><span class="sy">(</span><span class="vr">txtA</span><span class="sy">.</span><span class="fn">getText</span><span class="sy">());</span>
+                <span class="tp">double</span> <span class="vr">b</span> <span class="sy">=</span> <span class="nm">Double</span><span class="sy">.</span><span class="fn">parseDouble</span><span class="sy">(</span><span class="vr">txtB</span><span class="sy">.</span><span class="fn">getText</span><span class="sy">());</span>
+                <span class="kw">if</span> <span class="sy">(</span><span class="vr">b</span> <span class="sy">== 0)</span>
+                    <span class="kw">throw new</span> <span class="nm">ArithmeticException</span><span class="sy">(</span><span class="st">"Divisor não pode ser zero."</span><span class="sy">);</span>
+                <span class="vr">lblResultado</span><span class="sy">.</span><span class="fn">setText</span><span class="sy">(</span><span class="st">"Resultado: "</span> <span class="sy">+</span> <span class="sy">(</span><span class="vr">a</span> <span class="sy">/</span> <span class="vr">b</span><span class="sy">));</span>
+            <span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="nm">NumberFormatException</span> <span class="vr">ex</span><span class="sy">) {</span>
+                <span class="fn">mostrarErro</span><span class="sy">(</span><span class="st">"Digite números válidos nos dois campos."</span><span class="sy">);</span>
+            <span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="nm">ArithmeticException</span> <span class="vr">ex</span><span class="sy">) {</span>
+                <span class="fn">mostrarErro</span><span class="sy">(</span><span class="vr">ex</span><span class="sy">.</span><span class="fn">getMessage</span><span class="sy">());</span>
+            <span class="sy">}</span>
+        <span class="sy">});</span>
+    <span class="sy">}</span>
+
+    <span class="cm">// ── Método auxiliar para erros ──────────────────────</span>
+    <span class="kw">private void</span> <span class="fn">mostrarErro</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">msg</span><span class="sy">) {</span>
+        <span class="nm">JOptionPane</span><span class="sy">.</span><span class="fn">showMessageDialog</span><span class="sy">(</span>
+            <span class="kw">this</span><span class="sy">,</span> <span class="vr">msg</span><span class="sy">,</span> <span class="st">"Erro"</span><span class="sy">,</span> <span class="nm">JOptionPane</span><span class="sy">.</span><span class="vr">ERROR_MESSAGE</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+    <span class="cm">// ── Ponto de entrada ────────────────────────────────</span>
+    <span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+        <span class="nm">SwingUtilities</span><span class="sy">.</span><span class="fn">invokeLater</span><span class="sy">(</span><span class="nm">Calculadora</span><span class="sy">::</span><span class="kw">new</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+        </pre>
+
+        <div class="mock-window">
+          <div class="mock-titlebar">
+            <div class="mock-dot" style="background: #ff5f57"></div>
+            <div class="mock-dot" style="background: #febc2e"></div>
+            <div class="mock-dot" style="background: #28c840"></div>
+            <span class="mock-title">Calculadora</span>
+          </div>
+          <div class="mock-body">
+            <div>
+              <div class="mock-label">Valor A:</div>
+              <div class="mock-field">10</div>
+            </div>
+            <div>
+              <div class="mock-label">Valor B:</div>
+              <div class="mock-field">4</div>
+            </div>
+            <div class="mock-btn-row">
+              <div class="mock-btn">Somar</div>
+              <div class="mock-btn-sec">Dividir</div>
+            </div>
+            <div class="mock-output">Resultado: 14.0</div>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════
+             SEÇÃO 8 — APLICAÇÃO COMPLETA
+        ════════════════════════════════ -->
+        <h2 class="section-heading" id="sec8">
+          <span
+            class="icon"
+            style="background: rgba(86, 211, 100, 0.12); color: var(--accent3)"
+            ><i class="fas fa-rocket"></i
+          ></span>
+          8. Aplicação Completa — Cadastro de Alunos
+        </h2>
+
+        <p>
+          Vamos construir uma aplicação completa que integra todos os conceitos
+          da unidade: componentes, layout, eventos, validação com
+          <code class="inline">try/catch</code> e exibição de resultados. O
+          sistema permite cadastrar alunos e exibir a lista num
+          <code class="inline">JTextArea</code>.
+        </p>
+
+        <div class="mock-window">
+          <div class="mock-titlebar">
+            <div class="mock-dot" style="background: #ff5f57"></div>
+            <div class="mock-dot" style="background: #febc2e"></div>
+            <div class="mock-dot" style="background: #28c840"></div>
+            <span class="mock-title">Cadastro de Alunos</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-row">
+              <div style="flex: 1">
+                <div class="mock-label">Nome:</div>
+                <div class="mock-field">Ana Lima</div>
+              </div>
+              <div style="width: 100px">
+                <div class="mock-label">Nota (0-10):</div>
+                <div class="mock-field">8.5</div>
+              </div>
+            </div>
+            <div class="mock-btn-row">
+              <div class="mock-btn">Cadastrar</div>
+              <div class="mock-btn-sec">Limpar Lista</div>
+            </div>
+            <div class="mock-output">
+              [ ALUNOS CADASTRADOS ] 1. Ana Lima — Nota: 8.5 | ✅ Aprovado 2.
+              Pedro Costa — Nota: 4.2 | ❌ Reprovado
+            </div>
+          </div>
+        </div>
+
+        <pre>
+          <div class="code-header"><span class="code-lang"><i class="fab fa-java"></i> CadastroAlunos.java — aplicação completa</span><div class="code-dots"><div class="code-dot" style="background:#ff5f57"></div><div class="code-dot" style="background:#febc2e"></div><div class="code-dot" style="background:#28c840"></div></div></div>
+          <code><span class="kw">import</span> <span class="nm">javax.swing</span><span class="sy">.*;</span>
+<span class="kw">import</span> <span class="nm">java.awt</span><span class="sy">.*;</span>
+<span class="kw">import</span> <span class="nm">java.util.ArrayList</span><span class="sy">;</span>
+
+<span class="kw">public class</span> <span class="nm">CadastroAlunos</span> <span class="kw">extends</span> <span class="nm">JFrame</span> <span class="sy">{</span>
+
+    <span class="cm">// ── Componentes ─────────────────────────────────────</span>
+    <span class="kw">private</span> <span class="nm">JTextField</span> <span class="vr">txtNome</span><span class="sy">;</span>
+    <span class="kw">private</span> <span class="nm">JTextField</span> <span class="vr">txtNota</span><span class="sy">;</span>
+    <span class="kw">private</span> <span class="nm">JButton</span>    <span class="vr">btnCadastrar</span><span class="sy">;</span>
+    <span class="kw">private</span> <span class="nm">JButton</span>    <span class="vr">btnLimpar</span><span class="sy">;</span>
+    <span class="kw">private</span> <span class="nm">JTextArea</span>  <span class="vr">areaLista</span><span class="sy">;</span>
+
+    <span class="cm">// ── Dados ────────────────────────────────────────────</span>
+    <span class="kw">private</span> <span class="nm">ArrayList</span><span class="sy">&lt;</span><span class="tp">String</span><span class="sy">&gt;</span> <span class="vr">alunos</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">ArrayList</span><span class="sy">&lt;&gt;();</span>
+
+    <span class="cm">// ── Construtor ───────────────────────────────────────</span>
+    <span class="kw">public</span> <span class="nm">CadastroAlunos</span><span class="sy">() {</span>
+        <span class="fn">setTitle</span><span class="sy">(</span><span class="st">"Cadastro de Alunos"</span><span class="sy">);</span>
+        <span class="fn">setDefaultCloseOperation</span><span class="sy">(</span><span class="nm">JFrame</span><span class="sy">.</span><span class="vr">EXIT_ON_CLOSE</span><span class="sy">);</span>
+        <span class="fn">inicializar</span><span class="sy">();</span>
+        <span class="fn">registrar</span><span class="sy">();</span>
+        <span class="fn">pack</span><span class="sy">();</span>
+        <span class="fn">setLocationRelativeTo</span><span class="sy">(</span><span class="kw">null</span><span class="sy">);</span>
+        <span class="fn">setVisible</span><span class="sy">(</span><span class="kw">true</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+    <span class="cm">// ── Montagem da interface ────────────────────────────</span>
+    <span class="kw">private void</span> <span class="fn">inicializar</span><span class="sy">() {</span>
+        <span class="vr">txtNome</span>      <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JTextField</span><span class="sy">(</span><span class="nu">18</span><span class="sy">);</span>
+        <span class="vr">txtNota</span>      <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JTextField</span><span class="sy">(</span><span class="nu">6</span><span class="sy">);</span>
+        <span class="vr">btnCadastrar</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JButton</span><span class="sy">(</span><span class="st">"Cadastrar"</span><span class="sy">);</span>
+        <span class="vr">btnLimpar</span>    <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JButton</span><span class="sy">(</span><span class="st">"Limpar Lista"</span><span class="sy">);</span>
+        <span class="vr">areaLista</span>    <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JTextArea</span><span class="sy">(</span><span class="nu">10</span><span class="sy">,</span> <span class="nu">32</span><span class="sy">);</span>
+        <span class="vr">areaLista</span><span class="sy">.</span><span class="fn">setEditable</span><span class="sy">(</span><span class="kw">false</span><span class="sy">);</span>
+        <span class="vr">areaLista</span><span class="sy">.</span><span class="fn">setFont</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">Font</span><span class="sy">(</span><span class="st">"Monospaced"</span><span class="sy">,</span> <span class="nm">Font</span><span class="sy">.</span><span class="vr">PLAIN</span><span class="sy">,</span> <span class="nu">12</span><span class="sy">));</span>
+        <span class="vr">areaLista</span><span class="sy">.</span><span class="fn">setText</span><span class="sy">(</span><span class="st">"[ ALUNOS CADASTRADOS ]\n"</span><span class="sy">);</span>
+
+        <span class="cm">// Formulário de entrada</span>
+        <span class="nm">JPanel</span> <span class="vr">pForm</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JPanel</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">GridLayout</span><span class="sy">(</span><span class="nu">2</span><span class="sy">,</span> <span class="nu">2</span><span class="sy">,</span> <span class="nu">8</span><span class="sy">,</span> <span class="nu">6</span><span class="sy">));</span>
+        <span class="vr">pForm</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JLabel</span><span class="sy">(</span><span class="st">"Nome:"</span><span class="sy">));</span>         <span class="vr">pForm</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">txtNome</span><span class="sy">);</span>
+        <span class="vr">pForm</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JLabel</span><span class="sy">(</span><span class="st">"Nota (0-10):"</span><span class="sy">));</span>  <span class="vr">pForm</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">txtNota</span><span class="sy">);</span>
+
+        <span class="cm">// Botões</span>
+        <span class="nm">JPanel</span> <span class="vr">pBotoes</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JPanel</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">FlowLayout</span><span class="sy">(</span><span class="nm">FlowLayout</span><span class="sy">.</span><span class="vr">RIGHT</span><span class="sy">));</span>
+        <span class="vr">pBotoes</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">btnLimpar</span><span class="sy">);</span>
+        <span class="vr">pBotoes</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">btnCadastrar</span><span class="sy">);</span>
+
+        <span class="cm">// Layout principal</span>
+        <span class="nm">JPanel</span> <span class="vr">pPrincipal</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">JPanel</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">BorderLayout</span><span class="sy">(</span><span class="nu">10</span><span class="sy">,</span> <span class="nu">10</span><span class="sy">));</span>
+        <span class="vr">pPrincipal</span><span class="sy">.</span><span class="fn">setBorder</span><span class="sy">(</span>
+            <span class="nm">BorderFactory</span><span class="sy">.</span><span class="fn">createEmptyBorder</span><span class="sy">(</span><span class="nu">12</span><span class="sy">,</span> <span class="nu">12</span><span class="sy">,</span> <span class="nu">12</span><span class="sy">,</span> <span class="nu">12</span><span class="sy">));</span>
+        <span class="vr">pPrincipal</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">pForm</span><span class="sy">,</span>    <span class="nm">BorderLayout</span><span class="sy">.</span><span class="vr">NORTH</span><span class="sy">);</span>
+        <span class="vr">pPrincipal</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">pBotoes</span><span class="sy">,</span>  <span class="nm">BorderLayout</span><span class="sy">.</span><span class="vr">CENTER</span><span class="sy">);</span>
+        <span class="vr">pPrincipal</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="kw">new</span> <span class="nm">JScrollPane</span><span class="sy">(</span><span class="vr">areaLista</span><span class="sy">),</span>
+                         <span class="nm">BorderLayout</span><span class="sy">.</span><span class="vr">SOUTH</span><span class="sy">);</span>
+        <span class="fn">add</span><span class="sy">(</span><span class="vr">pPrincipal</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+    <span class="cm">// ── Eventos ──────────────────────────────────────────</span>
+    <span class="kw">private void</span> <span class="fn">registrar</span><span class="sy">() {</span>
+
+        <span class="vr">btnCadastrar</span><span class="sy">.</span><span class="fn">addActionListener</span><span class="sy">(</span><span class="vr">e</span> <span class="sy">-> {</span>
+            <span class="kw">try</span> <span class="sy">{</span>
+                <span class="tp">String</span> <span class="vr">nome</span> <span class="sy">=</span> <span class="vr">txtNome</span><span class="sy">.</span><span class="fn">getText</span><span class="sy">().</span><span class="fn">trim</span><span class="sy">();</span>
+                <span class="kw">if</span> <span class="sy">(</span><span class="vr">nome</span><span class="sy">.</span><span class="fn">isEmpty</span><span class="sy">())</span>
+                    <span class="kw">throw new</span> <span class="nm">IllegalArgumentException</span><span class="sy">(</span>
+                        <span class="st">"O campo Nome não pode estar vazio."</span><span class="sy">);</span>
+
+                <span class="tp">double</span> <span class="vr">nota</span> <span class="sy">=</span> <span class="nm">Double</span><span class="sy">.</span><span class="fn">parseDouble</span><span class="sy">(</span><span class="vr">txtNota</span><span class="sy">.</span><span class="fn">getText</span><span class="sy">());</span>
+                <span class="kw">if</span> <span class="sy">(</span><span class="vr">nota</span> <span class="sy">< 0 ||</span> <span class="vr">nota</span> <span class="sy">> 10</span><span class="sy">)</span>
+                    <span class="kw">throw new</span> <span class="nm">IllegalArgumentException</span><span class="sy">(</span>
+                        <span class="st">"A nota deve estar entre 0 e 10."</span><span class="sy">);</span>
+
+                <span class="tp">String</span> <span class="vr">situacao</span> <span class="sy">=</span> <span class="vr">nota</span> <span class="sy">>=</span> <span class="nu">6.0</span>
+                    <span class="sy">?</span> <span class="st">"✅ Aprovado"</span> <span class="sy">:</span> <span class="st">"❌ Reprovado"</span><span class="sy">;</span>
+
+                <span class="vr">alunos</span><span class="sy">.</span><span class="fn">add</span><span class="sy">(</span><span class="vr">nome</span> <span class="sy">+</span> <span class="st">" — Nota: "</span> <span class="sy">+</span> <span class="vr">nota</span>
+                    <span class="sy">+</span> <span class="st">" | "</span> <span class="sy">+</span> <span class="vr">situacao</span><span class="sy">);</span>
+                <span class="fn">atualizarLista</span><span class="sy">();</span>
+
+                <span class="vr">txtNome</span><span class="sy">.</span><span class="fn">setText</span><span class="sy">(</span><span class="st">""</span><span class="sy">);</span>
+                <span class="vr">txtNota</span><span class="sy">.</span><span class="fn">setText</span><span class="sy">(</span><span class="st">""</span><span class="sy">);</span>
+                <span class="vr">txtNome</span><span class="sy">.</span><span class="fn">requestFocus</span><span class="sy">();</span>
+
+            <span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="nm">NumberFormatException</span> <span class="vr">ex</span><span class="sy">) {</span>
+                <span class="fn">mostrarErro</span><span class="sy">(</span><span class="st">"Nota inválida. Use ponto ou vírgula: ex 7.5"</span><span class="sy">);</span>
+            <span class="sy">}</span> <span class="kw">catch</span> <span class="sy">(</span><span class="nm">IllegalArgumentException</span> <span class="vr">ex</span><span class="sy">) {</span>
+                <span class="fn">mostrarErro</span><span class="sy">(</span><span class="vr">ex</span><span class="sy">.</span><span class="fn">getMessage</span><span class="sy">());</span>
+            <span class="sy">}</span>
+        <span class="sy">});</span>
+
+        <span class="vr">btnLimpar</span><span class="sy">.</span><span class="fn">addActionListener</span><span class="sy">(</span><span class="vr">e</span> <span class="sy">-> {</span>
+            <span class="tp">int</span> <span class="vr">resp</span> <span class="sy">=</span> <span class="nm">JOptionPane</span><span class="sy">.</span><span class="fn">showConfirmDialog</span><span class="sy">(</span>
+                <span class="kw">this</span><span class="sy">,</span> <span class="st">"Limpar toda a lista?"</span><span class="sy">,</span>
+                <span class="st">"Confirmar"</span><span class="sy">,</span> <span class="nm">JOptionPane</span><span class="sy">.</span><span class="vr">YES_NO_OPTION</span><span class="sy">);</span>
+            <span class="kw">if</span> <span class="sy">(</span><span class="vr">resp</span> <span class="sy">==</span> <span class="nm">JOptionPane</span><span class="sy">.</span><span class="vr">YES_OPTION</span><span class="sy">) {</span>
+                <span class="vr">alunos</span><span class="sy">.</span><span class="fn">clear</span><span class="sy">();</span>
+                <span class="fn">atualizarLista</span><span class="sy">();</span>
+            <span class="sy">}</span>
+        <span class="sy">});</span>
+
+        <span class="cm">// Enter no campo de nota aciona o cadastro</span>
+        <span class="vr">txtNota</span><span class="sy">.</span><span class="fn">addActionListener</span><span class="sy">(</span>
+            <span class="vr">btnCadastrar</span><span class="sy">.</span><span class="fn">getActionListeners</span><span class="sy">()[</span><span class="nu">0</span><span class="sy">]);</span>
+    <span class="sy">}</span>
+
+    <span class="cm">// ── Helpers ───────────────────────────────────────────</span>
+    <span class="kw">private void</span> <span class="fn">atualizarLista</span><span class="sy">() {</span>
+        <span class="nm">StringBuilder</span> <span class="vr">sb</span> <span class="sy">=</span> <span class="kw">new</span> <span class="nm">StringBuilder</span><span class="sy">(</span><span class="st">"[ ALUNOS CADASTRADOS ]\n"</span><span class="sy">);</span>
+        <span class="kw">for</span> <span class="sy">(</span><span class="tp">int</span> <span class="vr">i</span> <span class="sy">=</span> <span class="nu">0</span><span class="sy">;</span> <span class="vr">i</span> <span class="sy">&lt;</span> <span class="vr">alunos</span><span class="sy">.</span><span class="fn">size</span><span class="sy">();</span> <span class="vr">i</span><span class="sy">++)</span>
+            <span class="vr">sb</span><span class="sy">.</span><span class="fn">append</span><span class="sy">(</span><span class="sy">(</span><span class="vr">i</span><span class="sy">+</span><span class="nu">1</span><span class="sy">)</span> <span class="sy">+</span> <span class="st">". "</span> <span class="sy">+</span> <span class="vr">alunos</span><span class="sy">.</span><span class="fn">get</span><span class="sy">(</span><span class="vr">i</span><span class="sy">) +</span> <span class="st">"\n"</span><span class="sy">);</span>
+        <span class="vr">areaLista</span><span class="sy">.</span><span class="fn">setText</span><span class="sy">(</span><span class="vr">sb</span><span class="sy">.</span><span class="fn">toString</span><span class="sy">());</span>
+    <span class="sy">}</span>
+
+    <span class="kw">private void</span> <span class="fn">mostrarErro</span><span class="sy">(</span><span class="tp">String</span> <span class="vr">msg</span><span class="sy">) {</span>
+        <span class="nm">JOptionPane</span><span class="sy">.</span><span class="fn">showMessageDialog</span><span class="sy">(</span>
+            <span class="kw">this</span><span class="sy">,</span> <span class="vr">msg</span><span class="sy">,</span> <span class="st">"Erro"</span><span class="sy">,</span> <span class="nm">JOptionPane</span><span class="sy">.</span><span class="vr">ERROR_MESSAGE</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+    <span class="kw">public static void</span> <span class="fn">main</span><span class="sy">(</span><span class="tp">String</span><span class="sy">[]</span> <span class="vr">args</span><span class="sy">) {</span>
+        <span class="nm">SwingUtilities</span><span class="sy">.</span><span class="fn">invokeLater</span><span class="sy">(</span><span class="nm">CadastroAlunos</span><span class="sy">::</span><span class="kw">new</span><span class="sy">);</span>
+    <span class="sy">}</span>
+
+<span class="sy">}</span></code>
+        </pre>
+
+        <!-- ════════════════════════════════
+             SEÇÃO 9 — BOAS PRÁTICAS
+        ════════════════════════════════ -->
+        <h2 class="section-heading" id="sec9">
+          <span
+            class="icon"
+            style="background: rgba(86, 211, 100, 0.12); color: var(--accent3)"
+            ><i class="fas fa-star"></i
+          ></span>
+          9. Boas Práticas em Swing
+        </h2>
+
+        <div class="bp-list">
+          <div class="bp-item">
+            <div
+              class="bp-icon"
+              style="background: rgba(57, 211, 195, 0.12); color: var(--teal)"
+            >
+              <i class="fas fa-thread"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Sempre use SwingUtilities.invokeLater()</strong>
+              <span
+                >Toda criação e atualização de componentes Swing deve ocorrer na
+                Event Dispatch Thread. Ignorar isso causa comportamentos
+                imprevisíveis e bugs difíceis de reproduzir.</span
+              >
+            </div>
+          </div>
+          <div class="bp-item">
+            <div
+              class="bp-icon"
+              style="
+                background: rgba(121, 192, 255, 0.12);
+                color: var(--accent2);
+              "
+            >
+              <i class="fas fa-sitemap"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Separe a construção da interface da lógica</strong>
+              <span
+                >Use métodos como
+                <code class="inline">inicializarComponentes()</code> e
+                <code class="inline">registrarEventos()</code> para manter o
+                construtor limpo e o código organizado.</span
+              >
+            </div>
+          </div>
+          <div class="bp-item">
+            <div
+              class="bp-icon"
+              style="background: rgba(57, 211, 195, 0.12); color: var(--teal)"
+            >
+              <i class="fas fa-ban"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Nunca deixe exceções silenciosas em listeners</strong>
+              <span
+                >Um catch vazio ou que só imprime no console deixa o usuário sem
+                entender o que aconteceu. Use sempre
+                <code class="inline">JOptionPane</code> para comunicar
+                erros.</span
+              >
+            </div>
+          </div>
+          <div class="bp-item">
+            <div
+              class="bp-icon"
+              style="
+                background: rgba(227, 179, 65, 0.12);
+                color: var(--accent4);
+              "
+            >
+              <i class="fas fa-ruler"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Prefira pack() a setSize() fixo</strong>
+              <span
+                ><code class="inline">pack()</code> calcula o tamanho ideal para
+                o conteúdo, adaptando-se a fontes e resoluções diferentes.
+                <code class="inline">setSize()</code> com valores fixos quebra
+                em telas com DPI alto.</span
+              >
+            </div>
+          </div>
+          <div class="bp-item">
+            <div
+              class="bp-icon"
+              style="
+                background: rgba(188, 140, 255, 0.12);
+                color: var(--accent5);
+              "
+            >
+              <i class="fas fa-scroll"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Envolva JTextArea em JScrollPane</strong>
+              <span
+                >Se o texto ultrapassar o espaço visível, o usuário não consegue
+                rolar sem <code class="inline">JScrollPane</code>. Use sempre
+                <code class="inline">new JScrollPane(areaTexto)</code> ao
+                adicionar ao contêiner.</span
+              >
+            </div>
+          </div>
+          <div class="bp-item">
+            <div
+              class="bp-icon"
+              style="
+                background: rgba(86, 211, 100, 0.12);
+                color: var(--accent3);
+              "
+            >
+              <i class="fas fa-border-all"></i>
+            </div>
+            <div class="bp-text">
+              <strong>Use BorderFactory para margens internas</strong>
+              <span
+                ><code class="inline"
+                  >BorderFactory.createEmptyBorder(top, left, bottom,
+                  right)</code
+                >
+                adiciona espaçamento interno aos painéis, deixando a interface
+                mais arejada e profissional.</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ RESUMO ══ -->
+        <h2 class="section-heading" id="sec-resumo">
+          <span
+            class="icon"
+            style="background: rgba(188, 140, 255, 0.12); color: var(--accent5)"
+            ><i class="fas fa-check-double"></i
+          ></span>
+          Resumo da Unidade
+        </h2>
+
+        <div class="callout callout-purple">
+          <i class="fas fa-graduation-cap"></i>
+          <div class="callout-body">
+            <p><strong>O que você aprendeu nesta unidade:</strong></p>
+            <ul>
+              <li>
+                <strong>Swing</strong> é a biblioteca de GUI padrão do Java — já
+                inclusa no JDK, sem dependências extras.
+              </li>
+              <li>
+                <code class="inline">JFrame</code> é a janela principal.
+                Configure com <code class="inline">setTitle</code>,
+                <code class="inline">setDefaultCloseOperation</code>,
+                <code class="inline">pack()</code> e
+                <code class="inline">setVisible(true)</code>.
+              </li>
+              <li>
+                Sempre crie a GUI dentro de
+                <code class="inline">SwingUtilities.invokeLater()</code> para
+                garantir execução na <strong>Event Dispatch Thread</strong>.
+              </li>
+              <li>
+                Componentes como <code class="inline">JLabel</code>,
+                <code class="inline">JTextField</code>,
+                <code class="inline">JButton</code>,
+                <code class="inline">JTextArea</code> e
+                <code class="inline">JPanel</code> são a base de toda interface
+                Swing.
+              </li>
+              <li>
+                <strong>Layout Managers</strong> (<code class="inline"
+                  >FlowLayout</code
+                >, <code class="inline">BorderLayout</code>,
+                <code class="inline">GridLayout</code>) posicionam os
+                componentes de forma adaptável.
+              </li>
+              <li>
+                <strong>Listeners</strong> como
+                <code class="inline">ActionListener</code> respondem a eventos
+                do usuário. Use <strong>lambdas</strong> para simplificar.
+              </li>
+              <li>
+                Todo código que pode lançar exceção dentro de um listener deve
+                estar em <code class="inline">try/catch</code>, com erros
+                comunicados via <code class="inline">JOptionPane</code>.
+              </li>
+              <li>
+                Organizar a janela em uma
+                <strong>classe que estende JFrame</strong> com métodos separados
+                para criação e eventos torna o código limpo e manutenível.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="lesson-nav">
+          <a href="unidade06_Excecoes.html" class="nav-btn"
+            ><i class="fas fa-arrow-left"></i> Unidade 06</a
+          >
+          <span class="nav-btn disabled"
+            >Conclusão <i class="fas fa-flag-checkered"></i
+          ></span>
+        </div>
+      </div>
+      <!-- /content -->
+
+      <!-- ══ TOC ══ -->
+      <aside class="toc">
+        <div class="toc-title"><i class="fas fa-list-ul"></i> Conteúdo</div>
+        <ol>
+          <li><a href="#sec1">1. Swing vs JavaFX</a></li>
+          <li><a href="#sec2">2. Primeira Janela</a></li>
+          <li><a href="#sec2-jframe">↳ Configurações JFrame</a></li>
+          <li><a href="#sec3">3. Componentes</a></li>
+          <li><a href="#sec3-criando">↳ Adicionando</a></li>
+          <li><a href="#sec4">4. Layout Managers</a></li>
+          <li><a href="#sec5">5. Eventos</a></li>
+          <li><a href="#sec5-action">↳ ActionListener</a></li>
+          <li><a href="#sec5-tipos">↳ Tipos de evento</a></li>
+          <li><a href="#sec5-lendo">↳ Lendo componentes</a></li>
+          <li><a href="#sec6">6. Exceções na GUI</a></li>
+          <li><a href="#sec6-dialog">↳ JOptionPane</a></li>
+          <li><a href="#sec6-trycatch">↳ try/catch em listeners</a></li>
+          <li><a href="#sec7">7. Classe JFrame</a></li>
+          <li><a href="#sec8">8. App Completo</a></li>
+          <li><a href="#sec9">9. Boas Práticas</a></li>
+          <li><a href="#sec-resumo">Resumo</a></li>
+        </ol>
+      </aside>
+    </div>
+    <!-- /page-wrapper -->
+
+    <button
+      id="backToTop"
+      onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+    >
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <script>
+      const bar = document.getElementById("progressBar");
+      window.addEventListener("scroll", () => {
+        const d = document.documentElement;
+        bar.style.width =
+          (d.scrollTop / (d.scrollHeight - d.clientHeight)) * 100 + "%";
+      });
+      const btn = document.getElementById("backToTop");
+      window.addEventListener("scroll", () =>
+        btn.classList.toggle("visible", window.scrollY > 400),
+      );
+      const sections = document.querySelectorAll("[id]");
+      const tocLinks = document.querySelectorAll(".toc a");
+      sections.forEach((s) =>
+        new IntersectionObserver(
+          (entries) => {
+            entries.forEach((e) => {
+              if (e.isIntersecting) {
+                tocLinks.forEach((l) => l.classList.remove("active"));
+                const a = document.querySelector(
+                  `.toc a[href="#${e.target.id}"]`,
+                );
+                if (a) a.classList.add("active");
+              }
+            });
+          },
+          { rootMargin: "-60px 0px -70% 0px" },
+        ).observe(s),
+      );
+    </script>
+  </body>
+</html>
